@@ -1,0 +1,72 @@
+import { Avatar, Box, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { createCommentAction } from "../../redux/book/book.action";
+import { useDispatch } from "react-redux";
+
+export function CommentSection({ comments, book }) {
+  const [newComment, setNewComment] = useState("");
+  const dispatch = useDispatch();
+
+  const handleCommentChange = (event) => {
+    setNewComment(event.target.value);
+  };
+
+  const handleCreateComment = () => {
+    const reqData = {
+      bookId: book.id,
+      data: {
+        content: newComment,
+      },
+    };
+    dispatch(createCommentAction(reqData));
+    setNewComment(""); // Clear the input field after submitting
+  };
+
+  return (
+    <Box bgcolor={"#f4f4f5"} p={2} borderRadius={2}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Comments
+      </Typography>
+      <List>
+        {comments.map((comment, index) => (
+          <ListItem key={index} alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar>{comment.username ? comment.username.charAt(0) : "?"}</Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={comment.username || "Anonymous"}
+              secondary={
+                <React.Fragment>
+                  <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
+                    {comment.time}
+                  </Typography>
+                  {" — "}
+                  {comment.content}
+                </React.Fragment>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+      <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Enter your comment..."
+          value={newComment}
+          onChange={handleCommentChange}
+          sx={{ bgcolor: "white", borderRadius: 1 }}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleCreateComment();
+              console.log("Enter button pressed.", newComment);
+            }
+          }}
+        />
+        <Button variant="contained" color="primary" onClick={handleCreateComment} sx={{ ml: 2 }}>
+          Submit
+        </Button>
+      </Box>
+    </Box>
+  );
+}

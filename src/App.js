@@ -10,9 +10,9 @@ import CreateBookPage from "./pages/CreateBookPage/CreateBookPage";
 import { CircularProgress } from "@mui/material";
 import BookDetailPage from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
-import ManageGallery from "./pages/Gallery/ManageGallery";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
-import ManageTagPage from "./pages/Tag/ManageTagPage";
+import Dashboard from "./pages/Admin/Dashboard";
+
 function App() {
   const dispatch = useDispatch();
   const { auth } = useSelector((store) => store);
@@ -39,8 +39,7 @@ function App() {
         <Route path="/createBookPage" element={<CreateBookPage />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
-        <Route path="/manage-gallery" element={<ManageGallery />} />
-        <Route path="/manage-tags" element={<ManageTagPage />} />
+        <Route path="/admin" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <LandingPage />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
       </Routes>
     </div>

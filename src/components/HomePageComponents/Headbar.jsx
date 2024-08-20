@@ -194,9 +194,7 @@ function Headbar() {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-      <MenuItem onClick={goToAddBookPage}>Upload Book</MenuItem>
-      <MenuItem onClick={goToManageGalleryPage}>Manage Gallery</MenuItem>
-      <MenuItem onClick={() => navigate("/manage-tags")}>Manage Tags</MenuItem>
+      <MenuItem onClick={() => navigate("/admin")}>Admin Dashboard</MenuItem>
       <MenuItem onClick={handleLogOut}>Log out</MenuItem>
     </Menu>
   );

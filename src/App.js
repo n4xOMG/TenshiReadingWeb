@@ -2,7 +2,6 @@ import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 import Authentication from "./pages/Auth/Authentication";
-import LandingPage from "./pages/HomePage/HomePage";
 import { useEffect, useState } from "react";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
 import UploadChapterPage from "./pages/UploadChapterPage/UploadChapterPage";
@@ -40,7 +39,7 @@ function App() {
         <Route path="/createBookPage" element={<CreateBookPage />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
-        <Route path="/admin" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <LandingPage />} />
+        <Route path="/admin" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
       </Routes>
     </div>

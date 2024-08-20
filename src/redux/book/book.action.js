@@ -1,5 +1,11 @@
 import { api, API_BASE_URL } from "../../api/api";
 import {
+  GET_CHAPTERS_BY_BOOK_FAILED,
+  GET_CHAPTERS_BY_BOOK_SUCCESS,
+  GET_PROGRESS_FAILED,
+  GET_PROGRESS_SUCCESS,
+} from "../chapter/chapter.actionType";
+import {
   BOOK_DELETE_FAILED,
   BOOK_DELETE_REQUEST,
   BOOK_DELETE_SUCCEED,
@@ -45,9 +51,67 @@ export const getBookByIdAction = (bookId) => async (dispatch) => {
     const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}`);
     console.log("Got book: ", data);
     dispatch({ type: GET_BOOK_SUCCESS, payload: data });
+    return { payload: data };
   } catch (error) {
     console.log("Api error when trying to retreiving book: ", error);
     dispatch({ type: GET_BOOK_FAILED, payload: error.message });
+  }
+};
+
+export const getBookDetailsAndChaptersAction = (bookId, userId) => async (dispatch) => {
+  console.log("Action getBookDetailsAndChaptersAction dispatched");
+  dispatch({ type: GET_BOOK_REQUEST });
+  try {
+    // Fetch book data
+    const bookResponse = await api.get(`${API_BASE_URL}/api/books/${bookId}`);
+    const book = bookResponse.data;
+    console.log("Got book: ", book);
+
+    // Fetch chapters data
+    const chaptersResponse = await api.get(`${API_BASE_URL}/api/books/${bookId}/chapters`);
+    const chapters = chaptersResponse.data;
+    console.log("Got chapters: ", chapters);
+
+    // Fetch reading progress data
+    const readingProgress = await Promise.all(
+      chapters.map(async (chapter) => {
+        const progressResponse = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}/${chapter.id}`);
+        return progressResponse.data;
+      })
+    );
+    console.log("Got reading progress: ", readingProgress);
+
+    // Dispatch actions with the fetched data
+    dispatch({
+      type: GET_BOOK_SUCCESS,
+      payload: book,
+    });
+
+    dispatch({
+      type: GET_CHAPTERS_BY_BOOK_SUCCESS,
+      payload: chapters,
+    });
+
+    dispatch({
+      type: GET_PROGRESS_SUCCESS,
+      payload: readingProgress,
+    });
+  } catch (error) {
+    console.log("Api error when trying to retrieve data: ", error);
+    dispatch({
+      type: GET_BOOK_FAILED,
+      payload: error.message,
+    });
+
+    dispatch({
+      type: GET_CHAPTERS_BY_BOOK_FAILED,
+      payload: error.message,
+    });
+
+    dispatch({
+      type: GET_PROGRESS_FAILED,
+      payload: error.message,
+    });
   }
 };
 

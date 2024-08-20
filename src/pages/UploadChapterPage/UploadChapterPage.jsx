@@ -54,11 +54,11 @@ const UploadChapterPage = () => {
     console.log("Form Data:", json); // Log the form data
     try {
       const response = await dispatch(addChapterAction(bookId, { data: json }));
-      console.log("Response:", response); // Log the response
-      setOpen(false); // Hide backdrop
+      console.log("Response:", response);
+      setOpen(false);
       navigate("/");
     } catch (error) {
-      console.error("Error submitting form:", error); // Log any errors
+      console.error("Error submitting form:", error);
     }
   };
 
@@ -70,9 +70,6 @@ const UploadChapterPage = () => {
       dispatch(getCurrentUserByJwt(jwt)).finally(() => setOpen(false));
     }
   }, [dispatch, jwt]);
-  useEffect(() => {
-    console.log("User:", auth.user.id); // Log the user object to verify its structure
-  }, [auth.user.id]);
   return (
     <div>
       <Box component="form" onSubmit={handleSubmit} noValidate className="rounded-lg border-stone-950 px-3">

@@ -24,6 +24,7 @@ export const getAllChaptersByBookIdAction = (bookId) => async (dispatch) => {
     const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}/chapters`);
     console.log("Got chapters: ", data);
     dispatch({ type: GET_ALL_CHAPTER_SUCCESS, payload: data });
+    return { payload: data };
   } catch (error) {
     dispatch({ type: GET_ALL_CHAPTER_FAILED, payload: error.message });
   }
@@ -73,6 +74,7 @@ export const getReadingProgressByUserAndChapter = (userId, chapterId) => async (
     const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}/${chapterId}`);
     console.log("Got progress for ", chapterId, ": ", data);
     dispatch({ type: GET_PROGRESS_SUCCESS, payload: data });
+    return { payload: data };
   } catch (error) {
     dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }

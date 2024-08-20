@@ -1,44 +1,44 @@
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import HomeIcon from "@mui/icons-material/Home";
 import ImageIcon from "@mui/icons-material/Image";
-import PeopleIcon from "@mui/icons-material/People";
-import { Avatar, Box, IconButton, Link, Menu, MenuItem, Typography } from "@mui/material";
-import React, { useState } from "react";
-
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import ManageUser from "../../components/AdminPageComponents/ManageUser";
-import ManageBookPage from "../../components/AdminPageComponents/ManageBookPage";
-import ManageGallery from "../../components/AdminPageComponents/ManageGallery";
+import PeopleIcon from "@mui/icons-material/People";
+import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import ManageTagPage from "../../components/AdminPageComponents/ManageTagPage";
-export default function Dashboard() {
+import ImageGalleryPage from "../Gallery/ImageGalleryPage";
+import LandingPage from "./LandingPage";
+export default function UserPages() {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const [currentPage, setCurrentPage] = useState("users");
 
   const menuItems = [
-    { name: "Users", page: "users", icon: <PeopleIcon /> },
+    { name: "Home", page: "home", icon: <HomeIcon /> },
     { name: "Books", page: "books", icon: <LibraryBooksIcon /> },
     { name: "Gallery", page: "gallery", icon: <ImageIcon /> },
-    { name: "Image Tags", page: "tags", icon: <LocalOfferIcon /> },
+    { name: "Characters", page: "characters", icon: <PeopleIcon /> },
+    { name: "FAQ", page: "faq", icon: <HelpOutlineIcon /> },
   ];
   const renderMainContent = () => {
     switch (currentPage) {
-      case "users":
-        return <ManageUser />;
-      case "books":
-        return <ManageBookPage />;
+      case "home":
+        return <LandingPage />;
       case "gallery":
-        return <ManageGallery />;
+        return <ImageGalleryPage />;
       case "tags":
         return <ManageTagPage />;
       default:
-        return <ManageUser />;
+        return <LandingPage />;
     }
   };
 
   return (
-    <Box sx={{ display: "grid", minHeight: "100vh", width: "100%", gridTemplateColumns: "280px 1fr" }}>
+    <Box
+      sx={{ display: "grid", minHeight: "100vh", maxHeight: "100%", objectFit: "contain", width: "100%", gridTemplateColumns: "280px 1fr" }}
+    >
       {/* Sidebar */}
       <Box
         sx={{
@@ -49,13 +49,13 @@ export default function Dashboard() {
           maxHeight: "100vh",
           borderRight: 1,
           borderColor: "divider",
-          bgcolor: "grey.900",
+          bgcolor: "grey.100",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", height: 60, borderBottom: 1, borderColor: "divider", px: 6 }}>
           <Link
             href="/"
-            sx={{ display: "flex", alignItems: "center", gap: 2, fontWeight: "bold", textDecoration: "none", color: "grey.400" }}
+            sx={{ display: "flex", alignItems: "center", gap: 2, fontWeight: "bold", textDecoration: "none", color: "grey.100" }}
           >
             <HomeIcon sx={{ height: 24, width: 24 }} />
             <Typography variant="h6">Acme Admin</Typography>
@@ -78,9 +78,9 @@ export default function Dashboard() {
                   transition: "all 0.3s",
                   textDecoration: "none",
                   color: currentPage === item.page ? "white" : "grey.400",
-                  bgcolor: currentPage === item.page ? "grey.700" : "transparent",
+                  bgcolor: currentPage === item.page ? "grey.400" : "transparent",
                   "&:hover": {
-                    bgcolor: "grey.700",
+                    bgcolor: "grey.400",
                     color: "white",
                   },
                 }}
@@ -93,9 +93,9 @@ export default function Dashboard() {
         </Box>
       </Box>
 
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <Box
-          sx={{ display: "flex", alignItems: "center", height: 60, borderBottom: 1, borderColor: "divider", bgcolor: "grey.800", px: 6 }}
+          sx={{ display: "flex", alignItems: "center", height: 60, borderBottom: 1, borderColor: "divider", bgcolor: "grey.100", px: 6 }}
         >
           <Link
             href="#"
@@ -121,7 +121,7 @@ export default function Dashboard() {
           </Menu>
         </Box>
         {/* Main Content */}
-        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, p: 4 }}>{renderMainContent()}</Box>
+        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, p: 4, overflow: "auto" }}>{renderMainContent()}</Box>
       </Box>
     </Box>
   );

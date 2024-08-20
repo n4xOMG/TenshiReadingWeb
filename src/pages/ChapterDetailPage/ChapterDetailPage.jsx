@@ -9,12 +9,14 @@ import { AppBar, Avatar, Box, IconButton, Toolbar, Typography } from "@mui/mater
 import { ChevronLeft } from "@mui/icons-material";
 
 export default function ChapterDetailPage() {
-  const { bookId, chapterId } = useParams();
+  const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { chapter } = useSelector((store) => store.chapter);
   const { book } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
+  const [bookId] = useState(paramBookId);
+  const [chapterId] = useState(paramChapterId);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -90,7 +92,7 @@ export default function ChapterDetailPage() {
     <div className="flex flex-col w-full h-full items-center bg-[#202124]">
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="back home" onClick={() => navigate("/")}>
+          <IconButton edge="start" color="inherit" aria-label="back home" onClick={() => navigate(`/books/${bookId}`)}>
             <ChevronLeft />
           </IconButton>
           <Typography variant="h6" noWrap sx={{ flexGrow: 1, textAlign: "center" }}>

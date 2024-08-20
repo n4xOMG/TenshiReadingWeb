@@ -12,6 +12,7 @@ import BookDetailPage from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
 import Dashboard from "./pages/Admin/Dashboard";
+import UserPages from "./pages/HomePage/UserPages";
 
 function App() {
   const dispatch = useDispatch();
@@ -34,7 +35,7 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/*" element={auth.user ? <LandingPage /> : <Authentication />} />
+        <Route path="/*" element={auth.user ? <UserPages /> : <Authentication />} />
         <Route path="/books/:bookId/uploadChapterPage" element={<UploadChapterPage />} />
         <Route path="/createBookPage" element={<CreateBookPage />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />

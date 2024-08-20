@@ -15,12 +15,12 @@ export default function CreateBookPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setOpen(true); // Show backdrop
+    setOpen(true);
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
     json.bookCover = selectedImage;
     await dispatch(addNewBookAction({ data: json }));
-    setOpen(false); // Hide backdrop
+    setOpen(false);
     navigate("/");
   };
 

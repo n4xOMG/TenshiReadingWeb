@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Flipbook } from "../../components/ChapterDetailComponents/Flipbook";
 import { getBookByIdAction } from "../../redux/book/book.action";
-import { getChapterById, saveChapterProgressAction } from "../../redux/chapter/chapter.action";
+import { getChapterById, getReadingProgressByUserAndChapter, saveChapterProgressAction } from "../../redux/chapter/chapter.action";
 import { splitContent } from "./SplitContent";
 import { AppBar, Avatar, Box, IconButton, Toolbar, Typography } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
@@ -15,6 +15,7 @@ export default function ChapterDetailPage() {
   const { chapter } = useSelector((store) => store.chapter);
   const { book } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
+  const { progresses } = useSelector((store) => store.chapter);
   const [bookId] = useState(paramBookId);
   const [chapterId] = useState(paramChapterId);
   const [currentPage, setCurrentPage] = useState(0);
@@ -24,6 +25,9 @@ export default function ChapterDetailPage() {
   useEffect(() => {
     dispatch(getBookByIdAction(bookId));
     dispatch(getChapterById(bookId, chapterId));
+    if (!progresses[chapterId]) {
+      dispatch(getReadingProgressByUserAndChapter(chapterId, auth.user.id));
+    }
   }, [dispatch, bookId, chapterId]);
 
   const handlePageFlip = (e) => {
@@ -41,6 +45,14 @@ export default function ChapterDetailPage() {
     }
     dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
   }, [dispatch, bookId, chapterId, auth.user.id, currentPage, totalPages]);
+
+  useEffect(() => {
+    if (totalPages > 0 && progresses[chapterId]) {
+      const progress = progresses[chapterId];
+      const pageIndex = Math.floor((progress / 100) * totalPages);
+      setCurrentPage(pageIndex);
+    }
+  }, [totalPages, progresses, chapterId]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {

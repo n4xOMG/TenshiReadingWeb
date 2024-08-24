@@ -38,7 +38,7 @@ export function CommentSection({ comments, book }) {
               secondary={
                 <React.Fragment>
                   <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
-                    {comment.time}
+                    {comment.createdAt}
                   </Typography>
                   {" — "}
                   {comment.content}

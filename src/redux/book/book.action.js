@@ -128,12 +128,13 @@ export const addNewBookAction = (bookData) => async (dispatch) => {
   }
 };
 export const editBookAction = (bookData) => async (dispatch) => {
-  console.log("Action editBookAction dispatched");
+  const { bookDetails, bookCover, ...data } = bookData;
+  data.bookCover = bookCover;
   dispatch({ type: BOOK_EDIT_REQUEST });
   try {
-    const { data } = await api.put(`${API_BASE_URL}/api/translator/books/${bookData.bookId}`, bookData.data);
-    console.log("Book edited", data);
-    dispatch({ type: BOOK_EDIT_SUCCEED, payload: data });
+    const response = await api.put(`${API_BASE_URL}/api/translator/books/${bookDetails.id}`, data);
+    console.log("Book edited", response.data);
+    dispatch({ type: BOOK_EDIT_SUCCEED, payload: response.data });
   } catch (error) {
     console.log("Api error when trying to edit book: ", error);
     dispatch({ type: BOOK_EDIT_FAILED, payload: error.message });

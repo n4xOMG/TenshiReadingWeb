@@ -1,19 +1,13 @@
-import { MenuBook, Person as UserIcon } from "@mui/icons-material";
-import DehazeIcon from "@mui/icons-material/Dehaze";
+import { Home as HomeIcon, MenuBook, Person as UserIcon } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
-import HomeIcon from "@mui/icons-material/Home";
 import ImageIcon from "@mui/icons-material/Image";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PeopleIcon from "@mui/icons-material/People";
-import { Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import { Backdrop, Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import LandingPage from "./LandingPage";
-export default function UserPages() {
+export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
@@ -21,24 +15,13 @@ export default function UserPages() {
     { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
     { text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" },
   ];
-
   return (
-    <Box
-      sx={{
-        display: "grid",
-        minHeight: "100vh",
-        maxHeight: "100%",
-        objectFit: "contain",
-        width: "100%",
-        gridTemplateColumns: isSmallScreen ? "1fr" : "280px 1fr",
-      }}
-    >
-      {/* Sidebar */}
+    <>
+      <Backdrop open={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} sx={{ zIndex: 1 }} />
       <Drawer
-        variant={isSmallScreen ? "temporary" : "persistent"}
+        variant="persistent"
         anchor="left"
         open={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
         sx={{
           width: 256,
           flexShrink: 0,
@@ -67,7 +50,7 @@ export default function UserPages() {
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <MenuBook sx={{ fontSize: 32, color: "primary.main" }} />
-              <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>Tenshi</Box>
+              <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>BookNook</Box>
             </Box>
             <IconButton
               onClick={() => setIsSidebarOpen(false)}
@@ -102,33 +85,6 @@ export default function UserPages() {
           </Box>
         </Box>
       </Drawer>
-
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        {/* Main Content */}
-        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, px: 4, overflow: "auto" }}>
-          <LandingPage />
-        </Box>
-      </Box>
-
-      {!isSidebarOpen && (
-        <IconButton
-          onClick={() => setIsSidebarOpen(true)}
-          sx={{
-            position: "fixed",
-            top: 16,
-            left: 16,
-            zIndex: 3,
-            backgroundColor: "white",
-            border: "1px solid",
-            borderColor: "grey.300",
-            "&:hover": {
-              backgroundColor: "grey.100",
-            },
-          }}
-        >
-          <DehazeIcon />
-        </IconButton>
-      )}
-    </Box>
+    </>
   );
 }

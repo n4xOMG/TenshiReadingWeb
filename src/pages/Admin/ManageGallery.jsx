@@ -26,7 +26,7 @@ export default function ManageGallery() {
   }, [dispatch]);
 
   return (
-    <Box sx={{ bgcolor: "gray.900", color: "white", minHeight: "100vh", p: 4 }}>
+    <Box sx={{ bgcolor: "gray.900", color: "white", maxWidth: "100%", width: "100%", height: "100%", p: 4 }}>
       {/* Navigation Bar */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }} onClick={() => navigate("/")}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>

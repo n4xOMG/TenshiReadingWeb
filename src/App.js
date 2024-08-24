@@ -12,6 +12,8 @@ import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
 import Dashboard from "./pages/Admin/Dashboard";
 import UserPages from "./pages/HomePage/UserPages";
+import ProfilePage from "./pages/HomePage/ProfilePage";
+import BooksPage from "./pages/HomePage/BooksPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,6 +43,8 @@ function App() {
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
         <Route path="/admin" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/books" element={<BooksPage />} />
       </Routes>
     </div>
   );

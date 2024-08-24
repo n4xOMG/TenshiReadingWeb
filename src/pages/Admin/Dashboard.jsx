@@ -6,10 +6,10 @@ import React, { useState } from "react";
 
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import ManageUser from "../../components/AdminPageComponents/ManageUser";
-import ManageBookPage from "../../components/AdminPageComponents/ManageBookPage";
-import ManageGallery from "../../components/AdminPageComponents/ManageGallery";
-import ManageTagPage from "../../components/AdminPageComponents/ManageTagPage";
+import ManageUser from "./ManageUser";
+import ManageBookPage from "./ManageBookPage";
+import ManageGallery from "./ManageGallery";
+import ManageTagPage from "./ManageTagPage";
 export default function Dashboard() {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -61,7 +61,7 @@ export default function Dashboard() {
             <Typography variant="h6">Acme Admin</Typography>
           </Link>
         </Box>
-        <Box sx={{ flex: 1, overflow: "auto", py: 2 }}>
+        <Box sx={{ flex: 1, overflow: "auto" }}>
           <nav sx={{ display: "grid", gap: 2, px: 4, fontSize: "0.875rem", fontWeight: "medium" }}>
             {menuItems.map((item) => (
               <Link
@@ -121,7 +121,7 @@ export default function Dashboard() {
           </Menu>
         </Box>
         {/* Main Content */}
-        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, p: 4 }}>{renderMainContent()}</Box>
+        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4 }}>{renderMainContent()}</Box>
       </Box>
     </Box>
   );

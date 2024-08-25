@@ -14,16 +14,19 @@ export const InsertImageButton = () => {
         type="file"
         id="fileInput"
         style={{ display: "none" }}
+        multiple
         onChange={async (event) => {
           event.preventDefault();
-          const file = event.target.files[0]; // get the file from the event
-          if (file) {
-            const url = await UploadToCloudinary(file); // pass the file to UploadToCloudinary
-            if (url && !isImageUrl(url)) {
-              alert("URL is not an image");
-              return;
+          const files = event.target.files;
+          if (files) {
+            for (const file of files) {
+              const url = await UploadToCloudinary(file);
+              if (url && !isImageUrl(url)) {
+                alert("URL is not an image");
+                return;
+              }
+              url && insertImage(editor, url);
             }
-            url && insertImage(editor, url);
           }
         }}
       />

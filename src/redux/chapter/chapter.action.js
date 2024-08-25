@@ -109,3 +109,15 @@ export const getReadingProgressByUserAndChapter = (userId, chapterId) => async (
     dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }
 };
+export const getReadingProgressByUser = (userId) => async (dispatch) => {
+  dispatch({ type: GET_PROGRESS_REQUEST });
+  console.log("Action getReadingProgressByUserAndChapter dispatched");
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}`);
+    console.log("Got progress for ", userId, ": ", data);
+    dispatch({ type: GET_PROGRESS_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
+  }
+};

@@ -1,26 +1,26 @@
 import { FavoriteBorder, MenuBook, Star } from "@mui/icons-material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import DehazeIcon from "@mui/icons-material/Dehaze";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Box, Button, CircularProgress, Grid, IconButton, LinearProgress, List, ListItem, ListItemText, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { CommentSection } from "../../components/BookPageComponents/CommentSection";
+import Sidebar from "../../components/BookPageComponents/Sidebar";
 import { followBookAction, getBookDetailsAndChaptersAction } from "../../redux/book/book.action";
 import { isFollowedByReqUser } from "../../utils/isFollowedByReqUser";
-import Sidebar from "../../components/BookPageComponents/Sidebar";
 
 export default function BookDetailPage() {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
-  const { chapters, progresses } = useSelector((store) => store.chapter);
+  const { chapters, progresses = [] } = useSelector((store) => store.chapter);
   const { book } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
-  const commentSectionRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [overallProgress, setOverallProgress] = useState(0);
   const fetchBookAndChapterDetails = async () => {
     if (auth.user) {
       setLoading(true);
@@ -46,13 +46,23 @@ export default function BookDetailPage() {
     return () => clearTimeout(timer);
   }, [book, chapters, progresses]);
 
+  useEffect(() => {
+    if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
+      const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
+      const averageProgress = totalProgress / chapters.length;
+      const roundedProgress = Math.floor(averageProgress);
+      console.log("Rounded progress: ", roundedProgress);
+      setOverallProgress(roundedProgress);
+    }
+  }, [chapters, progresses]);
+
   const handleFollowBook = async () => {
-    dispatch(followBookAction(bookId));
-    fetchBookAndChapterDetails();
-    setIsFavorite(!isFavorite);
-  };
-  const scrollToCommentSection = () => {
-    commentSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    try {
+      await dispatch(followBookAction(bookId));
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Error following book:", error);
+    }
   };
 
   return (
@@ -132,6 +142,7 @@ export default function BookDetailPage() {
               </Box>
               <Button
                 fullWidth
+                onClick={() => navigate(`/books/${bookId}/chapters/${chapters[0].id}`)}
                 sx={{
                   mt: 4,
                   backgroundColor: "black",
@@ -167,7 +178,7 @@ export default function BookDetailPage() {
                 </Typography>
                 <LinearProgress
                   variant="determinate"
-                  value={50}
+                  value={overallProgress}
                   sx={{
                     width: "100%",
                     "& .MuiLinearProgress-root": {
@@ -178,7 +189,7 @@ export default function BookDetailPage() {
                     },
                   }}
                 />
-                <Typography sx={{ textAlign: "right", color: "gray.600", mt: 1 }}>1% Complete</Typography>
+                <Typography sx={{ textAlign: "right", color: "gray.600", mt: 1 }}>{overallProgress}% Complete</Typography>
               </Box>
               <Box sx={{ mb: 6 }}>
                 <Typography variant="h5" sx={{ mb: 2, textAlign: "left", fontWeight: "bold" }}>
@@ -186,7 +197,7 @@ export default function BookDetailPage() {
                 </Typography>
                 <List sx={{ spaceY: 2 }}>
                   {chapters?.map((chapter, index) => {
-                    const progress = progresses.find((p) => Number(p.chapterId) === Number(chapter.id));
+                    const progress = Array.isArray(progresses) ? progresses.find((p) => Number(p.chapterId) === Number(chapter.id)) : null;
                     return (
                       <ListItem
                         key={index}
@@ -223,9 +234,6 @@ export default function BookDetailPage() {
                               },
                             }}
                           />
-                          <Typography variant="body2" sx={{ color: "gray" }}>
-                            {progress ? `${progress.progress.toFixed(1)}%` : "0%"}
-                          </Typography>
                         </Box>
                       </ListItem>
                     );
@@ -233,11 +241,7 @@ export default function BookDetailPage() {
                 </List>
               </Box>
               <Box sx={{ mb: 6 }}>
-                {book && book.comments ? (
-                  <CommentSection comments={book.comments} book={book} />
-                ) : (
-                  <Typography variant="body1">Loading comments...</Typography>
-                )}
+                {book && book.comments ? <CommentSection book={book} /> : <Typography variant="body1">Loading comments...</Typography>}
               </Box>
             </Grid>
           </Grid>

@@ -1,7 +1,8 @@
-import { Box, Button, Card, Grid, IconButton, Typography } from "@mui/material";
-import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { Box, Card, Grid, IconButton, Typography } from "@mui/material";
+import React from "react";
+import { getWebPUrl } from "../../../utils/cloudinaryHandlePNG";
 export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style }) => {
   return (
     <Grid item xs={12} style={style}>
@@ -13,18 +14,22 @@ export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style })
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => onSelect(book.id)}>
-          <img
-            src={book.bookCover}
-            alt={book.title}
-            width={80}
-            height={120}
-            style={{
-              borderRadius: "4px",
-              marginRight: "16px",
-              aspectRatio: "80/120",
-              objectFit: "cover",
-            }}
-          />
+          <picture>
+            <source srcSet={getWebPUrl(book.bookCover)} type="image/webp" />
+            <img
+              src={book.bookCover}
+              alt={book.title}
+              loading="lazy"
+              width={80}
+              height={120}
+              style={{
+                borderRadius: "4px",
+                marginRight: "16px",
+                aspectRatio: "80/120",
+                objectFit: "cover",
+              }}
+            />
+          </picture>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: "medium" }}>
               {book.title}

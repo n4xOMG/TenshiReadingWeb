@@ -26,6 +26,7 @@ export const Image = ({ attributes, children, element }) => {
             display: block;
             max-width: 100%;
             max-height: 20em;
+            page-break-after: always;
             box-shadow: ${selected && focused ? "0 0 0 3px #B4D5FF" : "none"};
           `}
         />

@@ -41,15 +41,32 @@ export function splitContent(content, wordsPerPage) {
           currentWordCount += word.length;
         });
       } else if (node.type === "tag") {
-        currentPage += `<${node.name}`;
-        if (node.attribs) {
-          Object.keys(node.attribs).forEach((attr) => {
-            currentPage += ` ${attr}="${node.attribs[attr]}"`;
-          });
+        if (node.name === "img") {
+          if (currentPage) {
+            pages.push(currentPage);
+            currentPage = "";
+            currentWordCount = 0;
+          }
+          currentPage += `<${node.name}`;
+          if (node.attribs) {
+            Object.keys(node.attribs).forEach((attr) => {
+              currentPage += ` ${attr}="${node.attribs[attr]}"`;
+            });
+          }
+          currentPage += ">";
+          pages.push(currentPage);
+          currentPage = "";
+        } else {
+          currentPage += `<${node.name}`;
+          if (node.attribs) {
+            Object.keys(node.attribs).forEach((attr) => {
+              currentPage += ` ${attr}="${node.attribs[attr]}"`;
+            });
+          }
+          currentPage += ">";
+          traverseDom(node.children);
+          currentPage += `</${node.name}>`;
         }
-        currentPage += ">";
-        traverseDom(node.children);
-        currentPage += `</${node.name}>`;
       }
     });
   };

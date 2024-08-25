@@ -1,9 +1,10 @@
 import { Avatar, Box, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { createCommentAction } from "../../redux/book/book.action";
+import { createCommentAction, getAllCommentByBookAction } from "../../redux/book/book.action";
 import { useDispatch } from "react-redux";
 
-export function CommentSection({ comments, book }) {
+export function CommentSection({ book }) {
+  const [comments, setComments] = useState(book.comments);
   const [newComment, setNewComment] = useState("");
   const dispatch = useDispatch();
 
@@ -11,15 +12,17 @@ export function CommentSection({ comments, book }) {
     setNewComment(event.target.value);
   };
 
-  const handleCreateComment = () => {
+  const handleCreateComment = async () => {
     const reqData = {
       bookId: book.id,
       data: {
         content: newComment,
       },
     };
-    dispatch(createCommentAction(reqData));
-    setNewComment(""); // Clear the input field after submitting
+    await dispatch(createCommentAction(reqData));
+    const results = await dispatch(getAllCommentByBookAction(book.id));
+    setComments(results.payload);
+    setNewComment("");
   };
 
   return (

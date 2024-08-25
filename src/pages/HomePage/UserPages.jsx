@@ -1,6 +1,6 @@
 import { MenuBook, Person as UserIcon } from "@mui/icons-material";
-import DehazeIcon from "@mui/icons-material/Dehaze";
 import CloseIcon from "@mui/icons-material/Close";
+import DehazeIcon from "@mui/icons-material/Dehaze";
 import HomeIcon from "@mui/icons-material/Home";
 import ImageIcon from "@mui/icons-material/Image";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import LandingPage from "./LandingPage";
 export default function UserPages() {
   const navigate = useNavigate();
+
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);

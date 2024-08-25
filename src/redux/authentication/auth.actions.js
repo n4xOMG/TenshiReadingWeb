@@ -61,6 +61,7 @@ export const getCurrentUserByJwt = (jwt) => async (dispatch) => {
 
     console.log("Profile", data);
     dispatch({ type: GET_PROFILE_SUCCESS, payload: data });
+    return { payload: data };
   } catch (error) {
     console.log("Api error: ", error);
     dispatch({ type: GET_PROFILE_FAILED, payload: error.message });

@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllBookAction } from "../../redux/book/book.action";
+import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -130,11 +131,13 @@ export default function BooksPage() {
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: 1, textAlign: "left" }}>
                   <strong>First Published:</strong>{" "}
-                  {books.length > 0 && books[0].publishDate ? `${books[0].publishDate}` : "No publish date"}
+                  {books.length > 0 && books[0].publishDate ? `${formatDate(books[0].publishDate)}` : "No publish date"}
                 </Typography>
                 <Typography variant="body2" sx={{ textAlign: "left" }}>
                   <strong>Latest Book:</strong>{" "}
-                  {books.length > 0 ? `${books[books.length - 1].title} (${books[books.length - 1].publishDate})` : "No books available"}
+                  {books.length > 0
+                    ? `${books[books.length - 1]?.title} (${formatDate(books[books.length - 1]?.publishDate)})`
+                    : "No books available"}
                 </Typography>
               </Box>
             </Box>
@@ -200,9 +203,11 @@ export default function BooksPage() {
                           Description
                         </Typography>
                         <Typography variant="body2" sx={{ textAlign: "left" }}>
-                          {showFullDescription ? selectedBook.description : `${selectedBook.description.slice(0, 200)}...`}
+                          {showFullDescription && selectedBook.description
+                            ? selectedBook.description
+                            : `${selectedBook.description?.slice(0, 200)}...`}
                         </Typography>
-                        {selectedBook.description.length > 200 && (
+                        {selectedBook.description?.length > 200 && (
                           <Button
                             variant="text"
                             onClick={() => setShowFullDescription(!showFullDescription)}
@@ -215,7 +220,17 @@ export default function BooksPage() {
 
                       <Button
                         variant="contained"
-                        sx={{ width: "100%", mt: 4 }}
+                        sx={{
+                          width: "100%",
+                          mt: 4,
+                          backgroundColor: "black",
+                          color: "white",
+                          height: 50,
+                          borderRadius: 2,
+                          "&:hover": {
+                            backgroundColor: "darkgray",
+                          },
+                        }}
                         size="large"
                         onClick={() => navigate(`/books/${selectedBook.id}`)}
                       >
@@ -230,8 +245,6 @@ export default function BooksPage() {
                 No book selected
               </Typography>
             )}
-
-            {/* Book List */}
             <Typography variant="h5" sx={{ mt: 8, mb: 4, textAlign: "left" }}>
               All Books in the Series
             </Typography>
@@ -248,7 +261,15 @@ export default function BooksPage() {
                   sx={{ overflow: "hidden", transition: "all 0.3s", "&:hover": { boxShadow: 6 }, cursor: "pointer" }}
                   onClick={() => setSelectedBook(book)}
                 >
-                  <img src={book.bookCover} alt={`Cover of ${book.title}`} style={{ width: "100%", height: "10rem", objectFit: "cover" }} />
+                  <picture>
+                    <source srcSet={getWebPUrl(book.bookCover)} type="image/webp" />
+                    <img
+                      src={book.bookCover}
+                      alt={`Cover of ${book.title}`}
+                      loading="lazy"
+                      style={{ width: "100%", height: "10rem", objectFit: "cover" }}
+                    />
+                  </picture>
                   <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: "left" }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: "bold", textAlign: "left" }}>
                       {book.title}

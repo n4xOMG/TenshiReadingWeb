@@ -1,13 +1,15 @@
 import { Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addNewBookAction } from "../../../../../redux/book/book.action";
+import { addNewBookAction, getAllBookAction } from "../../../../../redux/book/book.action";
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
-
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 export default function AddBookModal({ open, onClose }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [publishDate, setPublishDate] = useState(new Date());
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -15,7 +17,9 @@ export default function AddBookModal({ open, onClose }) {
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
     json.bookCover = selectedImage;
+    json.publishDate = publishDate.toISOString();
     await dispatch(addNewBookAction({ data: json }));
+    await dispatch(getAllBookAction());
     onClose();
   };
 
@@ -40,6 +44,13 @@ export default function AddBookModal({ open, onClose }) {
             <TextField margin="normal" required fullWidth id="authorName" label="Author's name" name="authorName" />
             <TextField margin="normal" required fullWidth id="artistName" label="Artist's name" name="artistName" />
             <TextField margin="normal" required fullWidth id="description" label="Book description" name="description" />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="Publish Date"
+                onChange={(newValue) => setPublishDate(newValue)}
+                renderInput={(params) => <TextField {...params} fullWidth margin="normal" required />}
+              />
+            </LocalizationProvider>
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Button

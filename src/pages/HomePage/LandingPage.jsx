@@ -1,13 +1,10 @@
-import { Box, CircularProgress, Container, Grid, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, CircularProgress, Container, Grid, Link, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getAllBookAction } from "../../redux/book/book.action";
+import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
 function shuffleArray(array) {
   return array.sort(() => Math.random() - 0.5);
-}
-
-function getWebPUrl(pngUrl) {
-  return pngUrl.replace("/upload/", "/upload/f_auto,q_auto/");
 }
 
 function duplicateImages(images, targetLength) {
@@ -22,8 +19,6 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(null);
   const dispatch = useDispatch();
 
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true);

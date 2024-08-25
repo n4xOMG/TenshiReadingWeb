@@ -1,6 +1,7 @@
-import { Button, Card, CardContent, Grid, Typography } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { Box, Card, CardContent, Grid, IconButton, Typography } from "@mui/material";
 import React from "react";
-
 export const ChapterItem = React.memo(({ chapter, onEdit, onDelete, style }) => {
   return (
     <Grid item xs={12} style={style}>
@@ -9,24 +10,26 @@ export const ChapterItem = React.memo(({ chapter, onEdit, onDelete, style }) => 
           <Typography variant="subtitle1" sx={{ fontWeight: "medium" }}>
             {chapter.title}
           </Typography>
-          <Button
-            size="small"
-            onClick={(event) => {
-              event.stopPropagation();
-              onEdit(chapter);
-            }}
-          >
-            Edit
-          </Button>
-          <Button
-            size="small"
-            onClick={(event) => {
-              event.stopPropagation();
-              onDelete(chapter);
-            }}
-          >
-            Delete
-          </Button>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              size="small"
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(chapter);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(chapter);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </CardContent>
       </Card>
     </Grid>

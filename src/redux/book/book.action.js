@@ -21,6 +21,9 @@ import {
   FOLLOW_BOOK_FAILED,
   FOLLOW_BOOK_REQUEST,
   FOLLOW_BOOK_SUCCESS,
+  GET_ALL_BOOK_COMMENT_FAILED,
+  GET_ALL_BOOK_COMMENT_REQUEST,
+  GET_ALL_BOOK_COMMENT_SUCCESS,
   GET_ALL_BOOK_FAILED,
   GET_ALL_BOOK_REQUEST,
   GET_ALL_BOOK_SUCCESS,
@@ -42,6 +45,30 @@ export const getAllBookAction = () => async (dispatch) => {
   } catch (error) {
     console.log("error trying to get all books", error);
     dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
+  }
+};
+export const getAllUserFollowingBookAction = (userId) => async (dispatch) => {
+  dispatch({ type: GET_ALL_BOOK_REQUEST });
+  try {
+    const { data } = await api.get(`/api/books/favoured/${userId}`);
+    dispatch({ type: GET_ALL_BOOK_SUCCESS, payload: data });
+    console.log("got all user favoured books: ", data);
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get all user favoured books", error);
+    dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
+  }
+};
+export const getAllCommentByBookAction = (bookId) => async (dispatch) => {
+  dispatch({ type: GET_ALL_BOOK_COMMENT_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}/comments`);
+    dispatch({ type: GET_ALL_BOOK_COMMENT_SUCCESS, payload: data });
+    console.log("got all book comment: ", data);
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get all book comment", error);
+    dispatch({ type: GET_ALL_BOOK_COMMENT_FAILED, payload: error });
   }
 };
 export const getBookByIdAction = (bookId) => async (dispatch) => {

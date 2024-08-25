@@ -15,7 +15,7 @@ import { withHistory } from "slate-history";
 import { Editable, Slate, withReact } from "slate-react";
 import { deserializeContent, serializeContent } from "../../../../../pages/UploadChapterPage/HtmlSerialize";
 import { getCurrentUserByJwt } from "../../../../../redux/authentication/auth.actions";
-import { editChapterAction, getAllChaptersByBookIdAction, getChapterById } from "../../../../../redux/chapter/chapter.action";
+import { editChapterAction, getAllChaptersByBookIdAction } from "../../../../../redux/chapter/chapter.action";
 import { BlockButton } from "../../../../UploadChapterPageComponents/BlockButton";
 import { Element, Leaf } from "../../../../UploadChapterPageComponents/Element";
 import { InsertImageButton, withImages } from "../../../../UploadChapterPageComponents/InsertImageHandler";

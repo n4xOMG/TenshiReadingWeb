@@ -3,16 +3,19 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { editBookAction, getAllBookAction } from "../../../../../redux/book/book.action";
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 export default function EditBookModal({ open, onClose, bookDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [publishDate, setPublishDate] = useState(new Date());
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
+    json.publishDate = publishDate.toISOString();
     await dispatch(editBookAction({ ...json, bookDetails, bookCover: selectedImage }));
     await dispatch(getAllBookAction());
     onClose();
@@ -63,6 +66,14 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
               name="description"
               defaultValue={bookDetails?.description}
             />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="Publish Date"
+                value={bookDetails.publishDate}
+                onChange={(newValue) => setPublishDate(newValue)}
+                renderInput={(params) => <TextField {...params} fullWidth margin="normal" required />}
+              />
+            </LocalizationProvider>
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Button

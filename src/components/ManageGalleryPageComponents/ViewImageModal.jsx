@@ -1,10 +1,10 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { Box, IconButton, Modal } from "@mui/material";
+import { Box, Dialog, IconButton } from "@mui/material";
 import React from "react";
 
 export default function ViewImageModal({ open, onClose, image }) {
   return (
-    <Modal open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose}>
       <Box className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
         <div className="relative bg-black rounded-lg shadow-lg max-h-screen max-w-screen">
           <IconButton
@@ -18,6 +18,6 @@ export default function ViewImageModal({ open, onClose, image }) {
           <img src={image.imageUrl} alt={image.name} className="h-auto w-auto max-h-screen max-w-screen object-contain rounded-md pb-5" />
         </div>
       </Box>
-    </Modal>
+    </Dialog>
   );
 }

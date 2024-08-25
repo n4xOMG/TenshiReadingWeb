@@ -6,6 +6,9 @@ import {
   ADD_IMAGE_TAG_FAILED,
   ADD_IMAGE_TAG_REQUEST,
   ADD_IMAGE_TAG_SUCCESS,
+  ADD_TO_FAV_FAILED,
+  ADD_TO_FAV_REQUEST,
+  ADD_TO_FAV_SUCCESS,
   DELETE_IMAGE_FAILED,
   DELETE_IMAGE_REQUEST,
   DELETE_IMAGE_SUCCESS,
@@ -34,6 +37,20 @@ export const getAllGalleryImages = () => async (dispatch) => {
   console.log("getAllGalleryImages action dispatched");
   try {
     const { data } = await api.get(`${API_BASE_URL}/api/gallery`);
+    dispatch({ type: GET_ALL_IMAGES_SUCCESS, payload: data });
+    console.log("Images: ", { payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get all images", error);
+    dispatch({ type: GET_ALL_IMAGES_FAILED, payload: error });
+  }
+};
+
+export const getUserFavImages = (userId) => async (dispatch) => {
+  dispatch({ type: GET_ALL_IMAGES_REQUEST });
+  console.log("getAllGalleryImages action dispatched");
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/gallery/favoured/${userId}`);
     dispatch({ type: GET_ALL_IMAGES_SUCCESS, payload: data });
     console.log("Images: ", { payload: data });
     return { payload: data };
@@ -156,5 +173,18 @@ export const deleteTagAction = (tagId) => async (dispatch) => {
   } catch (error) {
     console.log("error trying to delete tag", error);
     dispatch({ type: DELETE_IMAGE_TAG_FAILED, payload: error });
+  }
+};
+
+export const addImageToFav = (imageId) => async (dispatch) => {
+  dispatch({ type: ADD_TO_FAV_REQUEST });
+  console.log("addImageToFav action dispatched with imageId: ", imageId);
+  try {
+    const { data } = await api.put(`${API_BASE_URL}/api/gallery/favoured/${imageId}`);
+    dispatch({ type: ADD_TO_FAV_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to add images", error);
+    dispatch({ type: ADD_TO_FAV_FAILED, payload: error });
   }
 };

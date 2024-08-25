@@ -3,8 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getAllBookAction } from "../../redux/book/book.action";
 import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
+import { debounce } from "lodash";
 function shuffleArray(array) {
-  return array.sort(() => Math.random() - 0.5);
+  const shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
 }
 
 function duplicateImages(images, targetLength) {
@@ -14,13 +20,14 @@ function duplicateImages(images, targetLength) {
   }
   return result;
 }
+
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchBooks = debounce(async () => {
       setLoading(true);
       try {
         const results = await dispatch(getAllBookAction());
@@ -32,7 +39,7 @@ export default function LandingPage() {
       } finally {
         setLoading(false);
       }
-    };
+    }, 500);
 
     fetchBooks();
   }, [dispatch]);
@@ -92,6 +99,7 @@ export default function LandingPage() {
                       src={book.bookCover}
                       alt={book.title}
                       loading="lazy"
+                      effect="blur"
                       style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
                     />
                   </picture>

@@ -5,6 +5,9 @@ import {
   ADD_IMAGE_TAG_FAILED,
   ADD_IMAGE_TAG_REQUEST,
   ADD_IMAGE_TAG_SUCCESS,
+  ADD_TO_FAV_FAILED,
+  ADD_TO_FAV_REQUEST,
+  ADD_TO_FAV_SUCCESS,
   DELETE_IMAGE_FAILED,
   DELETE_IMAGE_REQUEST,
   DELETE_IMAGE_SUCCESS,
@@ -42,6 +45,7 @@ export const galleryReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_IMAGE_REQUEST:
     case ADD_IMAGE_TAG_REQUEST:
+    case ADD_TO_FAV_REQUEST:
     case GET_ALL_IMAGES_REQUEST:
     case GET_ALL_IMAGE_TAGS_REQUEST:
     case EDIT_IMAGE_REQUEST:
@@ -60,7 +64,13 @@ export const galleryReducer = (state = initialState, action) => {
         image: action.payload,
         images: state.images.map((item) => (item.id === action.payload.id ? action.payload : item)),
       };
-
+    case ADD_TO_FAV_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        images: state.images.map((item) => (item.id === action.payload.id ? action.payload : item)),
+      };
     case ADD_IMAGE_TAG_SUCCESS:
     case EDIT_IMAGE_TAG_SUCCESS:
       return { ...state, loading: false, error: null, tag: action.payload };
@@ -76,6 +86,7 @@ export const galleryReducer = (state = initialState, action) => {
       return { ...state, loading: false, error: null };
     case ADD_IMAGE_FAILED:
     case ADD_IMAGE_TAG_FAILED:
+    case ADD_TO_FAV_FAILED:
     case GET_ALL_IMAGES_FAILED:
     case GET_ALL_IMAGE_TAGS_FAILED:
     case EDIT_IMAGE_FAILED:

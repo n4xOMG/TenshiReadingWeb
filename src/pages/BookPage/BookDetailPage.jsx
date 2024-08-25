@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CommentSection } from "../../components/BookPageComponents/CommentSection";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import { followBookAction, getBookDetailsAndChaptersAction } from "../../redux/book/book.action";
-import { isFollowedByReqUser } from "../../utils/isFollowedByReqUser";
+import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 
 export default function BookDetailPage() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function BookDetailPage() {
 
   useEffect(() => {
     if (book) {
-      setIsFavorite(isFollowedByReqUser(auth.user.id, book));
+      setIsFavorite(isFavouredByReqUser(auth.user.id, book));
     }
   }, [book, auth.user.id]);
 

@@ -6,7 +6,7 @@ import DehazeIcon from "@mui/icons-material/Dehaze";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Box, Button, Card, CardContent, CircularProgress, Drawer, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllBookAction } from "../../redux/book/book.action";
@@ -22,6 +22,7 @@ export default function BooksPage() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const bookRef = useRef();
   const [showFullDescription, setShowFullDescription] = useState(false);
   useEffect(() => {
     const fetchBooks = async () => {
@@ -41,6 +42,10 @@ export default function BooksPage() {
 
     fetchBooks();
   }, [dispatch]);
+  const handleBookSelect = (book) => {
+    setSelectedBook(book);
+    bookRef.current.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, minHeight: "100vh", bgcolor: "background.default" }}>
@@ -159,12 +164,21 @@ export default function BooksPage() {
           <Box component="main" sx={{ flex: 1, p: { xs: 4, md: 6 }, overflow: "auto", pt: { xs: 8, md: 6 } }}>
             {selectedBook ? (
               <>
-                <Typography variant="h3" sx={{ mb: 6, textAlign: "left" }}>
+                <Typography variant="h3" sx={{ mb: 6, textAlign: "left" }} ref={bookRef}>
                   {selectedBook.title}
                 </Typography>
-                <Box sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr" }, gap: 6, px: 4 }}>
+                <Box
+                  sx={{
+                    alignItems: "center",
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                    gap: 6,
+                    px: 4,
+                    justifyContent: { xs: "center", md: "start" },
+                  }}
+                >
                   {/* Book Cover */}
-                  <Card sx={{ overflow: "hidden", maxWidth: "300px" }}>
+                  <Card sx={{ overflow: "hidden", maxWidth: { xs: "100%", md: "300px" }, mx: { xs: "auto", md: 0 } }}>
                     <img
                       src={selectedBook.bookCover}
                       alt={`Cover of ${selectedBook.title}`}
@@ -254,7 +268,7 @@ export default function BooksPage() {
                 <Card
                   key={book.id}
                   sx={{ overflow: "hidden", transition: "all 0.3s", "&:hover": { boxShadow: 6 }, cursor: "pointer" }}
-                  onClick={() => setSelectedBook(book)}
+                  onClick={() => handleBookSelect(book)}
                 >
                   <picture>
                     <source srcSet={getWebPUrl(book.bookCover)} type="image/webp" />

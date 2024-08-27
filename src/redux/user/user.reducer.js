@@ -32,7 +32,13 @@ export const userReducer = (state = initialState, action) => {
     case GET_ALL_USERS_SUCCESS:
       return { ...state, loading: false, error: null, users: action.payload };
     case UPDATE_USER_SUCCESS:
-      return { ...state, loading: false, error: null, user: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        user: action.payload,
+        users: state.users.map((item) => (item.id === action.payload.id ? action.payload : item)),
+      };
     case DELETE_USER_SUCCESS:
       return { ...state, loading: false, error: null };
 

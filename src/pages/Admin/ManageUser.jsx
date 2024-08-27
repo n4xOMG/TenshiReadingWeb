@@ -20,6 +20,9 @@ import {
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import DeleteUserModal from "../../components/AdminPageComponents/ManageUserPageComponents/DeleteUserModal";
+import EditUserModal from "../../components/AdminPageComponents/ManageUserPageComponents/EditUserModal";
+import HandleSuspendUserModal from "../../components/AdminPageComponents/ManageUserPageComponents/HandleSuspendUserModal";
 import { getAllUsers } from "../../redux/user/user.action";
 export default function ManageUser() {
   const dispatch = useDispatch();
@@ -27,9 +30,22 @@ export default function ManageUser() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
+  const [openModal, setOpenModal] = useState({ type: null, data: null });
   const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleOpenModal = (type, data = null) => {
+    setLoading(false);
+    setOpenModal({ type, data });
+  };
+
+  const handleCloseModal = () => setOpenModal({ type: null, data: null });
+
+  const handleMenuOpen = (event, user) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedUser(user);
+  };
+
   const handleMenuClose = () => setAnchorEl(null);
 
   const fetchUsers = useCallback(
@@ -52,13 +68,7 @@ export default function ManageUser() {
   }, [searchTerm, page, fetchUsers]);
 
   return (
-    <Box
-      sx={{
-        maxWidth: "100%",
-        width: "100%",
-        height: "100%",
-      }}
-    >
+    <Box sx={{ maxWidth: "100%", width: "100%", height: "100%" }}>
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
@@ -107,13 +117,15 @@ export default function ManageUser() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.role.name}</TableCell>
                       <TableCell>
-                        <IconButton onClick={handleMenuOpen} size="small">
+                        <IconButton onClick={(event) => handleMenuOpen(event, user)} size="small">
                           <MoreVertIcon />
                         </IconButton>
                         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                          <MenuItem>Edit</MenuItem>
-                          <MenuItem>Suspend</MenuItem>
-                          <MenuItem>Delete</MenuItem>
+                          <MenuItem onClick={() => handleOpenModal("edit", selectedUser)}>Edit</MenuItem>
+                          <MenuItem onClick={() => handleOpenModal(selectedUser.isSuspended ? "unsuspend" : "suspend", selectedUser)}>
+                            {selectedUser?.isSuspended ? "Unsuspend" : "Suspend"}
+                          </MenuItem>
+                          <MenuItem onClick={() => handleOpenModal("delete", selectedUser)}>Delete</MenuItem>
                         </Menu>
                       </TableCell>
                     </TableRow>
@@ -142,6 +154,14 @@ export default function ManageUser() {
             </CardContent>
           </Card>
         </>
+      )}
+      {openModal.type === "edit" && <EditUserModal page={page} open={true} onClose={handleCloseModal} userDetails={openModal.data} />}
+      {openModal.type === "delete" && <DeleteUserModal page={page} open={true} onClose={handleCloseModal} deleteUser={openModal.data} />}
+      {openModal.type === "suspend" && (
+        <HandleSuspendUserModal page={page} open={true} onClose={handleCloseModal} user={openModal.data} actionType={openModal.type} />
+      )}
+      {openModal.type === "unsuspend" && (
+        <HandleSuspendUserModal page={page} open={true} onClose={handleCloseModal} user={openModal.data} actionType={openModal.type} />
       )}
     </Box>
   );

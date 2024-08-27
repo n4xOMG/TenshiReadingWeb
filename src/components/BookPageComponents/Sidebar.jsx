@@ -5,8 +5,10 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PeopleIcon from "@mui/icons-material/People";
 import { Backdrop, Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import React from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
+  const { auth } = useSelector((store) => store);
   const navigate = useNavigate();
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
@@ -79,6 +81,11 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
             </List>
           </Box>
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+            {auth.user.role.name === "ADMIN" && (
+              <Button variant="outlined" onClick={() => navigate("/admin")} fullWidth>
+                Admin
+              </Button>
+            )}
             <Button variant="outlined" fullWidth>
               Sign Out
             </Button>

@@ -9,9 +9,10 @@ import { Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItem
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LandingPage from "./LandingPage";
+import { useSelector } from "react-redux";
 export default function UserPages() {
   const navigate = useNavigate();
-
+  const { auth } = useSelector((store) => store);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
@@ -97,6 +98,11 @@ export default function UserPages() {
             </List>
           </Box>
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+            {auth.user.role.name === "ADMIN" && (
+              <Button variant="outlined" onClick={() => navigate("/admin")} fullWidth>
+                Admin
+              </Button>
+            )}
             <Button variant="outlined" fullWidth>
               Sign Out
             </Button>

@@ -20,15 +20,16 @@ export const Flipbook = ({ pages, onFlip, initialPage }) => {
       height={733}
       size="stretch"
       minWidth={315}
-      maxWidth={1000}
+      maxWidth={2000}
       minHeight={400}
-      maxHeight={1533}
+      maxHeight={2000}
       mobileScrollSupport={true}
       swipeDistance={1}
       flippingTime={500}
+      showCover={true}
       className="text-left text-yellow-50 bg-[#202124] px-3"
       onFlip={onFlip}
-      startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0} // Add check here
+      startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0}
     >
       {pages.map((page, index) => (
         <Page key={index} number={index}>

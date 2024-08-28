@@ -40,7 +40,7 @@ export const authReducer = (state = initialState, action) => {
       return { ...state, jwt: action.payload, loading: false };
 
     case FORGOT_PASSWORD_SUCCEED:
-      return { ...state, loading: false, forgotPasswordMessage: action.payload }; // Add this case
+      return { ...state, loading: false, forgotPasswordMessage: action.payload };
 
     case RESET_PASSWORD_SUCCEED:
       return { ...state, loading: false, user: action.payload };

@@ -10,8 +10,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllBookAction } from "../../redux/book/book.action";
-import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
+import { getOptimizedImageUrl, getResponsiveImageUrl, getWebPUrl } from "../../utils/optimizeImages";
 import { formatDate } from "../../utils/formatDate";
+import LazyLoad from "react-lazyload";
 
 export default function BooksPage() {
   const { books } = useSelector((store) => store.book);
@@ -178,11 +179,13 @@ export default function BooksPage() {
                 >
                   {/* Book Cover */}
                   <Card sx={{ overflow: "hidden", maxWidth: { xs: "100%", md: "300px" }, mx: { xs: "auto", md: 0 } }}>
-                    <img
-                      src={selectedBook.bookCover}
-                      alt={`Cover of ${selectedBook.title}`}
-                      style={{ width: "100%", height: "auto", objectFit: "cover" }}
-                    />
+                    <LazyLoad height={200} offset={100}>
+                      <img
+                        src={getOptimizedImageUrl(selectedBook.bookCover)}
+                        alt={`Cover of ${selectedBook.title}`}
+                        style={{ width: "100%", height: "auto", objectFit: "cover" }}
+                      />
+                    </LazyLoad>
                   </Card>
 
                   {/* Book Information */}
@@ -269,15 +272,14 @@ export default function BooksPage() {
                   sx={{ overflow: "hidden", transition: "all 0.3s", "&:hover": { boxShadow: 6 }, cursor: "pointer" }}
                   onClick={() => handleBookSelect(book)}
                 >
-                  <picture>
-                    <source srcSet={getWebPUrl(book.bookCover)} type="image/webp" />
+                  <LazyLoad height={200} offset={100}>
                     <img
-                      src={book.bookCover}
+                      src={getOptimizedImageUrl(book.bookCover)}
                       alt={`Cover of ${book.title}`}
                       loading="lazy"
                       style={{ width: "100%", height: "10rem", objectFit: "cover" }}
                     />
-                  </picture>
+                  </LazyLoad>
                   <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: "left" }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: "bold", textAlign: "left" }}>
                       {book.title}

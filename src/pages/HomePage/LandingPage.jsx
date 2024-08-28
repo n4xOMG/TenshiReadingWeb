@@ -1,6 +1,7 @@
 import { Box, Container, Grid, Link, Typography } from "@mui/material";
 import React from "react";
-import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
+import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
+import LazyLoad from "react-lazyload";
 
 export default function LandingPage() {
   const firstSectionImages = [
@@ -49,7 +50,7 @@ export default function LandingPage() {
             </Typography>
             <Box sx={{ mt: 6 }}>
               <Link
-                href="#"
+                href="/books"
                 sx={{
                   display: "inline-flex",
                   height: 40,
@@ -75,16 +76,15 @@ export default function LandingPage() {
           <Grid container spacing={4}>
             {firstSectionImages.map((image, index) => (
               <Grid item xs={6} key={index}>
-                <picture>
-                  <source srcSet={getWebPUrl(image.url)} type="image/webp" />
+                <LazyLoad height={200} offset={100}>
                   <img
-                    src={image.url}
+                    src={getOptimizedImageUrl(getResponsiveImageUrl(image.url, 300))}
                     alt="Nothing"
                     loading="lazy"
                     effect="blur"
                     style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
                   />
-                </picture>
+                </LazyLoad>
               </Grid>
             ))}
           </Grid>
@@ -95,16 +95,15 @@ export default function LandingPage() {
           <Grid container spacing={4}>
             {secondSectionImages.map((image, index) => (
               <Grid item xs={6} key={index}>
-                <picture>
-                  <source srcSet={getWebPUrl(image.url)} type="image/webp" />
+                <LazyLoad height={200} offset={100}>
                   <img
-                    src={image.url}
+                    src={getOptimizedImageUrl(getResponsiveImageUrl(image.url, 300))}
                     alt="Nothing"
                     loading="lazy"
                     effect="blur"
                     style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
                   />
-                </picture>
+                </LazyLoad>
               </Grid>
             ))}
           </Grid>
@@ -118,7 +117,7 @@ export default function LandingPage() {
             </Typography>
             <Box sx={{ mt: 6 }}>
               <Link
-                href="#"
+                href="/gallery"
                 sx={{
                   display: "inline-flex",
                   height: 40,

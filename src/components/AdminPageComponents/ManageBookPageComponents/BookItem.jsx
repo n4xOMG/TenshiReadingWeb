@@ -2,7 +2,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, Card, Grid, IconButton, Typography } from "@mui/material";
 import React from "react";
-import { getWebPUrl } from "../../../utils/cloudinaryHandlePNG";
+import LazyLoad from "react-lazyload";
+import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../../utils/optimizeImages";
 export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style }) => {
   return (
     <Grid item xs={12} style={style}>
@@ -14,11 +15,10 @@ export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style })
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => onSelect(book.id)}>
-          <picture>
-            <source srcSet={getWebPUrl(book.bookCover)} type="image/webp" />
+          <LazyLoad height={200} offset={100}>
             <img
-              src={book.bookCover}
-              alt={book.title}
+              src={getOptimizedImageUrl(book.bookCover)}
+              alt={`Cover of ${book.title}`}
               loading="lazy"
               width={80}
               height={120}
@@ -29,7 +29,7 @@ export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style })
                 objectFit: "cover",
               }}
             />
-          </picture>
+          </LazyLoad>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: "medium" }}>
               {book.title}

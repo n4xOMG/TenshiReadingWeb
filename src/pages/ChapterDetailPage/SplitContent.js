@@ -33,7 +33,7 @@ export function splitContent(content, wordsPerPage) {
         const words = node.data.split(" ");
         words.forEach((word) => {
           if (currentWordCount + word.length > wordsPerPage) {
-            pages.push(currentPage);
+            pages.push(currentPage.trim());
             currentPage = "";
             currentWordCount = 0;
           }
@@ -43,19 +43,18 @@ export function splitContent(content, wordsPerPage) {
       } else if (node.type === "tag") {
         if (node.name === "img") {
           if (currentPage) {
-            pages.push(currentPage);
+            pages.push(currentPage.trim());
             currentPage = "";
             currentWordCount = 0;
           }
-          currentPage += `<${node.name}`;
+          let imgTag = `<${node.name}`;
           if (node.attribs) {
             Object.keys(node.attribs).forEach((attr) => {
-              currentPage += ` ${attr}="${node.attribs[attr]}"`;
+              imgTag += ` ${attr}="${node.attribs[attr]}"`;
             });
           }
-          currentPage += ">";
-          pages.push(currentPage);
-          currentPage = "";
+          imgTag += ">";
+          pages.push(imgTag);
         } else {
           currentPage += `<${node.name}`;
           if (node.attribs) {
@@ -74,7 +73,7 @@ export function splitContent(content, wordsPerPage) {
   traverseDom(dom);
 
   if (currentPage) {
-    pages.push(currentPage);
+    pages.push(currentPage.trim());
   }
 
   return pages;

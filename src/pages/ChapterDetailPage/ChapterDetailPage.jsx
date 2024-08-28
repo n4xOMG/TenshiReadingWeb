@@ -1,6 +1,6 @@
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import { Box, Button, CircularProgress, Drawer, IconButton, List, ListItem, ListItemText } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -14,12 +14,14 @@ import {
 } from "../../redux/chapter/chapter.action";
 import { splitContent } from "./SplitContent";
 import { debounce } from "lodash";
+import { getBookByIdAction } from "../../redux/book/book.action";
 export default function ChapterDetailPage() {
   const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { chapter, chapters, progresses = [] } = useSelector((store) => store.chapter);
   const { auth } = useSelector((store) => store);
+  const { book } = useSelector((store) => store.book);
   const [bookId] = useState(paramBookId);
   const [chapterId, setChapterId] = useState(paramChapterId);
   const [currentPage, setCurrentPage] = useState(0);
@@ -31,6 +33,9 @@ export default function ChapterDetailPage() {
     setLoading(true);
     dispatch(getAllChaptersByBookIdAction(bookId));
     dispatch(getChapterById(bookId, chapterId));
+    if (!book) {
+      dispatch(getBookByIdAction(bookId));
+    }
     if (auth.user) {
       dispatch(getReadingProgressByUserAndChapter(auth.user.id, chapterId));
     }
@@ -39,7 +44,18 @@ export default function ChapterDetailPage() {
 
   const handlePageFlip = (e) => {
     const pageIndex = e.data;
+
+    // Prevent flipping beyond the last page
+    if (pageIndex >= totalPages) {
+      return;
+    }
+
     setCurrentPage(pageIndex);
+
+    // Save progress when reaching the last page
+    if (pageIndex === totalPages - 1) {
+      saveProgress();
+    }
   };
 
   const saveProgress = useCallback(async () => {
@@ -48,27 +64,40 @@ export default function ChapterDetailPage() {
     }
     setLoading(true);
     let progress = 0;
-    if (totalPages > 1) {
-      const pagesRead = Math.ceil((currentPage + 1) / 2);
-      progress = (pagesRead / Math.ceil(totalPages / 2)) * 100;
-    } else if (totalPages === 1) {
+
+    const pagesRead = Math.ceil((currentPage + 1) / 2); // Calculate pages read in two-page mode
+    const totalFlipPages = Math.ceil(totalPages / 2); // Total pages in two-page mode
+
+    if (totalFlipPages > 1) {
+      progress = (pagesRead / totalFlipPages) * 100;
+      if (pagesRead >= totalFlipPages) {
+        progress = 100;
+      }
+    } else if (totalFlipPages === 1) {
       progress = 100;
     }
+
     await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
     setLoading(false);
   }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
 
+  const debouncedSaveProgress = useMemo(
+    () =>
+      debounce(async () => {
+        await saveProgress();
+      }, 300),
+    [bookId, chapterId, auth.user?.id, currentPage, totalPages] // Include only essential dependencies
+  );
+
   useEffect(() => {
     if (totalPages > 0) {
-      const progress = progresses.find((p) => Number(p.chapterId) === Number(chapterId));
+      const progress = Array.isArray(progresses) ? progresses.find((p) => Number(p.chapterId) === Number(chapterId)) : null;
       if (progress) {
         const pageIndex = Math.floor((progress.progress / 100) * totalPages);
         setCurrentPage(pageIndex);
       }
     }
   }, [totalPages, progresses, chapterId]);
-
-  const debouncedSaveProgress = useCallback(debounce(saveProgress, 300), [saveProgress]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -90,7 +119,7 @@ export default function ChapterDetailPage() {
     };
   }, [debouncedSaveProgress]);
 
-  const getCharacterCount = () => {
+  const getCharacterCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 300) {
       return 150;
@@ -103,11 +132,24 @@ export default function ChapterDetailPage() {
     } else {
       return 700;
     }
-  };
+  }, []);
 
-  const pages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
+  const pages = useMemo(() => {
+    const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
+
+    if (book && book.bookCover) {
+      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" />`);
+      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" />`);
+    }
+
+    // Remove any empty or whitespace-only pages
+    const filteredPages = contentPages.filter((page) => page.trim() !== "");
+
+    return filteredPages;
+  }, [chapter, getCharacterCount, book]);
 
   useEffect(() => {
+    console.log("Pages:", pages);
     setTotalPages(pages.length);
   }, [pages]);
 
@@ -120,8 +162,10 @@ export default function ChapterDetailPage() {
 
   const handleChapterClick = (chapterId) => {
     saveProgress();
+    setCurrentPage(0);
+    setTotalPages(0);
     setChapterId(chapterId);
-    navigate(`/books/${bookId}/chapters/${chapterId}`);
+    window.location.href = `/books/${bookId}/chapters/${chapterId}`;
   };
 
   const handleBackToBookPage = () => {
@@ -191,7 +235,7 @@ export default function ChapterDetailPage() {
               flexGrow: 1,
               px: 3,
               pb: 5,
-              mt: 3,
+              pt: 5,
               width: "100%",
               height: "100%",
               minHeight: "100vh",

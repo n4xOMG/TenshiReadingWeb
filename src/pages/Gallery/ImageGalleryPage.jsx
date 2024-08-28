@@ -23,38 +23,31 @@ import Sidebar from "../../components/BookPageComponents/Sidebar";
 import { addImageToFav, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
+import LazyLoad from "react-lazyload";
+import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
+
 export default function ImageGalleryPage() {
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState(["All"]);
+  const { images, tags, loading } = useSelector((store) => store.gallery);
   const { auth } = useSelector((store) => store);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedTags, setSelectedTags] = useState(["All"]);
   const { checkAuth } = useAuthCheck();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     const fetchImages = async () => {
-      setLoading(true);
       try {
-        const results = await dispatch(getAllGalleryImages());
-        console.log("Images: ", results.payload);
-        setImages(results.payload);
+        await dispatch(getAllGalleryImages());
       } catch (error) {
         console.error("Error fetching images: ", error);
-      } finally {
-        setLoading(false);
       }
     };
     const fetchTags = async () => {
-      setLoading(true);
       try {
-        const results = await dispatch(getAllImageTags());
-        setTags(results.payload);
+        await dispatch(getAllImageTags());
       } catch (error) {
         console.error("Error fetching tags: ", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -64,40 +57,11 @@ export default function ImageGalleryPage() {
 
   const handleFavoriteToggle = checkAuth(async (event, imageId) => {
     event.stopPropagation();
-    setLoading(true);
-
-    setImages((prevImages) =>
-      prevImages.map((image) =>
-        image.id === imageId
-          ? {
-              ...image,
-              favoured: isFavouredByReqUser(auth.user.id, image)
-                ? image.favoured.filter((user) => user.id !== auth.user.id)
-                : [...image.favoured, { id: auth.user.id }],
-            }
-          : image
-      )
-    );
 
     try {
       await dispatch(addImageToFav(imageId));
     } catch (error) {
       console.error("Error toggling favorite: ", error);
-
-      setImages((prevImages) =>
-        prevImages.map((image) =>
-          image.id === imageId
-            ? {
-                ...image,
-                favoured: isFavouredByReqUser(auth.user.id, image)
-                  ? [...image.favoured, { id: auth.user.id }]
-                  : image.favoured.filter((user) => user.id !== auth.user.id),
-              }
-            : image
-        )
-      );
-    } finally {
-      setLoading(false);
     }
   });
 
@@ -112,11 +76,9 @@ export default function ImageGalleryPage() {
       );
     }
   };
-
   const filteredImages = selectedTags.includes("All")
     ? images
     : images.filter((image) => selectedTags.every((selectedTag) => image.tags.some((tag) => tag.name === selectedTag)));
-
   return (
     <>
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -184,7 +146,7 @@ export default function ImageGalleryPage() {
               >
                 All
               </Badge>
-              {tags.map((tag) => (
+              {tags?.map((tag) => (
                 <Badge
                   key={tag.id}
                   variant={selectedTags.includes(tag.name) ? "default" : "outlined"}
@@ -207,26 +169,28 @@ export default function ImageGalleryPage() {
               ))}
             </Box>
             <Grid container spacing={3} sx={{ transition: "all 0.3s ease-in-out" }}>
-              {filteredImages?.map((image, index) => (
+              {filteredImages?.map((image) => (
                 <Grow in style={{ transformOrigin: "0 0 0" }} {...(image ? { timeout: 1000 } : {})} key={image.id}>
                   <Grid item xs={12} sm={6} md={4} lg={3}>
                     <Card
                       onClick={() => setSelectedImage(image.imageUrl)}
                       sx={{
                         cursor: "pointer",
-                        height: 300, // Fixed height
+                        height: 300,
                         "&:hover": {
                           transform: "scale(1.05)",
                           transition: "transform 0.3s ease-in-out",
                         },
                       }}
                     >
-                      <img
-                        src={image.imageUrl}
-                        alt={image.name}
-                        className="object-contain w-full h-full rounded-t-md"
-                        style={{ height: 200, width: "100%", objectFit: "cover" }} // Fixed height and width
-                      />
+                      <LazyLoad height={200} offset={100}>
+                        <img
+                          src={getOptimizedImageUrl(getResponsiveImageUrl(image.imageUrl, 300))}
+                          alt={image.name}
+                          className="object-contain w-full h-full rounded-t-md"
+                          style={{ height: 200, width: "100%", objectFit: "cover" }}
+                        />
+                      </LazyLoad>
                       <CardContent className="p-4">
                         <Typography variant="h6" className="font-semibold mb-2">
                           {image.name}
@@ -235,7 +199,7 @@ export default function ImageGalleryPage() {
                           {image.tags.map((tag) => tag.name).join(", ") || "No tags available"}
                         </Typography>
                         <IconButton onClick={(e) => handleFavoriteToggle(e, image.id)}>
-                          {isFavouredByReqUser(auth.user?.id, image) ? <FavoriteIcon color="error" /> : <FavoriteBorder />}
+                          {isFavouredByReqUser(auth?.user?.id, image) ? <FavoriteIcon color="error" /> : <FavoriteBorder />}
                         </IconButton>
                       </CardContent>
                     </Card>

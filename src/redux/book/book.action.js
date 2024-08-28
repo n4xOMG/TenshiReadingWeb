@@ -91,12 +91,12 @@ export const getBookDetailsAndChaptersAction = (bookId, userId) => async (dispat
   dispatch({ type: GET_BOOK_REQUEST });
   try {
     // Fetch book data
-    const bookResponse = await api.get(`${API_BASE_URL}/api/books/${bookId}`);
+    const bookResponse = await api.get(`${API_BASE_URL}/books/${bookId}`);
     const book = bookResponse.data;
     console.log("Got book: ", book);
 
     // Fetch chapters data
-    const chaptersResponse = await api.get(`${API_BASE_URL}/api/books/${bookId}/chapters`);
+    const chaptersResponse = await api.get(`${API_BASE_URL}/books/${bookId}/chapters`);
     const chapters = chaptersResponse.data;
     console.log("Got chapters: ", chapters);
 

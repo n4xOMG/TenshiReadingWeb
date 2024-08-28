@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api, API_BASE_URL } from "../../api/api";
 import {
   CHAPTER_UPLOAD_FAILED,
@@ -27,7 +28,7 @@ export const getAllChaptersByBookIdAction = (bookId) => async (dispatch) => {
   dispatch({ type: GET_ALL_CHAPTER_REQUEST });
   console.log("Action getAllChaptersByBookIdAction dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}/chapters`);
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/chapters`);
     console.log("Got chapters: ", data);
     dispatch({ type: GET_ALL_CHAPTER_SUCCESS, payload: data });
     return { payload: data };
@@ -40,7 +41,7 @@ export const getChapterById = (bookId, chapterId) => async (dispatch) => {
   dispatch({ type: GET_CHAPTER_REQUEST });
   console.log("Action getChapterById dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}/chapters/${chapterId}`);
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/chapters/${chapterId}`);
     console.log("Got chapter: ", data);
     dispatch({ type: GET_CHAPTER_SUCCESS, payload: data });
   } catch (error) {
@@ -53,7 +54,7 @@ export const addChapterAction = (bookId, chapterData) => async (dispatch) => {
   dispatch({ type: CHAPTER_UPLOAD_REQUEST });
   console.log("Action addChapterAction dispatched");
   try {
-    const { data } = await api.post(`${API_BASE_URL}/api/books/${bookId}/chapters`, chapterData.data);
+    const { data } = await api.post(`${API_BASE_URL}/translator/books/${bookId}/chapters`, chapterData.data);
     console.log("New chapter added", data);
     dispatch({ type: CHAPTER_UPLOAD_SUCCEED, payload: data });
   } catch (error) {
@@ -65,7 +66,7 @@ export const editChapterAction = (bookId, chapterId, chapterData) => async (disp
   dispatch({ type: EDIT_CHAPTER_REQUEST });
   console.log("Action editChapterAction dispatched");
   try {
-    const { data } = await api.put(`${API_BASE_URL}/api/books/${bookId}/chapters/${chapterId}`, chapterData.data);
+    const { data } = await api.put(`${API_BASE_URL}/translator/books/${bookId}/chapters/${chapterId}`, chapterData.data);
     console.log("Chapter edited", data);
     dispatch({ type: EDIT_CHAPTER_SUCCEED, payload: data });
   } catch (error) {
@@ -77,7 +78,7 @@ export const deleteChapterAction = (bookId, chapterId) => async (dispatch) => {
   dispatch({ type: DELETE_CHAPTER_REQUEST });
   console.log("Action deleteChapterAction dispatched");
   try {
-    const { data } = await api.delete(`${API_BASE_URL}/api/books/${bookId}/chapters/${chapterId}`);
+    const { data } = await api.delete(`${API_BASE_URL}/translator/books/${bookId}/chapters/${chapterId}`);
     console.log("Chapter deleted", data);
     dispatch({ type: DELETE_CHAPTER_SUCCEED, payload: data });
   } catch (error) {

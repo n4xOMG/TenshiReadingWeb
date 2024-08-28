@@ -1,26 +1,29 @@
-import "./App.css";
+import { CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import Dashboard from "./pages/Admin/Dashboard";
 import Authentication from "./pages/Auth/Authentication";
-import { useEffect, useState } from "react";
-import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
-import UploadChapterPage from "./pages/UploadChapterPage/UploadChapterPage";
-import CreateBookPage from "./pages/CreateBookPage/CreateBookPage";
-import { CircularProgress } from "@mui/material";
 import BookDetailPage from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
-import Dashboard from "./pages/Admin/Dashboard";
-import UserPages from "./pages/HomePage/UserPages";
-import ProfilePage from "./pages/HomePage/ProfilePage";
 import BooksPage from "./pages/HomePage/BooksPage";
+import ProfilePage from "./pages/HomePage/ProfilePage";
+import UserPages from "./pages/HomePage/UserPages";
+import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
+import { useAuthCheck } from "./utils/useAuthCheck";
+import SignIn from "./pages/Auth/SignIn";
+import SignUp from "./pages/Auth/SignUp";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
 
 function App() {
   const dispatch = useDispatch();
   const { auth } = useSelector((store) => store);
   const jwt = localStorage.getItem("jwt");
   const [loading, setLoading] = useState(true);
-
+  const { AuthDialog } = useAuthCheck();
   useEffect(() => {
     if (jwt) {
       dispatch(getCurrentUserByJwt(jwt)).finally(() => setLoading(false));
@@ -36,16 +39,19 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/*" element={auth.user ? <UserPages /> : <Authentication />} />
-        <Route path="/books/:bookId/uploadChapterPage" element={<UploadChapterPage />} />
-        <Route path="/createBookPage" element={<CreateBookPage />} />
+        <Route path="/" element={<UserPages />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
-        <Route path="/admin" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
+        <Route path="/admin/*" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={auth.user ? <ProfilePage /> : <Authentication />} />
         <Route path="/books" element={<BooksPage />} />
       </Routes>
+      <AuthDialog />
     </div>
   );
 }

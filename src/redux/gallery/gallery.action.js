@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api, API_BASE_URL } from "../../api/api";
 import {
   ADD_IMAGE_FAILED,
@@ -36,7 +37,7 @@ export const getAllGalleryImages = () => async (dispatch) => {
   dispatch({ type: GET_ALL_IMAGES_REQUEST });
   console.log("getAllGalleryImages action dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/gallery`);
+    const { data } = await axios.get(`${API_BASE_URL}/gallery`);
     dispatch({ type: GET_ALL_IMAGES_SUCCESS, payload: data });
     console.log("Images: ", { payload: data });
     return { payload: data };
@@ -64,7 +65,7 @@ export const getAllImageTags = () => async (dispatch) => {
   dispatch({ type: GET_ALL_IMAGE_TAGS_REQUEST });
   console.log("getAllImageTags action dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/gallery/tags`);
+    const { data } = await axios.get(`${API_BASE_URL}/gallery/tags`);
     dispatch({ type: GET_ALL_IMAGE_TAGS_SUCCESS, payload: data });
     console.log("Tags: ", { payload: data });
     return { payload: data };
@@ -78,7 +79,7 @@ export const getTagsByImageId = (imageId) => async (dispatch) => {
   dispatch({ type: GET_TAGS_BY_IMAGE_REQUEST });
   console.log("getTagsByImageId action dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/gallery/tags/${imageId}`);
+    const { data } = await axios.get(`${API_BASE_URL}/gallery/tags/${imageId}`);
     dispatch({ type: GET_TAGS_BY_IMAGE_SUCCESS, payload: data });
     console.log("Tags: ", { payload: data });
     return { payload: data };
@@ -92,7 +93,7 @@ export const addImageAction = (reqData) => async (dispatch) => {
   dispatch({ type: ADD_IMAGE_REQUEST });
   console.log("addImageAction action dispatched with data: ", reqData.data);
   try {
-    const { data } = await api.post(`${API_BASE_URL}/api/gallery`, reqData.data);
+    const { data } = await api.post(`${API_BASE_URL}/admin/gallery`, reqData.data);
     dispatch({ type: ADD_IMAGE_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
@@ -108,7 +109,7 @@ export const editImageAction = (imageData) => async (dispatch) => {
 
   try {
     console.log("Image ID:", imageData.data.id);
-    const { data } = await api.put(`${API_BASE_URL}/api/gallery/${imageData.data.id}`, imageData.data, {
+    const { data } = await api.put(`${API_BASE_URL}/admin/gallery/${imageData.data.id}`, imageData.data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -125,7 +126,7 @@ export const deleteImageAction = (imageId) => async (dispatch) => {
   dispatch({ type: DELETE_IMAGE_REQUEST });
   console.log("deleteImageAction action dispatched");
   try {
-    const { data } = await api.delete(`${API_BASE_URL}/api/gallery/${imageId}`);
+    const { data } = await api.delete(`${API_BASE_URL}/admin/gallery/${imageId}`);
     dispatch({ type: DELETE_IMAGE_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
@@ -138,7 +139,7 @@ export const addTagAction = (reqData) => async (dispatch) => {
   dispatch({ type: ADD_IMAGE_TAG_REQUEST });
   console.log("addTagAction action dispatched");
   try {
-    const { data } = await api.post(`${API_BASE_URL}/api/gallery/tags`, reqData.data);
+    const { data } = await api.post(`${API_BASE_URL}/admin/gallery/tags`, reqData.data);
     dispatch({ type: ADD_IMAGE_TAG_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
@@ -154,7 +155,7 @@ export const editTagAction = (tagData) => async (dispatch) => {
 
   try {
     console.log("TAG ID:", tagData.data.id);
-    const { data } = await api.put(`${API_BASE_URL}/api/gallery/tags/${tagData.data.id}`, tagData.data);
+    const { data } = await api.put(`${API_BASE_URL}/admin/gallery/tags/${tagData.data.id}`, tagData.data);
     dispatch({ type: EDIT_IMAGE_TAG_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
@@ -167,7 +168,7 @@ export const deleteTagAction = (tagId) => async (dispatch) => {
   dispatch({ type: DELETE_IMAGE_TAG_REQUEST });
   console.log("deleteTagAction action dispatched");
   try {
-    const { data } = await api.delete(`${API_BASE_URL}/api/gallery/tags/${tagId}`);
+    const { data } = await api.delete(`${API_BASE_URL}/admin/gallery/tags/${tagId}`);
     dispatch({ type: DELETE_IMAGE_TAG_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {

@@ -28,15 +28,14 @@ export default function ChapterDetailPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     dispatch(getAllChaptersByBookIdAction(bookId));
     dispatch(getChapterById(bookId, chapterId));
-    dispatch(getReadingProgressByUserAndChapter(auth.user.id, chapterId));
-  }, [dispatch, bookId, chapterId, auth.user.id]);
-
-  useEffect(() => {
-    setLoading(true);
-    dispatch(getChapterById(bookId, chapterId)).finally(() => setLoading(false));
-  }, [dispatch, bookId, chapterId]);
+    if (auth.user) {
+      dispatch(getReadingProgressByUserAndChapter(auth.user.id, chapterId));
+    }
+    setLoading(false);
+  }, [dispatch, bookId, chapterId, auth.user]);
 
   const handlePageFlip = (e) => {
     const pageIndex = e.data;
@@ -44,6 +43,9 @@ export default function ChapterDetailPage() {
   };
 
   const saveProgress = useCallback(async () => {
+    if (!auth.user) {
+      return;
+    }
     setLoading(true);
     let progress = 0;
     if (totalPages > 1) {
@@ -54,35 +56,19 @@ export default function ChapterDetailPage() {
     }
     await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
     setLoading(false);
-  }, [dispatch, bookId, chapterId, auth.user.id, currentPage, totalPages]);
+  }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
 
   useEffect(() => {
     if (totalPages > 0) {
-      const progress = Array.isArray(progresses) ? progresses.find((p) => Number(p.chapterId) === Number(chapterId)) : null;
+      const progress = progresses.find((p) => Number(p.chapterId) === Number(chapterId));
       if (progress) {
-        console.log("Progress: ", progress);
-        const pageIndex = Math.floor((progress?.progress / 100) * totalPages);
-        console.log("Page index: ", pageIndex);
+        const pageIndex = Math.floor((progress.progress / 100) * totalPages);
         setCurrentPage(pageIndex);
       }
     }
   }, [totalPages, progresses, chapterId]);
 
-  const debouncedSaveProgress = useCallback(
-    debounce(async () => {
-      setLoading(true);
-      let progress = 0;
-      if (totalPages > 1) {
-        const pagesRead = Math.ceil((currentPage + 1) / 2);
-        progress = (pagesRead / Math.ceil(totalPages / 2)) * 100;
-      } else if (totalPages === 1) {
-        progress = 100;
-      }
-      await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
-      setLoading(false);
-    }, 300), // Adjust the debounce delay as needed
-    [dispatch, bookId, chapterId, auth.user.id, currentPage, totalPages]
-  );
+  const debouncedSaveProgress = useCallback(debounce(saveProgress, 300), [saveProgress]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {

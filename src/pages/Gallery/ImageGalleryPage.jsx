@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   Grid,
+  Grow,
   IconButton,
   InputAdornment,
   TextField,
@@ -21,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import { addImageToFav, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
+import { useAuthCheck } from "../../utils/useAuthCheck";
 export default function ImageGalleryPage() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export default function ImageGalleryPage() {
   const [selectedTags, setSelectedTags] = useState(["All"]);
   const { auth } = useSelector((store) => store);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const { checkAuth } = useAuthCheck();
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
@@ -60,7 +62,7 @@ export default function ImageGalleryPage() {
     fetchImages();
   }, [dispatch]);
 
-  const handleFavoriteToggle = async (event, imageId) => {
+  const handleFavoriteToggle = checkAuth(async (event, imageId) => {
     event.stopPropagation();
     setLoading(true);
 
@@ -97,7 +99,7 @@ export default function ImageGalleryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   const toggleTag = (tagName) => {
     if (tagName === "All") {
@@ -206,36 +208,39 @@ export default function ImageGalleryPage() {
             </Box>
             <Grid container spacing={3} sx={{ transition: "all 0.3s ease-in-out" }}>
               {filteredImages?.map((image, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={image.id}>
-                  <Card
-                    onClick={() => setSelectedImage(image.imageUrl)}
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "scale(1.05)",
-                        transition: "transform 0.3s ease-in-out",
-                      },
-                    }}
-                  >
-                    <img
-                      src={image.imageUrl}
-                      alt={image.name}
-                      className="object-contain w-full h-full rounded-t-md"
-                      style={{ aspectRatio: "400/400", objectFit: "cover" }}
-                    />
-                    <CardContent className="p-4">
-                      <Typography variant="h6" className="font-semibold mb-2">
-                        {image.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {image.tags.map((tag) => tag.name).join(", ") || "No tags available"}
-                      </Typography>
-                      <IconButton onClick={(e) => handleFavoriteToggle(e, image.id)}>
-                        {isFavouredByReqUser(auth.user.id, image) ? <FavoriteIcon color="error" /> : <FavoriteBorder />}
-                      </IconButton>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                <Grow in style={{ transformOrigin: "0 0 0" }} {...(image ? { timeout: 1000 } : {})} key={image.id}>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Card
+                      onClick={() => setSelectedImage(image.imageUrl)}
+                      sx={{
+                        cursor: "pointer",
+                        height: 300, // Fixed height
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                          transition: "transform 0.3s ease-in-out",
+                        },
+                      }}
+                    >
+                      <img
+                        src={image.imageUrl}
+                        alt={image.name}
+                        className="object-contain w-full h-full rounded-t-md"
+                        style={{ height: 200, width: "100%", objectFit: "cover" }} // Fixed height and width
+                      />
+                      <CardContent className="p-4">
+                        <Typography variant="h6" className="font-semibold mb-2">
+                          {image.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {image.tags.map((tag) => tag.name).join(", ") || "No tags available"}
+                        </Typography>
+                        <IconButton onClick={(e) => handleFavoriteToggle(e, image.id)}>
+                          {isFavouredByReqUser(auth.user?.id, image) ? <FavoriteIcon color="error" /> : <FavoriteBorder />}
+                        </IconButton>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grow>
               ))}
             </Grid>
           </>

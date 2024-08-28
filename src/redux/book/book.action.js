@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api, API_BASE_URL } from "../../api/api";
 import {
   GET_CHAPTERS_BY_BOOK_FAILED,
@@ -38,7 +39,7 @@ import {
 export const getAllBookAction = () => async (dispatch) => {
   dispatch({ type: GET_ALL_BOOK_REQUEST });
   try {
-    const { data } = await api.get("/api/books");
+    const { data } = await axios.get(`${API_BASE_URL}/books`);
     dispatch({ type: GET_ALL_BOOK_SUCCESS, payload: data });
     console.log("got all books: ", data);
     return { payload: data };
@@ -62,7 +63,7 @@ export const getAllUserFollowingBookAction = (userId) => async (dispatch) => {
 export const getAllCommentByBookAction = (bookId) => async (dispatch) => {
   dispatch({ type: GET_ALL_BOOK_COMMENT_REQUEST });
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}/comments`);
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/comments`);
     dispatch({ type: GET_ALL_BOOK_COMMENT_SUCCESS, payload: data });
     console.log("got all book comment: ", data);
     return { payload: data };
@@ -75,7 +76,7 @@ export const getBookByIdAction = (bookId) => async (dispatch) => {
   console.log("Action getBookByIdAction dispatched");
   dispatch({ type: GET_BOOK_REQUEST });
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/books/${bookId}`);
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}`);
     console.log("Got book: ", data);
     dispatch({ type: GET_BOOK_SUCCESS, payload: data });
     return { payload: data };
@@ -146,7 +147,7 @@ export const addNewBookAction = (bookData) => async (dispatch) => {
   console.log("Action addNewBookAction dispatched");
   dispatch({ type: BOOK_UPLOAD_REQUEST });
   try {
-    const { data } = await api.post(`${API_BASE_URL}/api/translator/books`, bookData.data);
+    const { data } = await api.post(`${API_BASE_URL}/translator/books`, bookData.data);
     console.log("New book added", data);
     dispatch({ type: BOOK_UPLOAD_SUCCEED, payload: data });
   } catch (error) {
@@ -159,7 +160,7 @@ export const editBookAction = (bookData) => async (dispatch) => {
   data.bookCover = bookCover;
   dispatch({ type: BOOK_EDIT_REQUEST });
   try {
-    const response = await api.put(`${API_BASE_URL}/api/translator/books/${bookDetails.id}`, data);
+    const response = await api.put(`${API_BASE_URL}/translator/books/${bookDetails.id}`, data);
     console.log("Book edited", response.data);
     dispatch({ type: BOOK_EDIT_SUCCEED, payload: response.data });
   } catch (error) {
@@ -172,7 +173,7 @@ export const deleteBookAction = (bookId) => async (dispatch) => {
   console.log("Action deleteBookAction dispatched");
   dispatch({ type: BOOK_DELETE_REQUEST });
   try {
-    const { data } = await api.delete(`${API_BASE_URL}/api/translator/books/${bookId}`);
+    const { data } = await api.delete(`${API_BASE_URL}/translator/books/${bookId}`);
     console.log("Book deleted", data);
     dispatch({ type: BOOK_DELETE_SUCCEED, payload: data });
   } catch (error) {
@@ -207,7 +208,7 @@ export const createCommentAction = (reqData) => async (dispatch) => {
 export const searchBookAction = (query) => async (dispatch) => {
   dispatch({ type: SEARCH_BOOK_REQUEST });
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/books/search`, { params: { query } });
+    const { data } = await api.get(`${API_BASE_URL}/books/search`, { params: { query } });
     dispatch({ type: SEARCH_BOOK_SUCCESS, payload: data });
     console.log("Found books: ", data);
     return { payload: data };

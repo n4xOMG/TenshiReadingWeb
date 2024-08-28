@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { CommentSection } from "../../components/BookPageComponents/CommentSection";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
-import { followBookAction, getBookDetailsAndChaptersAction } from "../../redux/book/book.action";
+import { followBookAction, getBookByIdAction, getBookDetailsAndChaptersAction } from "../../redux/book/book.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
+import { useAuthCheck } from "../../utils/useAuthCheck";
+import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 
 export default function BookDetailPage() {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ export default function BookDetailPage() {
   const { chapters, progresses = [] } = useSelector((store) => store.chapter);
   const { book } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
+  const { checkAuth, AuthDialog } = useAuthCheck();
   const [loading, setLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,6 +29,11 @@ export default function BookDetailPage() {
       setLoading(true);
       await dispatch(getBookDetailsAndChaptersAction(bookId, auth.user.id));
       setLoading(false);
+    } else {
+      setLoading(true);
+      await dispatch(getBookByIdAction(bookId));
+      await dispatch(getAllChaptersByBookIdAction(bookId));
+      setLoading(false);
     }
   };
 
@@ -34,10 +42,10 @@ export default function BookDetailPage() {
   }, [dispatch, bookId, auth.user]);
 
   useEffect(() => {
-    if (book) {
+    if (book && auth.user) {
       setIsFavorite(isFavouredByReqUser(auth.user.id, book));
     }
-  }, [book, auth.user.id]);
+  }, [book, auth.user]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,14 +64,14 @@ export default function BookDetailPage() {
     }
   }, [chapters, progresses]);
 
-  const handleFollowBook = async () => {
+  const handleFollowBook = checkAuth(async () => {
     try {
       await dispatch(followBookAction(bookId));
       setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("Error following book:", error);
     }
-  };
+  });
 
   return (
     <>
@@ -247,6 +255,7 @@ export default function BookDetailPage() {
           </Grid>
         )}
       </Box>
+      <AuthDialog />
     </>
   );
 }

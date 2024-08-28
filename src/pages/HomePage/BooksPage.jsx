@@ -7,14 +7,14 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Box, Button, Card, CardContent, CircularProgress, Drawer, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllBookAction } from "../../redux/book/book.action";
 import { getWebPUrl } from "../../utils/cloudinaryHandlePNG";
 import { formatDate } from "../../utils/formatDate";
 
 export default function BooksPage() {
-  const [books, setBooks] = useState([]);
+  const { books } = useSelector((store) => store.book);
   const [selectedBook, setSelectedBook] = useState(null);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -29,7 +29,6 @@ export default function BooksPage() {
       setLoading(true);
       try {
         const results = await dispatch(getAllBookAction());
-        setBooks(results.payload);
         if (results.payload.length > 0) {
           setSelectedBook(results.payload[results.payload.length - 1]);
         }

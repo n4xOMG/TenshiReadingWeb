@@ -23,7 +23,10 @@ export default function UserPages() {
     { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
     { text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" },
   ];
-
+  const handleSignOut = () => {
+    localStorage.removeItem("jwt");
+    navigate("/sign-in");
+  };
   return (
     <Box
       sx={{
@@ -98,14 +101,16 @@ export default function UserPages() {
             </List>
           </Box>
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-            {auth.user.role.name === "ADMIN" && (
+            {auth.user?.role?.name === "ADMIN" && (
               <Button variant="outlined" onClick={() => navigate("/admin")} fullWidth>
                 Admin
               </Button>
             )}
-            <Button variant="outlined" fullWidth>
-              Sign Out
-            </Button>
+            {auth.user && (
+              <Button variant="outlined" onClick={handleSignOut} fullWidth>
+                Sign Out
+              </Button>
+            )}
           </Box>
         </Box>
       </Drawer>

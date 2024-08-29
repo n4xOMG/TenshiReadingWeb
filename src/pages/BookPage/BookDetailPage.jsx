@@ -1,23 +1,42 @@
-import { FavoriteBorder, MenuBook, Star } from "@mui/icons-material";
+import { FavoriteBorder, MenuBook } from "@mui/icons-material";
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { Box, Button, CircularProgress, Grid, IconButton, LinearProgress, List, ListItem, ListItemText, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  IconButton,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Rating,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { CommentSection } from "../../components/BookPageComponents/CommentSection";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
-import { followBookAction, getBookByIdAction, getBookDetailsAndChaptersAction } from "../../redux/book/book.action";
+import {
+  followBookAction,
+  getAvgBookRating,
+  getBookByIdAction,
+  getBookDetailsAndChaptersAction,
+  getBookRatingByUserAction,
+  ratingBookAction,
+} from "../../redux/book/book.action";
+import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
-import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 
 export default function BookDetailPage() {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
   const { chapters, progresses = [] } = useSelector((store) => store.chapter);
-  const { book } = useSelector((store) => store.book);
+  const { book, rating } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
   const { checkAuth, AuthDialog } = useAuthCheck();
   const [loading, setLoading] = useState(false);
@@ -27,12 +46,14 @@ export default function BookDetailPage() {
   const fetchBookAndChapterDetails = async () => {
     if (auth.user) {
       setLoading(true);
+      await dispatch(getBookRatingByUserAction(bookId));
       await dispatch(getBookDetailsAndChaptersAction(bookId, auth.user.id));
       setLoading(false);
     } else {
       setLoading(true);
       await dispatch(getBookByIdAction(bookId));
       await dispatch(getAllChaptersByBookIdAction(bookId));
+      await dispatch(getAvgBookRating(bookId));
       setLoading(false);
     }
   };
@@ -73,6 +94,16 @@ export default function BookDetailPage() {
     }
   });
 
+  const handleRating = checkAuth(async (value) => {
+    try {
+      setLoading(true);
+      await dispatch(ratingBookAction(bookId, value));
+    } catch (error) {
+      console.error("Error rating book: ", error);
+    } finally {
+      setLoading(false);
+    }
+  });
   return (
     <>
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -110,10 +141,12 @@ export default function BookDetailPage() {
               />
               <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} sx={{ width: 20, height: 20, color: i < Math.floor(4) ? "yellow.400" : "gray.300" }} />
-                  ))}
-                  <Typography sx={{ ml: 2, color: "gray.600" }}>{4}</Typography>
+                  <Rating
+                    name="simple-controlled"
+                    value={rating ? rating.rating : 0}
+                    onChange={(event, newValue) => handleRating(newValue)}
+                  />
+                  <Typography sx={{ ml: 2, color: "gray.600" }}>{rating ? rating.rating : 0}</Typography>
                 </Box>
                 <IconButton
                   onClick={handleFollowBook}

@@ -41,6 +41,7 @@ export default function ChapterDetailPage() {
     }
     setLoading(false);
   }, [dispatch, bookId, chapterId, auth.user]);
+
   const saveProgress = useCallback(async () => {
     if (!auth.user) {
       return;
@@ -61,21 +62,6 @@ export default function ChapterDetailPage() {
 
     await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
   }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
-  const handlePageFlip = useCallback(
-    (pageIndex) => {
-      console.log("handlePageFlip called with pageIndex:", pageIndex);
-      if (pageIndex >= totalPages || pageIndex < 0) {
-        return;
-      }
-
-      setCurrentPage(pageIndex);
-      console.log("Current page: ", currentPage);
-      if (pageIndex === totalPages - 1) {
-        saveProgress();
-      }
-    },
-    [totalPages, saveProgress]
-  );
 
   const debouncedSaveProgress = useMemo(
     () =>
@@ -168,22 +154,10 @@ export default function ChapterDetailPage() {
     handleNavigation(`/books/${bookId}`);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      console.log("Key pressed:", event.key);
-      if (event.key === "ArrowRight") {
-        handlePageFlip(currentPage + 1);
-      } else if (event.key === "ArrowLeft") {
-        handlePageFlip(currentPage - 1);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentPage, handlePageFlip]);
+  const handlePageChange = (pageIndex) => {
+    setCurrentPage(pageIndex); // Update currentPage in ChapterDetailPage
+    debouncedSaveProgress(); // Save progress when the page changes
+  };
 
   return (
     <div className="flex flex-col w-full h-full items-center bg-[#202124]">
@@ -257,7 +231,13 @@ export default function ChapterDetailPage() {
             }}
           >
             {chapter && currentPage !== undefined && (
-              <Flipbook pages={pages} onFlip={(e) => handlePageFlip(e.data)} initialPage={currentPage} />
+              <Flipbook
+                pages={pages}
+                totalPages={totalPages}
+                initialPage={currentPage}
+                saveProgress={saveProgress}
+                onPageChange={handlePageChange} // Pass down the callback
+              />
             )}
           </Box>
         </>

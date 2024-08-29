@@ -1,9 +1,9 @@
 import parse from "html-react-parser";
 import HTMLFlipBook from "react-pageflip";
 import { Page } from "./Page";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export const Flipbook = ({ pages, onFlip, initialPage }) => {
+export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageChange }) => {
   const flipBookRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
 
@@ -12,6 +12,45 @@ export const Flipbook = ({ pages, onFlip, initialPage }) => {
       setCurrentPage(initialPage);
     }
   }, [initialPage]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowRight") {
+        if (currentPage < totalPages - 1) {
+          flipBookRef.current.pageFlip().flipNext();
+        }
+      } else if (event.key === "ArrowLeft") {
+        if (currentPage > 0) {
+          flipBookRef.current.pageFlip().flipPrev();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentPage, totalPages]);
+
+  const handlePageFlip = useCallback(
+    (e) => {
+      const pageIndex = e.data;
+      console.log("handlePageFlip called with pageIndex:", pageIndex);
+
+      if (pageIndex >= totalPages || pageIndex < 0) {
+        return;
+      }
+
+      setCurrentPage(pageIndex);
+      onPageChange(pageIndex); // Update the parent component's state
+
+      if (pageIndex === totalPages - 1) {
+        saveProgress();
+      }
+      console.log("Current page: ", pageIndex);
+    },
+    [totalPages, onPageChange, saveProgress]
+  );
 
   const nonClickableAreaStyle = {
     position: "absolute",
@@ -39,7 +78,7 @@ export const Flipbook = ({ pages, onFlip, initialPage }) => {
         flippingTime={500}
         showCover={true}
         className="text-left text-yellow-50 bg-[#202124] px-3 overflow-hidden"
-        onFlip={onFlip}
+        onFlip={handlePageFlip}
         startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0}
       >
         {pages.map((page, index) => (

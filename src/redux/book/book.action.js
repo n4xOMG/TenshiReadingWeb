@@ -28,9 +28,18 @@ import {
   GET_ALL_BOOK_FAILED,
   GET_ALL_BOOK_REQUEST,
   GET_ALL_BOOK_SUCCESS,
+  GET_AVG_BOOK_RATING_FAILED,
+  GET_AVG_BOOK_RATING_REQUEST,
+  GET_AVG_BOOK_RATING_SUCCESS,
   GET_BOOK_FAILED,
+  GET_BOOK_RATING_BY_USER_FAILED,
+  GET_BOOK_RATING_BY_USER_REQUEST,
+  GET_BOOK_RATING_BY_USER_SUCCESS,
   GET_BOOK_REQUEST,
   GET_BOOK_SUCCESS,
+  RATING_BOOK_FAILED,
+  RATING_BOOK_REQUEST,
+  RATING_BOOK_SUCCESS,
   SEARCH_BOOK_FAILED,
   SEARCH_BOOK_REQUEST,
   SEARCH_BOOK_SUCCESS,
@@ -215,5 +224,44 @@ export const searchBookAction = (query) => async (dispatch) => {
   } catch (error) {
     console.log("error", error);
     dispatch({ type: SEARCH_BOOK_FAILED, payload: error });
+  }
+};
+
+export const ratingBookAction = (bookId, rating) => async (dispatch) => {
+  console.log("Action ratingBookAction dispatched");
+  dispatch({ type: RATING_BOOK_REQUEST });
+  try {
+    const { data } = await api.patch(`${API_BASE_URL}/api/books/rating/${bookId}`, { rating });
+    console.log("Rated book", data);
+    dispatch({ type: RATING_BOOK_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to rating book: ", error);
+    dispatch({ type: RATING_BOOK_FAILED, payload: error.message });
+  }
+};
+
+export const getBookRatingByUserAction = (bookId) => async (dispatch) => {
+  console.log("Action getBookRatingByUserAction dispatched");
+  dispatch({ type: GET_BOOK_RATING_BY_USER_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/books/rating/${bookId}`);
+    console.log("got book rating", data);
+    dispatch({ type: GET_BOOK_RATING_BY_USER_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to rating book: ", error);
+    dispatch({ type: GET_BOOK_RATING_BY_USER_FAILED, payload: error.message });
+  }
+};
+
+export const getAvgBookRating = (bookId) => async (dispatch) => {
+  console.log("Action getAvgBookRating dispatched");
+  dispatch({ type: GET_AVG_BOOK_RATING_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
+    console.log("got avg book rating", data);
+    dispatch({ type: GET_AVG_BOOK_RATING_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to rating book: ", error);
+    dispatch({ type: GET_AVG_BOOK_RATING_FAILED, payload: error.message });
   }
 };

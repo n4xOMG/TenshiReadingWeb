@@ -1,6 +1,6 @@
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import { Box, Button, CircularProgress, Drawer, IconButton, List, ListItem, ListItemText } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -28,7 +28,6 @@ export default function ChapterDetailPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const flipBookRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -42,30 +41,14 @@ export default function ChapterDetailPage() {
     }
     setLoading(false);
   }, [dispatch, bookId, chapterId, auth.user]);
-
-  const getCharacterCount = useCallback(() => {
-    const width = window.innerWidth;
-    if (width < 300) {
-      return 150;
-    } else if (width < 400) {
-      return 250;
-    } else if (width < 500) {
-      return 350;
-    } else if (width < 600) {
-      return 450;
-    } else {
-      return 700;
-    }
-  }, []);
-
   const saveProgress = useCallback(async () => {
     if (!auth.user) {
       return;
     }
     let progress = 0;
 
-    const pagesRead = Math.ceil((currentPage + 1) / 2);
-    const totalFlipPages = Math.ceil(totalPages / 2);
+    const pagesRead = Math.ceil((currentPage + 1) / 2); // Calculate pages read in two-page mode
+    const totalFlipPages = Math.ceil(totalPages / 2); // Total pages in two-page mode
 
     if (totalFlipPages > 1) {
       progress = (pagesRead / totalFlipPages) * 100;
@@ -78,6 +61,21 @@ export default function ChapterDetailPage() {
 
     await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
   }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
+  const handlePageFlip = useCallback(
+    (pageIndex) => {
+      console.log("handlePageFlip called with pageIndex:", pageIndex);
+      if (pageIndex >= totalPages || pageIndex < 0) {
+        return;
+      }
+
+      setCurrentPage(pageIndex);
+      console.log("Current page: ", currentPage);
+      if (pageIndex === totalPages - 1) {
+        saveProgress();
+      }
+    },
+    [totalPages, saveProgress]
+  );
 
   const debouncedSaveProgress = useMemo(
     () =>
@@ -86,71 +84,6 @@ export default function ChapterDetailPage() {
       }, 300),
     [bookId, chapterId, auth.user?.id, currentPage, totalPages]
   );
-  const handlePageFlip = useCallback(
-    (pageIndex) => {
-      if (pageIndex >= totalPages || pageIndex < 0) {
-        return;
-      }
-
-      setCurrentPage(pageIndex);
-
-      if (flipBookRef.current) {
-        flipBookRef.current.pageFlip().flip(pageIndex);
-      }
-
-      if (pageIndex === totalPages - 1) {
-        saveProgress();
-      }
-    },
-    [totalPages, saveProgress]
-  );
-  const handleNavigation = (path) => {
-    saveProgress();
-    setTimeout(() => {
-      navigate(path);
-    }, 100);
-  };
-
-  const handleChapterClick = (chapterId) => {
-    saveProgress();
-    setCurrentPage(0);
-    setTotalPages(0);
-    setChapterId(chapterId);
-    window.location.href = `/books/${bookId}/chapters/${chapterId}`;
-  };
-
-  const handleBackToBookPage = () => {
-    handleNavigation(`/books/${bookId}`);
-  };
-
-  const pages = useMemo(() => {
-    const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
-
-    if (book && book.bookCover) {
-      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" />`);
-      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" />`);
-    }
-
-    // Remove any empty or whitespace-only pages
-    const filteredPages = contentPages.filter((page) => page.trim() !== "");
-
-    return filteredPages;
-  }, [chapter, getCharacterCount, book]);
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === "ArrowRight") {
-        handlePageFlip(currentPage + 1);
-      } else if (event.key === "ArrowLeft") {
-        handlePageFlip(currentPage - 1);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentPage, handlePageFlip]);
 
   useEffect(() => {
     if (totalPages > 0) {
@@ -182,10 +115,75 @@ export default function ChapterDetailPage() {
     };
   }, [debouncedSaveProgress]);
 
+  const getCharacterCount = useCallback(() => {
+    const width = window.innerWidth;
+    if (width < 300) {
+      return 150;
+    } else if (width < 400) {
+      return 250;
+    } else if (width < 500) {
+      return 350;
+    } else if (width < 600) {
+      return 450;
+    } else {
+      return 700;
+    }
+  }, []);
+
+  const pages = useMemo(() => {
+    const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
+
+    if (book && book.bookCover) {
+      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" />`);
+      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" />`);
+    }
+
+    // Remove any empty or whitespace-only pages
+    const filteredPages = contentPages.filter((page) => page.trim() !== "");
+
+    return filteredPages;
+  }, [chapter, getCharacterCount, book]);
+
   useEffect(() => {
     console.log("Pages:", pages);
     setTotalPages(pages.length);
   }, [pages]);
+
+  const handleNavigation = (path) => {
+    saveProgress();
+    setTimeout(() => {
+      navigate(path);
+    }, 100);
+  };
+
+  const handleChapterClick = (chapterId) => {
+    saveProgress();
+    setCurrentPage(0);
+    setTotalPages(0);
+    setChapterId(chapterId);
+    window.location.href = `/books/${bookId}/chapters/${chapterId}`;
+  };
+
+  const handleBackToBookPage = () => {
+    handleNavigation(`/books/${bookId}`);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      console.log("Key pressed:", event.key);
+      if (event.key === "ArrowRight") {
+        handlePageFlip(currentPage + 1);
+      } else if (event.key === "ArrowLeft") {
+        handlePageFlip(currentPage - 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentPage, handlePageFlip]);
 
   return (
     <div className="flex flex-col w-full h-full items-center bg-[#202124]">
@@ -259,7 +257,7 @@ export default function ChapterDetailPage() {
             }}
           >
             {chapter && currentPage !== undefined && (
-              <Flipbook ref={flipBookRef} pages={pages} onFlip={(e) => handlePageFlip(e.data)} initialPage={currentPage} />
+              <Flipbook pages={pages} onFlip={(e) => handlePageFlip(e.data)} initialPage={currentPage} />
             )}
           </Box>
         </>

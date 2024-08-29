@@ -30,10 +30,12 @@ export function splitContent(content, wordsPerPage) {
   const traverseDom = (nodes) => {
     nodes.forEach((node) => {
       if (node.type === "text") {
-        const words = node.data.split(" ");
+        const words = node.data.trim().split(/\s+/);
         words.forEach((word) => {
           if (currentWordCount + word.length > wordsPerPage) {
-            pages.push(currentPage.trim());
+            if (currentPage.trim()) {
+              pages.push(currentPage.trim());
+            }
             currentPage = "";
             currentWordCount = 0;
           }
@@ -42,7 +44,7 @@ export function splitContent(content, wordsPerPage) {
         });
       } else if (node.type === "tag") {
         if (node.name === "img") {
-          if (currentPage) {
+          if (currentPage.trim()) {
             pages.push(currentPage.trim());
             currentPage = "";
             currentWordCount = 0;
@@ -72,9 +74,9 @@ export function splitContent(content, wordsPerPage) {
 
   traverseDom(dom);
 
-  if (currentPage) {
+  if (currentPage.trim()) {
     pages.push(currentPage.trim());
   }
 
-  return pages;
+  return pages.filter((page) => page.trim() !== "" && page !== "<p></p>");
 }

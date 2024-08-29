@@ -5,7 +5,6 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./pages/Admin/Dashboard";
 import Authentication from "./pages/Auth/Authentication";
-import BookDetailPage from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
 import BooksPage from "./pages/HomePage/BooksPage";
@@ -17,6 +16,7 @@ import SignIn from "./pages/Auth/SignIn";
 import SignUp from "./pages/Auth/SignUp";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 
 function App() {
   const dispatch = useDispatch();

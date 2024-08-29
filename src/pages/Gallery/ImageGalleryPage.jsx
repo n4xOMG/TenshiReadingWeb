@@ -1,7 +1,7 @@
-import DehazeIcon from "@mui/icons-material/Dehaze";
-import SearchIcon from "@mui/icons-material/Search";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FavoriteBorder } from "@mui/icons-material";
+import DehazeIcon from "@mui/icons-material/Dehaze";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Badge,
   Box,
@@ -13,18 +13,17 @@ import {
   Grid,
   Grow,
   IconButton,
-  InputAdornment,
-  TextField,
+  InputBase,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import LazyLoad from "react-lazyload";
 import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import { addImageToFav, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
-import { useAuthCheck } from "../../utils/useAuthCheck";
-import LazyLoad from "react-lazyload";
 import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
+import { useAuthCheck } from "../../utils/useAuthCheck";
 
 export default function ImageGalleryPage() {
   const dispatch = useDispatch();
@@ -76,9 +75,11 @@ export default function ImageGalleryPage() {
       );
     }
   };
+
   const filteredImages = selectedTags.includes("All")
     ? images
     : images.filter((image) => selectedTags.every((selectedTag) => image.tags.some((tag) => tag.name === selectedTag)));
+
   return (
     <>
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -99,75 +100,66 @@ export default function ImageGalleryPage() {
       >
         <DehazeIcon />
       </IconButton>
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 min-h-screen">
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <Typography variant="h4" className="font-bold">
-              Image Gallery
-            </Typography>
-            <div className="w-full max-w-md">
-              <TextField
-                variant="outlined"
-                placeholder="Search images..."
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </header>
+      <Box sx={{ maxWidth: 1200, mx: "auto", px: 4, py: 8 }}>
+        <Typography variant="h3" component="h1" sx={{ mb: 8, textAlign: "center", fontWeight: "bold" }}>
+          Image Gallery
+        </Typography>
+
+        <Box sx={{ mb: 6, display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center" }}>
+          <Badge
+            variant={selectedTags.includes("All") ? "default" : "outlined"}
+            sx={{
+              mr: 2,
+              mb: 2,
+              cursor: "pointer",
+              borderRadius: "16px",
+              padding: "4px 8px",
+              margin: "0 8px 8px 0",
+              backgroundColor: selectedTags.includes("All") ? "grey.300" : "transparent",
+              "&:hover": {
+                backgroundColor: "grey.200",
+              },
+            }}
+            onClick={() => toggleTag("All")}
+          >
+            All
+          </Badge>
+          {tags?.map((tag) => (
+            <Badge
+              key={tag.id}
+              variant={selectedTags.includes(tag.name) ? "default" : "outlined"}
+              sx={{
+                mr: 2,
+                mb: 2,
+                cursor: "pointer",
+                borderRadius: "16px",
+                padding: "4px 8px",
+                margin: "0 8px 8px 0",
+                backgroundColor: selectedTags.includes(tag.name) ? "grey.300" : "transparent",
+                "&:hover": {
+                  backgroundColor: "grey.200",
+                },
+              }}
+              onClick={() => toggleTag(tag.name)}
+            >
+              {tag.name}
+            </Badge>
+          ))}
+        </Box>
+
+        <Box sx={{ mb: 6, position: "relative" }}>
+          <IconButton sx={{ position: "absolute", left: 2, top: "50%", transform: "translateY(-50%)", color: "gray" }}>
+            <SearchIcon />
+          </IconButton>
+          <InputBase type="text" placeholder="Search by caption or tag..." sx={{ pl: 5, width: "100%" }} />
+        </Box>
+
         {loading ? (
-          <div className="flex justify-center">
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
             <CircularProgress />
-          </div>
+          </Box>
         ) : (
           <>
-            <Box sx={{ mb: 4 }}>
-              <Badge
-                variant={selectedTags.includes("All") ? "default" : "outlined"}
-                sx={{
-                  mr: 2,
-                  mb: 2,
-                  cursor: "pointer",
-                  borderRadius: "16px",
-                  padding: "4px 8px",
-                  margin: "0 8px 8px 0",
-                  backgroundColor: selectedTags.includes("All") ? "grey.300" : "transparent",
-                  "&:hover": {
-                    backgroundColor: "grey.200",
-                  },
-                }}
-                onClick={() => toggleTag("All")}
-              >
-                All
-              </Badge>
-              {tags?.map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant={selectedTags.includes(tag.name) ? "default" : "outlined"}
-                  sx={{
-                    mr: 2,
-                    mb: 2,
-                    cursor: "pointer",
-                    borderRadius: "16px",
-                    padding: "4px 8px",
-                    margin: "0 8px 8px 0",
-                    backgroundColor: selectedTags.includes(tag.name) ? "grey.300" : "transparent",
-                    "&:hover": {
-                      backgroundColor: "grey.200",
-                    },
-                  }}
-                  onClick={() => toggleTag(tag.name)}
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-            </Box>
             <Grid container spacing={3} sx={{ transition: "all 0.3s ease-in-out" }}>
               {filteredImages?.map((image) => (
                 <Grow in style={{ transformOrigin: "0 0 0" }} {...(image ? { timeout: 1000 } : {})} key={image.id}>
@@ -209,6 +201,7 @@ export default function ImageGalleryPage() {
             </Grid>
           </>
         )}
+
         {selectedImage && (
           <Dialog
             open={true}
@@ -246,7 +239,7 @@ export default function ImageGalleryPage() {
             </DialogContent>
           </Dialog>
         )}
-      </div>
+      </Box>
     </>
   );
 }

@@ -19,9 +19,11 @@ export default function ChapterDetailPage() {
   const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { chapter, chapters, progresses = [] } = useSelector((store) => store.chapter);
   const { auth } = useSelector((store) => store);
   const { book } = useSelector((store) => store.book);
+
   const [bookId] = useState(paramBookId);
   const [chapterId, setChapterId] = useState(paramChapterId);
   const [currentPage, setCurrentPage] = useState(0);
@@ -29,6 +31,7 @@ export default function ChapterDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Fetch chapter, book, and progress data on mount and when dependencies change
   useEffect(() => {
     setLoading(true);
     dispatch(getAllChaptersByBookIdAction(bookId));
@@ -40,22 +43,19 @@ export default function ChapterDetailPage() {
       dispatch(getReadingProgressByUserAndChapter(auth.user.id, chapterId));
     }
     setLoading(false);
-  }, [dispatch, bookId, chapterId, auth.user]);
+  }, [dispatch, bookId, chapterId, auth.user, book]);
 
+  // Save reading progress
   const saveProgress = useCallback(async () => {
-    if (!auth.user) {
-      return;
-    }
-    let progress = 0;
+    if (!auth.user) return;
 
-    const pagesRead = Math.ceil((currentPage + 1) / 2); // Calculate pages read in two-page mode
-    const totalFlipPages = Math.ceil(totalPages / 2); // Total pages in two-page mode
+    let progress = 0;
+    const pagesRead = Math.ceil((currentPage + 1) / 2);
+    const totalFlipPages = Math.ceil(totalPages / 2);
 
     if (totalFlipPages > 1) {
       progress = (pagesRead / totalFlipPages) * 100;
-      if (pagesRead >= totalFlipPages) {
-        progress = 100;
-      }
+      if (pagesRead >= totalFlipPages) progress = 100;
     } else if (totalFlipPages === 1) {
       progress = 100;
     }
@@ -63,13 +63,7 @@ export default function ChapterDetailPage() {
     await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
   }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
 
-  const debouncedSaveProgress = useMemo(
-    () =>
-      debounce(async () => {
-        await saveProgress();
-      }, 300),
-    [bookId, chapterId, auth.user?.id, currentPage, totalPages]
-  );
+  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
 
   useEffect(() => {
     if (totalPages > 0) {
@@ -81,6 +75,7 @@ export default function ChapterDetailPage() {
     }
   }, [totalPages, progresses, chapterId]);
 
+  // Save progress before unloading or navigating away
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       debouncedSaveProgress();
@@ -101,21 +96,17 @@ export default function ChapterDetailPage() {
     };
   }, [debouncedSaveProgress]);
 
+  // Determine character count per page based on screen width
   const getCharacterCount = useCallback(() => {
     const width = window.innerWidth;
-    if (width < 300) {
-      return 150;
-    } else if (width < 400) {
-      return 250;
-    } else if (width < 500) {
-      return 350;
-    } else if (width < 600) {
-      return 450;
-    } else {
-      return 700;
-    }
+    if (width < 300) return 150;
+    if (width < 400) return 250;
+    if (width < 500) return 350;
+    if (width < 600) return 450;
+    return 700;
   }, []);
 
+  // Generate pages from chapter content
   const pages = useMemo(() => {
     const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
 
@@ -124,40 +115,47 @@ export default function ChapterDetailPage() {
       contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" />`);
     }
 
-    // Remove any empty or whitespace-only pages
-    const filteredPages = contentPages.filter((page) => page.trim() !== "");
-
-    return filteredPages;
+    return contentPages.filter((page) => page.trim() !== "");
   }, [chapter, getCharacterCount, book]);
 
+  // Update total pages when content changes
   useEffect(() => {
-    console.log("Pages:", pages);
     setTotalPages(pages.length);
   }, [pages]);
 
-  const handleNavigation = (path) => {
-    saveProgress();
-    setTimeout(() => {
-      navigate(path);
-    }, 100);
-  };
+  // Navigation handlers
+  const handleNavigation = useCallback(
+    (path) => {
+      saveProgress();
+      setTimeout(() => {
+        navigate(path);
+      }, 100);
+    },
+    [saveProgress, navigate]
+  );
 
-  const handleChapterClick = (chapterId) => {
-    saveProgress();
-    setCurrentPage(0);
-    setTotalPages(0);
-    setChapterId(chapterId);
-    window.location.href = `/books/${bookId}/chapters/${chapterId}`;
-  };
+  const handleChapterClick = useCallback(
+    (chapterId) => {
+      saveProgress();
+      setCurrentPage(0);
+      setTotalPages(0);
+      setChapterId(chapterId);
+      window.location.href = `/books/${bookId}/chapters/${chapterId}`;
+    },
+    [saveProgress, bookId]
+  );
 
-  const handleBackToBookPage = () => {
+  const handleBackToBookPage = useCallback(() => {
     handleNavigation(`/books/${bookId}`);
-  };
+  }, [handleNavigation, bookId]);
 
-  const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex); // Update currentPage in ChapterDetailPage
-    debouncedSaveProgress(); // Save progress when the page changes
-  };
+  const handlePageChange = useCallback(
+    (pageIndex) => {
+      setCurrentPage(pageIndex);
+      debouncedSaveProgress();
+    },
+    [debouncedSaveProgress]
+  );
 
   return (
     <div className="flex flex-col w-full h-full items-center bg-[#202124]">

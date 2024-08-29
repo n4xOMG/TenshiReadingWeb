@@ -1,22 +1,13 @@
 import { FavoriteBorder, MenuBook } from "@mui/icons-material";
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  IconButton,
-  LinearProgress,
-  List,
-  ListItem,
-  ListItemText,
-  Rating,
-  Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Box, Button, CircularProgress, Grid, IconButton, Rating, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { BookDetails } from "../../components/BookDetailPageComponents/BookDetails";
+import { ChapterList } from "../../components/BookDetailPageComponents/ChapterList";
+import { ProgressBar } from "../../components/BookDetailPageComponents/ProgressBar";
 import { CommentSection } from "../../components/BookPageComponents/CommentSection";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import {
@@ -31,7 +22,7 @@ import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 
-export default function BookDetailPage() {
+export const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
@@ -39,49 +30,30 @@ export default function BookDetailPage() {
   const { book, rating } = useSelector((store) => store.book);
   const { auth } = useSelector((store) => store);
   const { checkAuth, AuthDialog } = useAuthCheck();
+
   const [loading, setLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
-  const fetchBookAndChapterDetails = async () => {
+
+  const fetchBookAndChapterDetails = useCallback(async () => {
+    setLoading(true);
     if (auth.user) {
-      setLoading(true);
       await dispatch(getBookRatingByUserAction(bookId));
       await dispatch(getBookDetailsAndChaptersAction(bookId, auth.user.id));
-      setLoading(false);
     } else {
-      setLoading(true);
       await dispatch(getBookByIdAction(bookId));
       await dispatch(getAllChaptersByBookIdAction(bookId));
       await dispatch(getAvgBookRating(bookId));
-      setLoading(false);
     }
-  };
+    setLoading(false);
+  }, [auth.user, bookId, dispatch]);
 
-  useEffect(() => {
-    fetchBookAndChapterDetails();
-  }, [dispatch, bookId, auth.user]);
-
-  useEffect(() => {
-    if (book && auth.user) {
-      setIsFavorite(isFavouredByReqUser(auth.user.id, book));
-    }
-  }, [book, auth.user]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 650);
-    return () => clearTimeout(timer);
-  }, [book, chapters, progresses]);
-
-  useEffect(() => {
+  const calculateOverallProgress = useCallback(() => {
     if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
       const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
-      const averageProgress = totalProgress / chapters.length;
-      const roundedProgress = Math.floor(averageProgress);
-      console.log("Rounded progress: ", roundedProgress);
-      setOverallProgress(roundedProgress);
+      const averageProgress = Math.floor(totalProgress / chapters.length);
+      setOverallProgress(averageProgress);
     }
   }, [chapters, progresses]);
 
@@ -99,11 +71,26 @@ export default function BookDetailPage() {
       setLoading(true);
       await dispatch(ratingBookAction(bookId, value));
     } catch (error) {
-      console.error("Error rating book: ", error);
+      console.error("Error rating book:", error);
     } finally {
       setLoading(false);
     }
   });
+
+  useEffect(() => {
+    fetchBookAndChapterDetails();
+  }, [fetchBookAndChapterDetails]);
+
+  useEffect(() => {
+    if (book && auth.user) {
+      setIsFavorite(isFavouredByReqUser(auth.user.id, book));
+    }
+  }, [book, auth.user]);
+
+  useEffect(() => {
+    calculateOverallProgress();
+  }, [calculateOverallProgress]);
+
   return (
     <>
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -199,91 +186,10 @@ export default function BookDetailPage() {
               </Button>
             </Grid>
             <Grid item md={8}>
-              <Typography variant="h3" sx={{ mb: 2, textAlign: "left" }}>
-                {book.title}
-              </Typography>
-              <Typography sx={{ color: "gray.600", mb: 4, textAlign: "left" }}>
-                By{" "}
-                <Box component="span" sx={{ fontWeight: "bold" }}>
-                  {book.authorName}
-                </Box>{" "}
-                • Illustrated by{" "}
-                <Box component="span" sx={{ fontWeight: "bold" }}>
-                  {book.artistName}
-                </Box>
-              </Typography>
-              <Typography sx={{ color: "gray.700", mb: 6, textAlign: "left" }}>{book.description}</Typography>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2, textAlign: "left", fontWeight: "bold" }}>
-                  Overall Progress
-                </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={overallProgress}
-                  sx={{
-                    width: "100%",
-                    "& .MuiLinearProgress-root": {
-                      backgroundColor: "gray",
-                    },
-                    "& .MuiLinearProgress-bar": {
-                      backgroundColor: "black",
-                    },
-                  }}
-                />
-                <Typography sx={{ textAlign: "right", color: "gray.600", mt: 1 }}>{overallProgress}% Complete</Typography>
-              </Box>
-              <Box sx={{ mb: 6 }}>
-                <Typography variant="h5" sx={{ mb: 2, textAlign: "left", fontWeight: "bold" }}>
-                  Chapters
-                </Typography>
-                <List sx={{ spaceY: 2 }}>
-                  {chapters?.map((chapter, index) => {
-                    const progress = Array.isArray(progresses) ? progresses.find((p) => Number(p.chapterId) === Number(chapter.id)) : null;
-                    return (
-                      <ListItem
-                        key={index}
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          p: 2,
-                          borderRadius: 2,
-                          transition: "all 0.2s ease-in-out",
-                          height: 60,
-                          "&:hover": {
-                            backgroundColor: "grey.100",
-                            boxShadow: 3,
-                            transform: "scale(1.02)",
-                            cursor: "pointer",
-                          },
-                        }}
-                        onClick={() => navigate(`/books/${bookId}/chapters/${chapter.id}`)}
-                      >
-                        <ListItemText primary={chapter.title} />
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={progress ? progress.progress : 0}
-                            sx={{
-                              width: 100,
-                              mr: 2,
-                              "& .MuiLinearProgress-root": {
-                                backgroundColor: "gray",
-                              },
-                              "& .MuiLinearProgress-bar": {
-                                backgroundColor: "black",
-                              },
-                            }}
-                          />
-                        </Box>
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              </Box>
-              <Box sx={{ mb: 6 }}>
-                {book && book.comments ? <CommentSection book={book} /> : <Typography variant="body1">Loading comments...</Typography>}
-              </Box>
+              <BookDetails book={book} />
+              <ProgressBar progress={overallProgress} />
+              <ChapterList chapters={chapters} progresses={progresses} onNavigate={navigate} bookId={bookId} />
+              <CommentSection book={book} />
             </Grid>
           </Grid>
         )}
@@ -291,4 +197,4 @@ export default function BookDetailPage() {
       <AuthDialog />
     </>
   );
-}
+};

@@ -93,7 +93,7 @@ export const BookDetailPage = () => {
 
   return (
     <>
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar isSidebarOpen={isSidebarOpen} isBackdropOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <IconButton
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         sx={{

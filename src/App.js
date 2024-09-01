@@ -48,7 +48,7 @@ function App() {
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
         <Route path="/admin/*" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
-        <Route path="/profile" element={auth.user ? <ProfilePage /> : <Authentication />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/books" element={<BooksPage />} />
       </Routes>
       <AuthDialog />

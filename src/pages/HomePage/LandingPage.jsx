@@ -59,6 +59,7 @@ export default function LandingPage() {
                   borderRadius: 1,
                   backgroundColor: "primary.main",
                   px: 6,
+                  mb: 2,
                   fontSize: "0.875rem",
                   fontWeight: "medium",
                   color: "primary.contrastText",
@@ -76,12 +77,10 @@ export default function LandingPage() {
           <Grid container spacing={4}>
             {firstSectionImages.map((image, index) => (
               <Grid item xs={6} key={index}>
-                <LazyLoad height={200} offset={100}>
+                <LazyLoad height={50} offset={50}>
                   <img
-                    src={getOptimizedImageUrl(getResponsiveImageUrl(image.url, 300))}
+                    src={getOptimizedImageUrl(image.url, 300)}
                     alt="Nothing"
-                    loading="lazy"
-                    effect="blur"
                     style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
                   />
                 </LazyLoad>
@@ -95,15 +94,11 @@ export default function LandingPage() {
           <Grid container spacing={4}>
             {secondSectionImages.map((image, index) => (
               <Grid item xs={6} key={index}>
-                <LazyLoad height={200} offset={100}>
-                  <img
-                    src={getOptimizedImageUrl(getResponsiveImageUrl(image.url, 300))}
-                    alt="Nothing"
-                    loading="lazy"
-                    effect="blur"
-                    style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
-                  />
-                </LazyLoad>
+                <img
+                  src={getOptimizedImageUrl(image.url, 300)}
+                  alt="Nothing"
+                  style={{ borderRadius: "8px", objectFit: "cover", aspectRatio: "1 / 1" }}
+                />
               </Grid>
             ))}
           </Grid>

@@ -10,12 +10,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LandingPage from "./LandingPage";
 import { useSelector } from "react-redux";
+import { useAuthCheck } from "../../utils/useAuthCheck";
 export default function UserPages() {
   const navigate = useNavigate();
   const { auth } = useSelector((store) => store);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
+  const { checkAuth, AuthDialog } = useAuthCheck();
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
@@ -27,6 +29,9 @@ export default function UserPages() {
     localStorage.removeItem("jwt");
     navigate("/sign-in");
   };
+  const handleProfile = checkAuth(() => {
+    navigate("/profile");
+  });
   return (
     <Box
       sx={{
@@ -35,7 +40,8 @@ export default function UserPages() {
         maxHeight: "100%",
         objectFit: "contain",
         width: "100%",
-        gridTemplateColumns: isSmallScreen ? "1fr" : "280px 1fr",
+        gridTemplateColumns: isSmallScreen ? "1fr" : isSidebarOpen ? "280px 1fr" : "1fr",
+        transition: "grid-template-columns 0.3s ease-in-out",
       }}
     >
       {/* Sidebar */}
@@ -50,6 +56,7 @@ export default function UserPages() {
           "& .MuiDrawer-paper": {
             width: 256,
             boxSizing: "border-box",
+            transition: "width 0.3s ease-in-out",
           },
         }}
       >
@@ -93,7 +100,17 @@ export default function UserPages() {
           <Box sx={{ flexGrow: 1, p: 2 }}>
             <List>
               {menuItems.map((item, index) => (
-                <ListItem button key={index} onClick={() => navigate(item.path)}>
+                <ListItem
+                  button
+                  key={index}
+                  onClick={() => {
+                    if (item.text === "Profile") {
+                      handleProfile();
+                    } else {
+                      navigate(item.path);
+                    }
+                  }}
+                >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItem>
@@ -115,9 +132,16 @@ export default function UserPages() {
         </Box>
       </Drawer>
 
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          transition: "width 0.3s ease-in-out",
+        }}
+      >
         {/* Main Content */}
-        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, px: 4, overflow: "auto" }}>
+        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, pt: 1, px: 3, overflow: "auto" }}>
           <LandingPage />
         </Box>
       </Box>
@@ -141,6 +165,7 @@ export default function UserPages() {
           <DehazeIcon />
         </IconButton>
       )}
+      <AuthDialog />
     </Box>
   );
 }

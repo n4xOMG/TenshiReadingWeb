@@ -54,10 +54,10 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
 
   const nonClickableAreaStyle = {
     position: "absolute",
-    top: "5%",
-    left: "8%",
-    right: "8%",
-    bottom: "5%",
+    top: "20%",
+    left: "20%",
+    right: "20%",
+    bottom: "20%",
     zIndex: 1,
   };
 

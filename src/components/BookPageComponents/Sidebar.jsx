@@ -3,13 +3,29 @@ import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PeopleIcon from "@mui/icons-material/People";
-import { Backdrop, Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
+import { useAuthCheck } from "../../utils/useAuthCheck";
+export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpen }) {
   const { auth } = useSelector((store) => store);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const { checkAuth, AuthDialog } = useAuthCheck();
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
@@ -21,13 +37,17 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     localStorage.removeItem("jwt");
     navigate("/sign-in");
   };
+  const handleProfile = checkAuth(() => {
+    navigate("/profile");
+  });
   return (
     <>
-      <Backdrop open={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} sx={{ zIndex: 1 }} />
+      <Backdrop open={isSidebarOpen && isBackdropOpen} onClick={() => setIsSidebarOpen(false)} sx={{ zIndex: 1 }} />
       <Drawer
-        variant="persistent"
+        variant={isSmallScreen ? "temporary" : "persistent"}
         anchor="left"
         open={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         sx={{
           width: 256,
           flexShrink: 0,
@@ -56,7 +76,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <MenuBook sx={{ fontSize: 32, color: "primary.main" }} />
-              <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>BookNook</Box>
+              <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>Tenshi</Box>
             </Box>
             <IconButton
               onClick={() => setIsSidebarOpen(false)}
@@ -77,7 +97,17 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
           <Box sx={{ flexGrow: 1, p: 2 }}>
             <List>
               {menuItems.map((item, index) => (
-                <ListItem button key={index} onClick={() => navigate(item.path)}>
+                <ListItem
+                  button
+                  key={index}
+                  onClick={() => {
+                    if (item.text === "Profile") {
+                      handleProfile();
+                    } else {
+                      navigate(item.path);
+                    }
+                  }}
+                >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItem>
@@ -91,13 +121,14 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
               </Button>
             )}
             {auth.user && (
-              <Button variant="outlined" onClick={() => handleSignOut} fullWidth>
+              <Button variant="outlined" onClick={handleSignOut} fullWidth>
                 Sign Out
               </Button>
             )}
           </Box>
         </Box>
       </Drawer>
+      <AuthDialog />
     </>
   );
 }

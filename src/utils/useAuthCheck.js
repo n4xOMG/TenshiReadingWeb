@@ -1,15 +1,19 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUserByJwt } from "../redux/authentication/auth.actions";
 
 export const useAuthCheck = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const checkAuth =
     (fn) =>
     async (...args) => {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
+      const jwt = localStorage.getItem("jwt");
+      const user = dispatch(getCurrentUserByJwt(jwt));
+      if (!user) {
         setOpen(true);
         return;
       }

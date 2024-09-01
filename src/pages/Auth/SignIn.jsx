@@ -15,6 +15,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUserByJwt, loginUserAction } from "../../redux/authentication/auth.actions";
 import { Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -31,6 +32,7 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const error = useSelector((store) => store.auth.error);
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,7 +42,7 @@ export default function SignIn() {
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
     await dispatch(loginUserAction({ data: json }));
-
+    navigate("/");
     const jwt = localStorage.getItem("jwt");
     if (jwt) {
       dispatch(getCurrentUserByJwt(jwt));

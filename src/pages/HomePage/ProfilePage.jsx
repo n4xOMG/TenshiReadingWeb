@@ -21,13 +21,13 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
-import ChangePasswordModal from "../../components/ProfilePageComponent/ChangePasswordModal";
 import { getCurrentUserByJwt } from "../../redux/authentication/auth.actions";
 import { getAllUserFollowingBookAction } from "../../redux/book/book.action";
 import { getReadingProgressByUser } from "../../redux/chapter/chapter.action";
 import { getUserFavImages } from "../../redux/gallery/gallery.action";
 import { formatDate } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
+import UpdateProfileModal from "../../components/ProfilePageComponent/UpdateProfileModal";
 
 const getProgressColor = (progress) => {
   if (progress === 100) return "bg-green-500";
@@ -118,10 +118,12 @@ export default function ProfilePage() {
                 </Box>
               }
               action={
-                <Button variant="outlined" onClick={() => setOpenModal(true)} sx={{ borderRadius: 3, fontSize: 10, padding: "4px 8px" }}>
-                  <ChangePasswordModal open={openModal} onClose={() => setOpenModal(false)} />
-                  Change Password
-                </Button>
+                <Box>
+                  <Button variant="outlined" onClick={() => setOpenModal(true)} sx={{ borderRadius: 3, fontSize: 10, padding: "4px 8px" }}>
+                    Update Profile
+                  </Button>
+                  <UpdateProfileModal open={openModal} onClose={() => setOpenModal(false)} userDetails={user} />
+                </Box>
               }
               sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
             />

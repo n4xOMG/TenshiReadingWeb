@@ -16,15 +16,9 @@ import {
   BOOK_UPLOAD_FAILED,
   BOOK_UPLOAD_REQUEST,
   BOOK_UPLOAD_SUCCEED,
-  CREATE_COMMENT_FAILED,
-  CREATE_COMMENT_REQUEST,
-  CREATE_COMMENT_SUCCESS,
   FOLLOW_BOOK_FAILED,
   FOLLOW_BOOK_REQUEST,
   FOLLOW_BOOK_SUCCESS,
-  GET_ALL_BOOK_COMMENT_FAILED,
-  GET_ALL_BOOK_COMMENT_REQUEST,
-  GET_ALL_BOOK_COMMENT_SUCCESS,
   GET_ALL_BOOK_FAILED,
   GET_ALL_BOOK_REQUEST,
   GET_ALL_BOOK_SUCCESS,
@@ -69,18 +63,7 @@ export const getAllUserFollowingBookAction = (userId) => async (dispatch) => {
     dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
   }
 };
-export const getAllCommentByBookAction = (bookId) => async (dispatch) => {
-  dispatch({ type: GET_ALL_BOOK_COMMENT_REQUEST });
-  try {
-    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/comments`);
-    dispatch({ type: GET_ALL_BOOK_COMMENT_SUCCESS, payload: data });
-    console.log("got all book comment: ", data);
-    return { payload: data };
-  } catch (error) {
-    console.log("error trying to get all book comment", error);
-    dispatch({ type: GET_ALL_BOOK_COMMENT_FAILED, payload: error });
-  }
-};
+
 export const getBookByIdAction = (bookId) => async (dispatch) => {
   console.log("Action getBookByIdAction dispatched");
   dispatch({ type: GET_BOOK_REQUEST });
@@ -200,17 +183,6 @@ export const followBookAction = (bookId) => async (dispatch) => {
   } catch (error) {
     console.log("Api error when trying to follow book: ", error);
     dispatch({ type: FOLLOW_BOOK_FAILED, payload: error.message });
-  }
-};
-export const createCommentAction = (reqData) => async (dispatch) => {
-  dispatch({ type: CREATE_COMMENT_REQUEST });
-  try {
-    const { data } = await api.post(`${API_BASE_URL}/api/books/${reqData.bookId}/comments`, reqData.data);
-    dispatch({ type: CREATE_COMMENT_SUCCESS, payload: data });
-    console.log("created comment: ", data);
-  } catch (error) {
-    console.log("error", error);
-    dispatch({ type: CREATE_COMMENT_FAILED, payload: error });
   }
 };
 

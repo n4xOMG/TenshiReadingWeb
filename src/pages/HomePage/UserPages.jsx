@@ -23,12 +23,14 @@ export default function UserPages() {
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
     { text: "Books", icon: <LibraryBooksIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/books" },
     { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
-    { text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" },
   ];
   const handleSignOut = () => {
     localStorage.removeItem("jwt");
     navigate("/sign-in");
   };
+  if (auth.user) {
+    menuItems.push({ text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" });
+  }
   const handleProfile = checkAuth(() => {
     navigate("/profile");
   });

@@ -14,6 +14,9 @@ import {
   RESET_PASSWORD_FAILED,
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCEED,
+  UPDATE_PROFILE_FAILED,
+  UPDATE_PROFILE_REQUEST,
+  UPDATE_PROFILE_SUCCESS,
 } from "./auth.actionType";
 
 const initialState = {
@@ -31,9 +34,12 @@ export const authReducer = (state = initialState, action) => {
     case GET_PROFILE_REQUEST:
     case FORGOT_PASSWORD_REQUEST:
     case RESET_PASSWORD_REQUEST:
+    case UPDATE_PROFILE_REQUEST:
       return { ...state, loading: true, error: null };
 
     case GET_PROFILE_SUCCESS:
+    case UPDATE_PROFILE_SUCCESS:
+    case RESET_PASSWORD_SUCCEED:
       return { ...state, loading: false, error: null, user: action.payload };
     case LOGIN_SUCCEED:
     case REGISTER_SUCCEED:
@@ -42,13 +48,12 @@ export const authReducer = (state = initialState, action) => {
     case FORGOT_PASSWORD_SUCCEED:
       return { ...state, loading: false, forgotPasswordMessage: action.payload };
 
-    case RESET_PASSWORD_SUCCEED:
-      return { ...state, loading: false, user: action.payload };
     case LOGIN_FAILED:
     case REGISTER_FAILED:
     case GET_PROFILE_FAILED:
     case FORGOT_PASSWORD_FAILED:
     case RESET_PASSWORD_FAILED:
+    case UPDATE_PROFILE_FAILED:
       return { ...state, loading: false, error: action.payload };
 
     default:

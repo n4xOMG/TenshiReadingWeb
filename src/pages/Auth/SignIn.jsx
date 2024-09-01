@@ -41,8 +41,11 @@ export default function SignIn() {
 
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
-    await dispatch(loginUserAction({ data: json }));
-    navigate("/");
+    const result = await dispatch(loginUserAction({ data: json }));
+    if (result) {
+      navigate("/");
+    }
+
     const jwt = localStorage.getItem("jwt");
     if (jwt) {
       dispatch(getCurrentUserByJwt(jwt));

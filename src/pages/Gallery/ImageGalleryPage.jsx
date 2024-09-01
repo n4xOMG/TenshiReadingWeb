@@ -208,45 +208,6 @@ export default function ImageGalleryPage() {
                 </Typography>
               </Box>
             )}
-            {/* <Grid container spacing={3} sx={{ transition: "all 0.3s ease-in-out" }}>
-              {filteredImages?.map((image) => (
-                <Grow in style={{ transformOrigin: "0 0 0" }} {...(image ? { timeout: 1000 } : {})} key={image.id}>
-                  <Grid item xs={12} sm={6} md={4} lg={3}>
-                    <Card
-                      onClick={() => setSelectedImage(image.imageUrl)}
-                      sx={{
-                        cursor: "pointer",
-                        height: 300,
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                          transition: "transform 0.3s ease-in-out",
-                        },
-                      }}
-                    >
-                      <LazyLoad height={200} offset={100}>
-                        <img
-                          src={getOptimizedImageUrl(getResponsiveImageUrl(image.imageUrl, 300))}
-                          alt={image.name}
-                          className="object-contain w-full h-full rounded-t-md"
-                          style={{ height: 200, width: "100%", objectFit: "cover" }}
-                        />
-                      </LazyLoad>
-                      <CardContent className="p-4">
-                        <Typography variant="h6" className="font-semibold mb-2">
-                          {image.name}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {image.tags.map((tag) => tag.name).join(", ") || "No tags available"}
-                        </Typography>
-                        <IconButton onClick={(e) => handleFavoriteToggle(e, image.id)}>
-                          {isFavouredByReqUser(auth?.user?.id, image) ? <FavoriteIcon color="error" /> : <FavoriteBorder />}
-                        </IconButton>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grow>
-              ))}
-            </Grid> */}
           </>
         )}
 

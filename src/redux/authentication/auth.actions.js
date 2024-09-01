@@ -15,8 +15,11 @@ import {
   RESET_PASSWORD_FAILED,
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCEED,
+  UPDATE_PROFILE_FAILED,
+  UPDATE_PROFILE_REQUEST,
+  UPDATE_PROFILE_SUCCESS,
 } from "./auth.actionType";
-import { API_BASE_URL } from "../../api/api";
+import { api, API_BASE_URL } from "../../api/api";
 export const loginUserAction = (loginData) => async (dispatch) => {
   console.log("Action getCurrentUserByJwt dispatched");
   dispatch({ type: LOGIN_REQUEST });
@@ -28,6 +31,7 @@ export const loginUserAction = (loginData) => async (dispatch) => {
     }
     console.log("Login succeed", data);
     dispatch({ type: LOGIN_SUCCEED, payload: data.token });
+    return { payload: data };
   } catch (error) {
     console.log("Api error: ", error);
     dispatch({ type: LOGIN_FAILED, payload: error.message });
@@ -91,5 +95,19 @@ export const resetPasswordAction = (code, password) => async (dispatch) => {
   } catch (error) {
     console.log("Api error: ", error);
     dispatch({ type: RESET_PASSWORD_FAILED, payload: error.message });
+  }
+};
+
+export const updateUserProfile = (reqData) => async (dispatch) => {
+  dispatch({ type: UPDATE_PROFILE_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/user/profile`, reqData.data);
+
+    console.log("Profile", data);
+    dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("Api error: ", error);
+    dispatch({ type: UPDATE_PROFILE_FAILED, payload: error.message });
   }
 };

@@ -18,7 +18,7 @@ import {
   getBookRatingByUserAction,
   ratingBookAction,
 } from "../../redux/book/book.action";
-import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
+import { getAdaptedChaptersByBookIdAction, getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 
@@ -26,7 +26,7 @@ export const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
-  const { chapters, progresses = [] } = useSelector((store) => store.chapter);
+  const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
   const { book, rating } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
@@ -41,9 +41,11 @@ export const BookDetailPage = () => {
     if (user) {
       await dispatch(getBookRatingByUserAction(bookId));
       await dispatch(getBookDetailsAndChaptersAction(bookId, user.id));
+      await dispatch(getAdaptedChaptersByBookIdAction(bookId));
     } else {
       await dispatch(getBookByIdAction(bookId));
       await dispatch(getAllChaptersByBookIdAction(bookId));
+      await dispatch(getAdaptedChaptersByBookIdAction(bookId));
       await dispatch(getAvgBookRating(bookId));
     }
     setLoading(false);
@@ -188,7 +190,13 @@ export const BookDetailPage = () => {
             <Grid item md={8}>
               <BookDetails book={book} />
               <ProgressBar progress={overallProgress} />
-              <ChapterList chapters={chapters} progresses={progresses} onNavigate={navigate} bookId={bookId} />
+              <ChapterList
+                chapters={chapters}
+                adaptedChapters={adaptedChapters}
+                progresses={progresses}
+                onNavigate={navigate}
+                bookId={bookId}
+              />
               <CommentSection book={book} />
             </Grid>
           </Grid>

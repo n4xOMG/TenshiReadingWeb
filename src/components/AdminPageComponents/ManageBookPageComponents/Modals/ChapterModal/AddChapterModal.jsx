@@ -5,7 +5,7 @@ import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import { Backdrop, Box, Button, CircularProgress, Dialog, TextField, Toolbar } from "@mui/material";
+import { Backdrop, Box, Button, Checkbox, CircularProgress, Dialog, FormControlLabel, TextField, Toolbar } from "@mui/material";
 import isHotkey from "is-hotkey";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ export default function AddChapterModal({ open, onClose, bookId }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const jwt = localStorage.getItem("jwt");
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
   const editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
   const initialValue = useMemo(
     () =>
@@ -38,15 +38,37 @@ export default function AddChapterModal({ open, onClose, bookId }) {
     []
   );
   const [content, setContent] = useState(initialValue);
+  const [showAdaptation, setShowAdaptation] = useState(false);
+  const [adaptationSeason, setAdaptationSeason] = useState({
+    season: "",
+    episode: "",
+    part: "",
+  });
 
+  const handleAdaptationChange = (e) => {
+    const { name, value } = e.target;
+    setAdaptationSeason((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
-    const serializedContent = serializeContent(content); // Serialize the content to HTML
+    const serializedContent = serializeContent(content);
     json.content = DOMPurify.sanitize(serializedContent);
-    json.translatorId = auth.user.id;
+    json.translatorId = user.id;
+
+    if (showAdaptation) {
+      json.adaptationSeason = {
+        season: adaptationSeason.season,
+        episode: adaptationSeason.episode,
+        part: adaptationSeason.part,
+      };
+    }
+
     console.log("Form Data:", json);
     try {
       await dispatch(addChapterAction(bookId, { data: json }));
@@ -67,11 +89,59 @@ export default function AddChapterModal({ open, onClose, bookId }) {
       dispatch(getCurrentUserByJwt(jwt)).finally(() => setLoading(false));
     }
   }, [dispatch, jwt]);
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <Box component="form" onSubmit={handleSubmit} noValidate className="rounded-lg border-stone-950 px-3">
         <TextField margin="normal" required fullWidth id="chapterNum" label="Chapter number" name="chapterNum" />
         <TextField margin="normal" required fullWidth id="title" label="Chapter title" name="title" />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showAdaptation}
+              onChange={(e) => setShowAdaptation(e.target.checked)}
+              name="showAdaptation"
+              color="primary"
+            />
+          }
+          label="Adapted Chapter"
+        />
+        {showAdaptation && (
+          <>
+            <TextField
+              margin="normal"
+              fullWidth
+              id="season"
+              label="Season"
+              name="season"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.season}
+              onChange={handleAdaptationChange}
+            />
+            <TextField
+              type="number"
+              margin="normal"
+              fullWidth
+              id="episode"
+              label="Episode"
+              name="episode"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.episode}
+              onChange={handleAdaptationChange}
+            />
+            <TextField
+              type="number"
+              margin="normal"
+              fullWidth
+              id="part"
+              label="Part"
+              name="part"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.part}
+              onChange={handleAdaptationChange}
+            />
+          </>
+        )}
         <input type="hidden" name="content" value={JSON.stringify(content)} />
         <Slate
           editor={editor}

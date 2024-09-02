@@ -10,12 +10,15 @@ import {
   EDIT_CHAPTER_FAILED,
   EDIT_CHAPTER_REQUEST,
   EDIT_CHAPTER_SUCCEED,
-  GET_ALL_CHAPTER_FAILED,
-  GET_ALL_CHAPTER_REQUEST,
-  GET_ALL_CHAPTER_SUCCESS,
+  GET_ADAPTED_CHAPTERS_FAILED,
+  GET_ADAPTED_CHAPTERS_REQUEST,
+  GET_ADAPTED_CHAPTERS_SUCCESS,
   GET_CHAPTER_FAILED,
   GET_CHAPTER_REQUEST,
   GET_CHAPTER_SUCCESS,
+  GET_CHAPTERS_BY_BOOK_FAILED,
+  GET_CHAPTERS_BY_BOOK_REQUEST,
+  GET_CHAPTERS_BY_BOOK_SUCCESS,
   GET_PROGRESS_FAILED,
   GET_PROGRESS_REQUEST,
   GET_PROGRESS_SUCCESS,
@@ -25,18 +28,29 @@ import {
 } from "./chapter.actionType";
 
 export const getAllChaptersByBookIdAction = (bookId) => async (dispatch) => {
-  dispatch({ type: GET_ALL_CHAPTER_REQUEST });
+  dispatch({ type: GET_CHAPTERS_BY_BOOK_REQUEST });
   console.log("Action getAllChaptersByBookIdAction dispatched");
   try {
     const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/chapters`);
     console.log("Got chapters: ", data);
-    dispatch({ type: GET_ALL_CHAPTER_SUCCESS, payload: data });
+    dispatch({ type: GET_CHAPTERS_BY_BOOK_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    dispatch({ type: GET_ALL_CHAPTER_FAILED, payload: error.message });
+    dispatch({ type: GET_CHAPTERS_BY_BOOK_FAILED, payload: error.message });
   }
 };
-
+export const getAdaptedChaptersByBookIdAction = (bookId) => async (dispatch) => {
+  dispatch({ type: GET_ADAPTED_CHAPTERS_REQUEST });
+  console.log("Action getAdaptedChaptersByBookIdAction dispatched");
+  try {
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/chapters/adapted-chapters`);
+    console.log("Got adapted chapters: ", data);
+    dispatch({ type: GET_ADAPTED_CHAPTERS_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    dispatch({ type: GET_ADAPTED_CHAPTERS_FAILED, payload: error.message });
+  }
+};
 export const getChapterById = (bookId, chapterId) => async (dispatch) => {
   dispatch({ type: GET_CHAPTER_REQUEST });
   console.log("Action getChapterById dispatched");
@@ -52,7 +66,7 @@ export const getChapterById = (bookId, chapterId) => async (dispatch) => {
 
 export const addChapterAction = (bookId, chapterData) => async (dispatch) => {
   dispatch({ type: CHAPTER_UPLOAD_REQUEST });
-  console.log("Action addChapterAction dispatched");
+  console.log("Action addChapterAction dispatched with data: ", chapterData.data);
   try {
     const { data } = await api.post(`${API_BASE_URL}/translator/books/${bookId}/chapters`, chapterData.data);
     console.log("New chapter added", data);

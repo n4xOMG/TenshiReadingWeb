@@ -26,7 +26,7 @@ export default function AddImageModal({ open, onClose }) {
     try {
       console.log("Data: ", json);
       await dispatch(addImageAction({ data: json }));
-      await dispatch(getAllGalleryImages());
+      await dispatch(getAllGalleryImages(0, 4));
       setLoading(false);
       onClose();
     } catch (error) {

@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 export default function UserPages() {
   const navigate = useNavigate();
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
@@ -28,7 +28,7 @@ export default function UserPages() {
     localStorage.removeItem("jwt");
     navigate("/sign-in");
   };
-  if (auth.user) {
+  if (user) {
     menuItems.push({ text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" });
   }
   const handleProfile = checkAuth(() => {
@@ -120,14 +120,18 @@ export default function UserPages() {
             </List>
           </Box>
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-            {auth.user?.role?.name === "ADMIN" && (
+            {user?.role?.name === "ADMIN" && (
               <Button variant="outlined" onClick={() => navigate("/admin")} fullWidth>
                 Admin
               </Button>
             )}
-            {auth.user && (
+            {user ? (
               <Button variant="outlined" onClick={handleSignOut} fullWidth>
                 Sign Out
+              </Button>
+            ) : (
+              <Button variant="outlined" onClick={handleSignOut} fullWidth>
+                Sign In
               </Button>
             )}
           </Box>

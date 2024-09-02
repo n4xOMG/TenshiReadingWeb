@@ -3,26 +3,32 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Menu from "../../components/ManageGalleryPageComponents/Menu";
 import { getAllGalleryImages } from "../../redux/gallery/gallery.action";
-import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
 import { useNavigate } from "react-router-dom";
 import AddImageModal from "../../components/ManageGalleryPageComponents/AddImageModal";
 import EditImageModal from "../../components/ManageGalleryPageComponents/EditImageModal";
 import DeleteImageModal from "../../components/ManageGalleryPageComponents/DeleteImageModal";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
+import LazyLoad from "react-lazyload";
+import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
 
 export default function ManageGallery() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const [openModal, setOpenModal] = useState({ type: null, data: null });
-  const [loading, setLoading] = useState(false);
-  const { images } = useSelector((store) => store.gallery);
+  const { images, totalPages, loading } = useSelector((store) => store.gallery);
 
   const handleOpenModal = (type, data = null) => setOpenModal({ type, data });
   const handleCloseModal = () => setOpenModal({ type: null, data: null });
+  const handlePageChange = async (event, value) => {
+    event.preventDefault();
+    setPage(value);
+    dispatch(getAllGalleryImages(value - 1, 4));
+  };
 
   useEffect(() => {
-    setLoading(true);
-    dispatch(getAllGalleryImages());
-    setLoading(false);
+    dispatch(getAllGalleryImages(page - 1, 4));
   }, [dispatch]);
 
   return (
@@ -62,44 +68,49 @@ export default function ManageGallery() {
       {/* Image Grid */}
       <Grid container spacing={2}>
         {images?.map((image, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
-            <Card sx={{ position: "relative", bgcolor: "gray.800", p: 2, borderRadius: 1 }}>
-              {/* Styled Menu with border and background */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  zIndex: 10,
-                  bgcolor: "rgba(255, 255, 255, 0.7)",
-                  borderRadius: 1,
-                  border: 1,
-                  borderColor: "gray.300",
-                }}
-              >
-                <Menu image={image} onEdit={() => handleOpenModal("edit", image)} onDelete={() => handleOpenModal("delete", image)} />
-              </Box>
-              <Box
-                sx={{
-                  bgcolor: "gray.700",
-                  height: 176,
-                  width: 176,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mb: 2,
-                  mx: "auto",
-                  cursor: "pointer",
-                }}
-                onClick={() => handleOpenModal("view", image)}
-              >
-                <img src={image.imageUrl} alt={image.name} style={{ objectFit: "cover", height: "100%", width: "100%" }} />
-              </Box>
-              <Typography>{image.name}</Typography>
-            </Card>
+          <Grid item xs={12} sm={6} md={4} lg={2} key={image.id}>
+            <LazyLoad height={200} offset={50}>
+              <Card sx={{ position: "relative", bgcolor: "gray.800", p: 2, borderRadius: 1 }}>
+                {/* Styled Menu with border and background */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    zIndex: 10,
+                    bgcolor: "rgba(255, 255, 255, 0.7)",
+                    borderRadius: 1,
+                    border: 1,
+                    borderColor: "gray.300",
+                  }}
+                >
+                  <Menu image={image} onEdit={() => handleOpenModal("edit", image)} onDelete={() => handleOpenModal("delete", image)} />
+                </Box>
+                <Box
+                  sx={{
+                    bgcolor: "gray.700",
+                    height: 176,
+                    width: 176,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mb: 2,
+                    mx: "auto",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleOpenModal("view", image)}
+                >
+                  <img src={image.imageUrl} loading="lazy" alt={image.name} style={{ objectFit: "cover", height: "100%", width: "100%" }} />
+                </Box>
+                <Typography>{image.name}</Typography>
+              </Card>
+            </LazyLoad>
           </Grid>
         ))}
       </Grid>
+      <Stack spacing={2}>
+        <Pagination count={totalPages} page={page} showFirstButton showLastButton onChange={handlePageChange} />
+      </Stack>
       {openModal.type === "add" && <AddImageModal open={true} onClose={handleCloseModal} />}
       {openModal.type === "edit" && <EditImageModal open={true} onClose={handleCloseModal} imageDetails={openModal.data} />}
       {openModal.type === "delete" && <DeleteImageModal open={true} onClose={handleCloseModal} deleteImage={openModal.data} />}

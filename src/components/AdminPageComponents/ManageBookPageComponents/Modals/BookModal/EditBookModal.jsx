@@ -5,11 +5,13 @@ import { editBookAction, getAllBookAction } from "../../../../../redux/book/book
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 export default function EditBookModal({ open, onClose, bookDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [publishDate, setPublishDate] = useState(new Date());
+  const [publishDate, setPublishDate] = useState(dayjs(bookDetails?.publishDate || new Date()));
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -69,7 +71,7 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="Publish Date"
-                value={bookDetails.publishDate}
+                value={publishDate}
                 onChange={(newValue) => setPublishDate(newValue)}
                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" required />}
               />

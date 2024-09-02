@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpen }) {
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -31,8 +31,10 @@ export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpe
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
     { text: "Books", icon: <LibraryBooksIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/books" },
     { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
-    { text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" },
   ];
+  if (user) {
+    menuItems.push({ text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" });
+  }
   const handleSignOut = () => {
     localStorage.removeItem("jwt");
     navigate("/sign-in");
@@ -115,14 +117,18 @@ export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpe
             </List>
           </Box>
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-            {auth.user?.role?.name === "ADMIN" && (
+            {user?.role?.name === "ADMIN" && (
               <Button variant="outlined" onClick={() => navigate("/admin")} fullWidth>
                 Admin
               </Button>
             )}
-            {auth.user && (
+            {user ? (
               <Button variant="outlined" onClick={handleSignOut} fullWidth>
                 Sign Out
+              </Button>
+            ) : (
+              <Button variant="outlined" onClick={handleSignOut} fullWidth>
+                Sign In
               </Button>
             )}
           </Box>

@@ -9,8 +9,6 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  Dialog,
-  DialogContent,
   Grid,
   IconButton,
   LinearProgress,
@@ -19,15 +17,15 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
-import { getCurrentUserByJwt } from "../../redux/authentication/auth.actions";
+import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
+import UpdateProfileModal from "../../components/ProfilePageComponent/UpdateProfileModal";
 import { getAllUserFollowingBookAction } from "../../redux/book/book.action";
 import { getReadingProgressByUser } from "../../redux/chapter/chapter.action";
 import { getUserFavImages } from "../../redux/gallery/gallery.action";
 import { formatDate } from "../../utils/formatDate";
-import { useNavigate } from "react-router-dom";
-import UpdateProfileModal from "../../components/ProfilePageComponent/UpdateProfileModal";
 
 const getProgressColor = (progress) => {
   if (progress === 100) return "bg-green-500";
@@ -39,25 +37,14 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("books");
   const [openModal, setOpenModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((store) => store.auth);
   const [favouredBooks, setFavouredBooks] = useState([]);
   const [favouredImages, setFavouredImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [progresses, setProgresses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const jwt = localStorage.getItem("jwt");
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
-      const userResponse = await dispatch(getCurrentUserByJwt(jwt));
-      setUser(userResponse.payload);
-      setLoading(false);
-    };
-    fetchUser();
-  }, [dispatch, jwt]);
 
   useEffect(() => {
     if (user) {
@@ -69,7 +56,6 @@ export default function ProfilePage() {
         setFavouredBooks(favouredBooksResponse.payload);
         const favouredImagesReponse = await dispatch(getUserFavImages(user.id));
         setFavouredImages(favouredImagesReponse.payload);
-
         setLoading(false);
       };
       fetchUserDetails();
@@ -84,7 +70,7 @@ export default function ProfilePage() {
         </div>
       ) : (
         <Box container={"true"} sx={{ mx: "auto", p: 3 }}>
-          <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+          <Sidebar isSidebarOpen={isSidebarOpen} isBackdropOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
           <IconButton
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             sx={{
@@ -106,7 +92,7 @@ export default function ProfilePage() {
             <CardHeader
               avatar={
                 <Avatar sx={{ height: 40, width: 40 }}>
-                  <Typography variant="h6">{user.username ? user.username.slice(0, 2).toUpperCase() : "NA"}</Typography>
+                  <Typography variant="h6">{user?.username ? user?.username.slice(0, 2).toUpperCase() : "NA"}</Typography>
                 </Avatar>
               }
               title={
@@ -178,7 +164,7 @@ export default function ProfilePage() {
               {favouredImages.map((image) => (
                 <Grid item xs={12} md={4} lg={3} key={image.id}>
                   <Card
-                    onClick={() => setSelectedImage(image.imageUrl)}
+                    onClick={() => setSelectedImage(image)}
                     sx={{
                       cursor: "pointer",
                       "&:hover": {
@@ -251,43 +237,7 @@ export default function ProfilePage() {
           )}
         </Box>
       )}
-      {selectedImage && (
-        <Dialog
-          open={true}
-          onClose={() => setSelectedImage(null)}
-          maxWidth={false}
-          PaperProps={{
-            style: {
-              maxWidth: "none",
-              width: "auto",
-              height: "auto",
-              margin: 0,
-            },
-          }}
-        >
-          <DialogContent
-            className="flex items-center justify-center p-0 bg-gray-700"
-            style={{
-              padding: 0,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <img
-              src={selectedImage}
-              alt={selectedImage.name}
-              className="object-contain"
-              style={{
-                maxHeight: "90vh",
-                maxWidth: "90vw",
-                height: "auto",
-                width: "auto",
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      {selectedImage && <ViewImageModal open={true} onClose={() => setSelectedImage(null)} image={selectedImage} />}
     </>
   );
 }

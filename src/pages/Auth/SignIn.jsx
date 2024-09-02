@@ -41,19 +41,12 @@ export default function SignIn() {
 
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
-    const result = await dispatch(loginUserAction({ data: json }));
+    const rememberMe = data.get("remember");
+    const result = await dispatch(loginUserAction({ data: json, rememberMe }));
     if (result) {
+      await dispatch(getCurrentUserByJwt(result.payload));
       navigate("/");
     }
-
-    const jwt = localStorage.getItem("jwt");
-    if (jwt) {
-      dispatch(getCurrentUserByJwt(jwt));
-    }
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
   };
 
   return (

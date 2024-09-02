@@ -68,6 +68,10 @@ export const getCurrentUserByJwt = (jwt) => async (dispatch) => {
     return { payload: data };
   } catch (error) {
     console.log("Api error: ", error);
+    if (error.response && error.response.status === 401) {
+      dispatch({ type: GET_PROFILE_FAILED, payload: "Session expired. Please sign in again." });
+      return { error: "UNAUTHORIZED" };
+    }
     dispatch({ type: GET_PROFILE_FAILED, payload: error.message });
   }
 };

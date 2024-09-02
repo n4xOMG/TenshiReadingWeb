@@ -7,12 +7,12 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Box, Button, Card, CardContent, CircularProgress, Drawer, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
+import LazyLoad from "react-lazyload";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllBookAction } from "../../redux/book/book.action";
-import { getOptimizedImageUrl, getResponsiveImageUrl, getWebPUrl } from "../../utils/optimizeImages";
 import { formatDate } from "../../utils/formatDate";
-import LazyLoad from "react-lazyload";
+import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
 
 export default function BooksPage() {
   const { books } = useSelector((store) => store.book);
@@ -274,7 +274,7 @@ export default function BooksPage() {
                 >
                   <LazyLoad height={200} offset={100}>
                     <img
-                      src={getOptimizedImageUrl(book.bookCover)}
+                      src={getOptimizedImageUrl(getResponsiveImageUrl(book.bookCover))}
                       alt={`Cover of ${book.title}`}
                       loading="lazy"
                       style={{ width: "100%", height: "10rem", objectFit: "cover" }}

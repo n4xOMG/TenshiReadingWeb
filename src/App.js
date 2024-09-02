@@ -1,10 +1,14 @@
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./pages/Admin/Dashboard";
-import Authentication from "./pages/Auth/Authentication";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
+import SignIn from "./pages/Auth/SignIn";
+import SignUp from "./pages/Auth/SignUp";
+import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
 import BooksPage from "./pages/HomePage/BooksPage";
@@ -12,25 +16,28 @@ import ProfilePage from "./pages/HomePage/ProfilePage";
 import UserPages from "./pages/HomePage/UserPages";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
 import { useAuthCheck } from "./utils/useAuthCheck";
-import SignIn from "./pages/Auth/SignIn";
-import SignUp from "./pages/Auth/SignUp";
-import ForgotPassword from "./pages/Auth/ForgotPassword";
-import ResetPassword from "./pages/Auth/ResetPassword";
-import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 
 function App() {
   const dispatch = useDispatch();
-  const { auth } = useSelector((store) => store);
+  const navigate = useNavigate();
+  const { user } = useSelector((store) => store.auth);
   const jwt = localStorage.getItem("jwt");
   const [loading, setLoading] = useState(true);
   const { AuthDialog } = useAuthCheck();
   useEffect(() => {
+    console.log("Auth state:", user);
     if (jwt) {
-      dispatch(getCurrentUserByJwt(jwt)).finally(() => setLoading(false));
+      dispatch(getCurrentUserByJwt(jwt))
+        .then((result) => {
+          if (result && result.error === "UNAUTHORIZED") {
+            navigate("/sign-in");
+          }
+        })
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [dispatch, jwt]);
+  }, [dispatch, jwt, navigate]);
 
   if (loading) {
     return <CircularProgress />;
@@ -46,7 +53,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
-        <Route path="/admin/*" element={auth.user && auth.user.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
+        <Route path="/admin/*" element={user?.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/books" element={<BooksPage />} />

@@ -21,7 +21,7 @@ export default function ChapterDetailPage() {
   const navigate = useNavigate();
 
   const { chapter, chapters, progresses = [] } = useSelector((store) => store.chapter);
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
   const { book } = useSelector((store) => store.book);
 
   const [bookId] = useState(paramBookId);
@@ -39,15 +39,15 @@ export default function ChapterDetailPage() {
     if (!book) {
       dispatch(getBookByIdAction(bookId));
     }
-    if (auth.user) {
-      dispatch(getReadingProgressByUserAndChapter(auth.user.id, chapterId));
+    if (user) {
+      dispatch(getReadingProgressByUserAndChapter(user.id, chapterId));
     }
     setLoading(false);
-  }, [dispatch, bookId, chapterId, auth.user, book]);
+  }, [dispatch, bookId, chapterId, user, book]);
 
   // Save reading progress
   const saveProgress = useCallback(async () => {
-    if (!auth.user) return;
+    if (!user) return;
 
     let progress = 0;
     const pagesRead = Math.ceil((currentPage + 1) / 2);
@@ -60,8 +60,8 @@ export default function ChapterDetailPage() {
       progress = 100;
     }
 
-    await dispatch(saveChapterProgressAction(bookId, chapterId, auth.user.id, progress));
-  }, [dispatch, bookId, chapterId, auth.user, currentPage, totalPages]);
+    await dispatch(saveChapterProgressAction(bookId, chapterId, user.id, progress));
+  }, [dispatch, bookId, chapterId, user, currentPage, totalPages]);
 
   const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
 

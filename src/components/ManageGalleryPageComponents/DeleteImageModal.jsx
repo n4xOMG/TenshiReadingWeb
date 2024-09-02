@@ -21,7 +21,7 @@ export default function DeleteImageModal({ open, onClose, deleteImage }) {
     console.log("imageId: ", imageId);
     setLoading(true);
     await dispatch(deleteImageAction(imageId));
-    await dispatch(getAllGalleryImages());
+    await dispatch(getAllGalleryImages(0, 4));
     setLoading(false);
     onClose();
   };

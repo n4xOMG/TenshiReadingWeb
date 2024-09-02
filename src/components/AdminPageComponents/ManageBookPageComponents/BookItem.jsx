@@ -14,10 +14,10 @@ export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style })
           cursor: "pointer",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => onSelect(book.id)}>
+        <Box sx={{ display: "flex", alignItems: "center", p: 3 }} onClick={() => onSelect(book.id)}>
           <LazyLoad height={200} offset={100}>
             <img
-              src={getOptimizedImageUrl(book.bookCover)}
+              src={getOptimizedImageUrl(getResponsiveImageUrl(book.bookCover))}
               alt={`Cover of ${book.title}`}
               loading="lazy"
               width={80}

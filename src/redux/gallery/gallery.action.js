@@ -33,11 +33,13 @@ import {
   GET_TAGS_BY_IMAGE_SUCCESS,
 } from "./gallery.actionType";
 
-export const getAllGalleryImages = () => async (dispatch) => {
+export const getAllGalleryImages = (page, size) => async (dispatch) => {
   dispatch({ type: GET_ALL_IMAGES_REQUEST });
   console.log("getAllGalleryImages action dispatched");
   try {
-    const { data } = await axios.get(`${API_BASE_URL}/gallery`);
+    const { data } = await axios.get(`${API_BASE_URL}/gallery`, {
+      params: { page, size },
+    });
     dispatch({ type: GET_ALL_IMAGES_SUCCESS, payload: data });
     console.log("Images: ", { payload: data });
     return { payload: data };

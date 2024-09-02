@@ -1,5 +1,5 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Box, Button, CircularProgress, Dialog, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, Dialog, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { editImageAction, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
@@ -47,7 +47,7 @@ export default function EditImageModal({ open, onClose, imageDetails }) {
     };
     console.log("Payload to be sent:", { data: json });
     await dispatch(editImageAction({ data: json }));
-    await dispatch(getAllGalleryImages());
+    await dispatch(getAllGalleryImages(0, 4));
     onClose();
   };
 
@@ -64,7 +64,7 @@ export default function EditImageModal({ open, onClose, imageDetails }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose}>
       <Box component={"form"} onSubmit={handleSubmit} className="bg-gray-800 text-white p-4 rounded mx-auto my-20 w-1/3">
         <h2 className="text-xl mb-4">Edit Image</h2>
 
@@ -132,6 +132,6 @@ export default function EditImageModal({ open, onClose, imageDetails }) {
           </>
         )}
       </Box>
-    </Dialog>
+    </Modal>
   );
 }

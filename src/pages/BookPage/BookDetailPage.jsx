@@ -28,7 +28,7 @@ export const BookDetailPage = () => {
   const dispatch = useDispatch();
   const { chapters, progresses = [] } = useSelector((store) => store.chapter);
   const { book, rating } = useSelector((store) => store.book);
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
 
   const [loading, setLoading] = useState(false);
@@ -38,16 +38,16 @@ export const BookDetailPage = () => {
 
   const fetchBookAndChapterDetails = useCallback(async () => {
     setLoading(true);
-    if (auth.user) {
+    if (user) {
       await dispatch(getBookRatingByUserAction(bookId));
-      await dispatch(getBookDetailsAndChaptersAction(bookId, auth.user.id));
+      await dispatch(getBookDetailsAndChaptersAction(bookId, user.id));
     } else {
       await dispatch(getBookByIdAction(bookId));
       await dispatch(getAllChaptersByBookIdAction(bookId));
       await dispatch(getAvgBookRating(bookId));
     }
     setLoading(false);
-  }, [auth.user, bookId, dispatch]);
+  }, [user, bookId, dispatch]);
 
   const calculateOverallProgress = useCallback(() => {
     if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
@@ -82,10 +82,10 @@ export const BookDetailPage = () => {
   }, [fetchBookAndChapterDetails]);
 
   useEffect(() => {
-    if (book && auth.user) {
-      setIsFavorite(isFavouredByReqUser(auth.user.id, book));
+    if (book && user) {
+      setIsFavorite(isFavouredByReqUser(user.id, book));
     }
-  }, [book, auth.user]);
+  }, [book, user]);
 
   useEffect(() => {
     calculateOverallProgress();

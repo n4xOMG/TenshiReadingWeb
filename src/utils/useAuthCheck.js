@@ -8,11 +8,14 @@ export const useAuthCheck = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const checkAuth =
     (fn) =>
     async (...args) => {
       const jwt = localStorage.getItem("jwt");
-      const user = dispatch(getCurrentUserByJwt(jwt));
+      const result = await dispatch(getCurrentUserByJwt(jwt));
+      const user = result?.payload;
+
       if (!user) {
         setOpen(true);
         return;
@@ -31,7 +34,7 @@ export const useAuthCheck = () => {
 
   const AuthDialog = () => (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>You havent logged in</DialogTitle>
+      <DialogTitle>You haven't logged in</DialogTitle>
       <DialogContent>Please log in to continue.</DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">

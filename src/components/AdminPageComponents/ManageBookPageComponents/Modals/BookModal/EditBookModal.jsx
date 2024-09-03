@@ -1,26 +1,53 @@
-import { Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { editBookAction, getAllBookAction } from "../../../../../redux/book/book.action";
-import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField, Typography } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { editBookAction, getAllBookAction, getAllLanguages } from "../../../../../redux/book/book.action";
+import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
 export default function EditBookModal({ open, onClose, bookDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const { languages } = useSelector((store) => store.book);
+  const [chosenLanguages, setChosenLanguages] = useState(bookDetails.languages || []);
   const [publishDate, setPublishDate] = useState(dayjs(bookDetails?.publishDate || new Date()));
+
+  const fetchLanguages = async () => {
+    setLoading(true);
+    try {
+      await dispatch(getAllLanguages());
+    } catch (e) {
+      console.error("Error fetching tags: ", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLanguages();
+  }, [dispatch]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
+    json.bookCover = selectedImage;
+    json.id = bookDetails.id;
     json.publishDate = publishDate.toISOString();
-    await dispatch(editBookAction({ ...json, bookDetails, bookCover: selectedImage }));
-    await dispatch(getAllBookAction());
-    onClose();
+    json.languages = chosenLanguages;
+    try {
+      console.log("Edit data: ", { data: json });
+      await dispatch(editBookAction({ data: json }));
+      await dispatch(getAllBookAction());
+      onClose();
+    } catch (error) {
+      console.error("Error editing book:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageUpload = async (event) => {
@@ -76,6 +103,18 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" required />}
               />
             </LocalizationProvider>
+            <Autocomplete
+              multiple
+              limitTags={2}
+              id="languages"
+              options={languages}
+              getOptionLabel={(option) => option.name}
+              defaultValue={bookDetails.languages}
+              onChange={(event, newValue) => setChosenLanguages(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => <TextField {...params} label="Languages" placeholder="Languages" />}
+              sx={{ width: "500px" }}
+            />
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Button

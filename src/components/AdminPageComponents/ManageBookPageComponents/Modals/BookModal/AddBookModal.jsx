@@ -1,7 +1,7 @@
-import { Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField } from "@mui/material";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addNewBookAction, getAllBookAction } from "../../../../../redux/book/book.action";
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addNewBookAction, getAllBookAction, getAllLanguages } from "../../../../../redux/book/book.action";
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -10,7 +10,22 @@ export default function AddBookModal({ open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [publishDate, setPublishDate] = useState(new Date());
+  const { languages } = useSelector((store) => store.book);
+  const [chosenLanguages, setChosenLanguages] = useState([]);
 
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      setLoading(true);
+      try {
+        await dispatch(getAllLanguages());
+      } catch (e) {
+        console.error("Error fetching tags: ", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLanguages();
+  }, [dispatch]);
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -18,6 +33,7 @@ export default function AddBookModal({ open, onClose }) {
     const json = Object.fromEntries(data.entries());
     json.bookCover = selectedImage;
     json.publishDate = publishDate.toISOString();
+    json.languages = chosenLanguages;
     await dispatch(addNewBookAction({ data: json }));
     await dispatch(getAllBookAction());
     onClose();
@@ -51,6 +67,18 @@ export default function AddBookModal({ open, onClose }) {
                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" required />}
               />
             </LocalizationProvider>
+            <Autocomplete
+              multiple
+              limitTags={2}
+              id="languages"
+              options={languages}
+              getOptionLabel={(option) => option.name}
+              defaultValue={[]}
+              onChange={(event, newValue) => setChosenLanguages(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => <TextField {...params} label="Languages" placeholder="Languages" />}
+              sx={{ width: "500px" }}
+            />
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Button

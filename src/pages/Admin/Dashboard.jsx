@@ -7,11 +7,13 @@ import React, { useState } from "react";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import SpeakerNotesOffIcon from "@mui/icons-material/SpeakerNotesOff";
+import GTranslateIcon from "@mui/icons-material/GTranslate";
 import ManageUser from "./ManageUser";
 import ManageBookPage from "./ManageBookPage";
 import ManageGallery from "./ManageGallery";
 import ManageTagPage from "./ManageTagPage";
 import ManageSensitiveWords from "./ManageSensitiveWords";
+import ManageLanguagePage from "./ManageLanguagePage";
 export default function Dashboard() {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -24,6 +26,7 @@ export default function Dashboard() {
     { name: "Gallery", page: "gallery", icon: <ImageIcon /> },
     { name: "Image Tags", page: "tags", icon: <LocalOfferIcon /> },
     { name: "Sensitive Words", page: "sensitive-words", icon: <SpeakerNotesOffIcon /> },
+    { name: "Book Languages", page: "book-languages", icon: <GTranslateIcon /> },
   ];
   const renderMainContent = () => {
     switch (currentPage) {
@@ -37,6 +40,8 @@ export default function Dashboard() {
         return <ManageTagPage />;
       case "sensitive-words":
         return <ManageSensitiveWords />;
+      case "book-languages":
+        return <ManageLanguagePage />;
       default:
         return <ManageUser />;
     }

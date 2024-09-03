@@ -16,6 +16,7 @@ import {
   getBookByIdAction,
   getBookDetailsAndChaptersAction,
   getBookRatingByUserAction,
+  getLanguagesByBook,
   ratingBookAction,
 } from "../../redux/book/book.action";
 import { getAdaptedChaptersByBookIdAction, getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
@@ -27,7 +28,7 @@ export const BookDetailPage = () => {
   const { bookId } = useParams();
   const dispatch = useDispatch();
   const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
-  const { book, rating } = useSelector((store) => store.book);
+  const { book, rating, languages } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
 
@@ -42,10 +43,12 @@ export const BookDetailPage = () => {
       await dispatch(getBookRatingByUserAction(bookId));
       await dispatch(getBookDetailsAndChaptersAction(bookId, user.id));
       await dispatch(getAdaptedChaptersByBookIdAction(bookId));
+      await dispatch(getLanguagesByBook(bookId));
     } else {
       await dispatch(getBookByIdAction(bookId));
       await dispatch(getAllChaptersByBookIdAction(bookId));
       await dispatch(getAdaptedChaptersByBookIdAction(bookId));
+      await dispatch(getLanguagesByBook(bookId));
       await dispatch(getAvgBookRating(bookId));
     }
     setLoading(false);
@@ -193,6 +196,7 @@ export const BookDetailPage = () => {
               <ChapterList
                 chapters={chapters}
                 adaptedChapters={adaptedChapters}
+                languages={languages}
                 progresses={progresses}
                 onNavigate={navigate}
                 bookId={bookId}

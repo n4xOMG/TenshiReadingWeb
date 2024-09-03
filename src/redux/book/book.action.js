@@ -7,6 +7,9 @@ import {
   GET_PROGRESS_SUCCESS,
 } from "../chapter/chapter.actionType";
 import {
+  ADD_NEW_LANGUAGE_FAILED,
+  ADD_NEW_LANGUAGE_REQUEST,
+  ADD_NEW_LANGUAGE_SUCCESS,
   BOOK_DELETE_FAILED,
   BOOK_DELETE_REQUEST,
   BOOK_DELETE_SUCCEED,
@@ -16,6 +19,12 @@ import {
   BOOK_UPLOAD_FAILED,
   BOOK_UPLOAD_REQUEST,
   BOOK_UPLOAD_SUCCEED,
+  DELETE_LANGUAGE_FAILED,
+  DELETE_LANGUAGE_REQUEST,
+  DELETE_LANGUAGE_SUCCESS,
+  EDIT_LANGUAGE_FAILED,
+  EDIT_LANGUAGE_REQUEST,
+  EDIT_LANGUAGE_SUCCESS,
   FOLLOW_BOOK_FAILED,
   FOLLOW_BOOK_REQUEST,
   FOLLOW_BOOK_SUCCESS,
@@ -31,6 +40,9 @@ import {
   GET_BOOK_RATING_BY_USER_SUCCESS,
   GET_BOOK_REQUEST,
   GET_BOOK_SUCCESS,
+  GET_LANGUAGES_BY_BOOK_FAILED,
+  GET_LANGUAGES_BY_BOOK_REQUEST,
+  GET_LANGUAGES_BY_BOOK_SUCCESS,
   RATING_BOOK_FAILED,
   RATING_BOOK_REQUEST,
   RATING_BOOK_SUCCESS,
@@ -148,11 +160,10 @@ export const addNewBookAction = (bookData) => async (dispatch) => {
   }
 };
 export const editBookAction = (bookData) => async (dispatch) => {
-  const { bookDetails, bookCover, ...data } = bookData;
-  data.bookCover = bookCover;
+  console.log("Action editBookAction dispatched with data: ", bookData.data);
   dispatch({ type: BOOK_EDIT_REQUEST });
   try {
-    const response = await api.put(`${API_BASE_URL}/translator/books/${bookDetails.id}`, data);
+    const response = await api.put(`${API_BASE_URL}/translator/books/${bookData.data.id}`, bookData.data);
     console.log("Book edited", response.data);
     dispatch({ type: BOOK_EDIT_SUCCEED, payload: response.data });
   } catch (error) {
@@ -235,5 +246,70 @@ export const getAvgBookRating = (bookId) => async (dispatch) => {
   } catch (error) {
     console.log("Api error when trying to rating book: ", error);
     dispatch({ type: GET_AVG_BOOK_RATING_FAILED, payload: error.message });
+  }
+};
+
+export const getLanguagesByBook = (bookId) => async (dispatch) => {
+  console.log("Action getLanguagesByBook dispatched");
+  dispatch({ type: GET_LANGUAGES_BY_BOOK_REQUEST });
+  try {
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/languages`);
+    console.log("got book languages", data);
+    dispatch({ type: GET_LANGUAGES_BY_BOOK_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to get book languages: ", error);
+    dispatch({ type: GET_LANGUAGES_BY_BOOK_FAILED, payload: error.message });
+  }
+};
+
+export const getAllLanguages = () => async (dispatch) => {
+  console.log("Action getAllLanguages dispatched");
+  dispatch({ type: GET_LANGUAGES_BY_BOOK_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/admin/languages`);
+    console.log("got all languages", data);
+    dispatch({ type: GET_LANGUAGES_BY_BOOK_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to get book languages: ", error);
+    dispatch({ type: GET_LANGUAGES_BY_BOOK_FAILED, payload: error.message });
+  }
+};
+
+export const addNewLanguage = (reqData) => async (dispatch) => {
+  console.log("Action addNewLanguage dispatched with data: ", reqData.data);
+  dispatch({ type: ADD_NEW_LANGUAGE_REQUEST });
+  try {
+    const { data } = await api.post(`${API_BASE_URL}/admin/languages`, reqData.data);
+    console.log("added language", data);
+    dispatch({ type: ADD_NEW_LANGUAGE_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to add language: ", error);
+    dispatch({ type: ADD_NEW_LANGUAGE_FAILED, payload: error.message });
+  }
+};
+
+export const editLanguageAction = (reqData) => async (dispatch) => {
+  console.log("Action editLanguage dispatched with data: ", reqData.data);
+  dispatch({ type: EDIT_LANGUAGE_REQUEST });
+  try {
+    const { data } = await api.put(`${API_BASE_URL}/admin/languages/${reqData.data.id}`, reqData.data);
+    console.log("edited language", data);
+    dispatch({ type: EDIT_LANGUAGE_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to edit language: ", error);
+    dispatch({ type: EDIT_LANGUAGE_FAILED, payload: error.message });
+  }
+};
+
+export const deleteLanguageAction = (langId) => async (dispatch) => {
+  console.log("Action deleteLanguage dispatched with data: ", langId);
+  dispatch({ type: DELETE_LANGUAGE_REQUEST });
+  try {
+    const { data } = await api.delete(`${API_BASE_URL}/admin/languages/${langId}`);
+    console.log("deleted language", data);
+    dispatch({ type: DELETE_LANGUAGE_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to delete language: ", error);
+    dispatch({ type: DELETE_LANGUAGE_FAILED, payload: error.message });
   }
 };

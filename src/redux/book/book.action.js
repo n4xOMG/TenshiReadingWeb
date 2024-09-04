@@ -1,11 +1,6 @@
 import axios from "axios";
 import { api, API_BASE_URL } from "../../api/api";
-import {
-  GET_CHAPTERS_BY_BOOK_FAILED,
-  GET_CHAPTERS_BY_BOOK_SUCCESS,
-  GET_PROGRESS_FAILED,
-  GET_PROGRESS_SUCCESS,
-} from "../chapter/chapter.actionType";
+import { GET_PROGRESS_FAILED, GET_PROGRESS_REQUEST, GET_PROGRESS_SUCCESS } from "../chapter/chapter.actionType";
 import {
   ADD_NEW_LANGUAGE_FAILED,
   ADD_NEW_LANGUAGE_REQUEST,
@@ -90,60 +85,22 @@ export const getBookByIdAction = (bookId) => async (dispatch) => {
   }
 };
 
-export const getBookDetailsAndChaptersAction = (bookId, userId) => async (dispatch) => {
-  console.log("Action getBookDetailsAndChaptersAction dispatched");
-  dispatch({ type: GET_BOOK_REQUEST });
+export const getReadingProgressByBookChaptersAndUser = (userId, chapters) => async (dispatch) => {
+  console.log("Action getReadingProgressByBookChaptersAndUser dispatched");
+  dispatch({ type: GET_PROGRESS_REQUEST });
   try {
-    // Fetch book data
-    const bookResponse = await api.get(`${API_BASE_URL}/books/${bookId}`);
-    const book = bookResponse.data;
-    console.log("Got book: ", book);
-
-    // Fetch chapters data
-    const chaptersResponse = await api.get(`${API_BASE_URL}/books/${bookId}/chapters`);
-    const chapters = chaptersResponse.data;
-    console.log("Got chapters: ", chapters);
-
-    // Fetch reading progress data
-    const readingProgress = await Promise.all(
+    const readingProgresses = await Promise.all(
       chapters.map(async (chapter) => {
         const progressResponse = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}/${chapter.id}`);
         return progressResponse.data;
       })
     );
-    console.log("Got reading progress: ", readingProgress);
-
-    // Dispatch actions with the fetched data
-    dispatch({
-      type: GET_BOOK_SUCCESS,
-      payload: book,
-    });
-
-    dispatch({
-      type: GET_CHAPTERS_BY_BOOK_SUCCESS,
-      payload: chapters,
-    });
-
-    dispatch({
-      type: GET_PROGRESS_SUCCESS,
-      payload: readingProgress,
-    });
+    console.log("Got reading progresses", readingProgresses);
+    dispatch({ type: GET_PROGRESS_SUCCESS, payload: readingProgresses });
+    return { payload: readingProgresses };
   } catch (error) {
-    console.log("Api error when trying to retrieve data: ", error);
-    dispatch({
-      type: GET_BOOK_FAILED,
-      payload: error.message,
-    });
-
-    dispatch({
-      type: GET_CHAPTERS_BY_BOOK_FAILED,
-      payload: error.message,
-    });
-
-    dispatch({
-      type: GET_PROGRESS_FAILED,
-      payload: error.message,
-    });
+    console.log("Api error when trying to add new book: ", error);
+    dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }
 };
 

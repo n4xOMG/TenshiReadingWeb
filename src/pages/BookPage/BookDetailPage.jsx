@@ -14,12 +14,10 @@ import {
   followBookAction,
   getAvgBookRating,
   getBookByIdAction,
-  getBookDetailsAndChaptersAction,
   getBookRatingByUserAction,
   getLanguagesByBook,
   ratingBookAction,
 } from "../../redux/book/book.action";
-import { getAdaptedChaptersByBookIdAction, getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 
@@ -27,40 +25,32 @@ export const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
-  const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
   const { book, rating, languages } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
-
   const [loading, setLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
-
+  const [firstChapterId, setFirstChapterId] = useState(null);
   const fetchBookAndChapterDetails = useCallback(async () => {
     setLoading(true);
+    await dispatch(getBookByIdAction(bookId));
+    await dispatch(getLanguagesByBook(bookId));
+    await dispatch(getAvgBookRating(bookId));
     if (user) {
       await dispatch(getBookRatingByUserAction(bookId));
-      await dispatch(getBookDetailsAndChaptersAction(bookId, user.id));
-      await dispatch(getAdaptedChaptersByBookIdAction(bookId));
-      await dispatch(getLanguagesByBook(bookId));
-    } else {
-      await dispatch(getBookByIdAction(bookId));
-      await dispatch(getAllChaptersByBookIdAction(bookId));
-      await dispatch(getAdaptedChaptersByBookIdAction(bookId));
-      await dispatch(getLanguagesByBook(bookId));
-      await dispatch(getAvgBookRating(bookId));
     }
     setLoading(false);
   }, [user, bookId, dispatch]);
 
-  const calculateOverallProgress = useCallback(() => {
+  const calculateOverallProgress = useCallback((chapters, progresses) => {
     if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
       const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
       const averageProgress = Math.floor(totalProgress / chapters.length);
       setOverallProgress(averageProgress);
     }
-  }, [chapters, progresses]);
+  }, []);
 
   const handleFollowBook = checkAuth(async () => {
     try {
@@ -175,7 +165,7 @@ export const BookDetailPage = () => {
               </Box>
               <Button
                 fullWidth
-                onClick={() => navigate(`/books/${bookId}/chapters/${chapters[0].id}`)}
+                onClick={() => navigate(`/books/${bookId}/chapters/${firstChapterId}`)}
                 sx={{
                   mt: 4,
                   backgroundColor: "black",
@@ -194,12 +184,12 @@ export const BookDetailPage = () => {
               <BookDetails book={book} />
               <ProgressBar progress={overallProgress} />
               <ChapterList
-                chapters={chapters}
-                adaptedChapters={adaptedChapters}
                 languages={languages}
-                progresses={progresses}
+                onCalculateProgress={calculateOverallProgress}
                 onNavigate={navigate}
                 bookId={bookId}
+                user={user ? user : null}
+                onFirstChapterId={setFirstChapterId}
               />
               <CommentSection book={book} />
             </Grid>

@@ -17,6 +17,9 @@ import {
   GET_CHAPTER_FAILED,
   GET_CHAPTER_REQUEST,
   GET_CHAPTER_SUCCESS,
+  GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_FAILED,
+  GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_REQUEST,
+  GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_SUCCESS,
   GET_CHAPTERS_BY_BOOK_FAILED,
   GET_CHAPTERS_BY_BOOK_REQUEST,
   GET_CHAPTERS_BY_BOOK_SUCCESS,
@@ -49,6 +52,7 @@ export const chapterReducer = (state = initialState, action) => {
     case GET_PROGRESS_REQUEST:
     case GET_CHAPTERS_BY_BOOK_REQUEST:
     case GET_ADAPTED_CHAPTERS_REQUEST:
+    case GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_REQUEST:
       return { ...state, loading: true, error: null };
 
     case GET_CHAPTER_SUCCESS:
@@ -63,6 +67,7 @@ export const chapterReducer = (state = initialState, action) => {
       return { ...state, loading: false, error: null };
     case GET_ALL_CHAPTER_SUCCESS:
     case GET_CHAPTERS_BY_BOOK_SUCCESS:
+    case GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_SUCCESS:
       return { ...state, loading: false, error: null, chapters: action.payload };
     case GET_ADAPTED_CHAPTERS_SUCCESS:
       return { ...state, loading: false, error: null, adaptedChapters: action.payload };
@@ -75,6 +80,7 @@ export const chapterReducer = (state = initialState, action) => {
     case GET_PROGRESS_FAILED:
     case GET_CHAPTERS_BY_BOOK_FAILED:
     case GET_ADAPTED_CHAPTERS_FAILED:
+    case GET_CHAPTERS_BY_BOOK_AND_LANGUAGE_FAILED:
       return { ...state, loading: false, error: action.payload };
 
     default:

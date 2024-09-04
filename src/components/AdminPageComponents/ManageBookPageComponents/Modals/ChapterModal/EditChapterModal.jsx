@@ -5,7 +5,7 @@ import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import { Backdrop, Box, Button, CircularProgress, Dialog, TextField, Toolbar } from "@mui/material";
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, Dialog, TextField, Toolbar } from "@mui/material";
 import DOMPurify from "dompurify";
 import isHotkey from "is-hotkey";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,12 +21,15 @@ import { Element, Leaf } from "../../../../UploadChapterPageComponents/Element";
 import { InsertImageButton, withImages } from "../../../../UploadChapterPageComponents/InsertImageHandler";
 import { MarkButton, toggleMark } from "../../../../UploadChapterPageComponents/MarkButton";
 import { HOTKEYS } from "../../../../UploadChapterPageComponents/ToolbarFunctions";
+import { getAllLanguages } from "../../../../../redux/book/book.action";
 
 export default function EditChapterModal({ open, onClose, bookId, chapterDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const jwt = localStorage.getItem("jwt");
-  const { auth } = useSelector((store) => store);
+  const { user } = useSelector((store) => store.auth);
+  const { languages } = useSelector((store) => store.book);
+  const [chosenLanguage, setChosenLanguage] = useState(chapterDetails.language || []);
   const editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
   const [content, setContent] = useState(null);
 
@@ -43,23 +46,36 @@ export default function EditChapterModal({ open, onClose, bookId, chapterDetails
         setLoading(false);
       }
     };
+    const fetchLanguages = async () => {
+      setLoading(true);
+      try {
+        await dispatch(getAllLanguages());
+      } catch (e) {
+        console.error("Error fetching tags: ", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLanguages();
 
     if (chapterDetails.id) {
       fetchChapterContent();
     }
-  }, [dispatch, chapterDetails.id]);
+  }, [dispatch, chapterDetails.content, chapterDetails.id]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     const data = new FormData(event.currentTarget);
     const json = Object.fromEntries(data.entries());
-    const serializedContent = serializeContent(content); // Serialize the content to HTML
+    const serializedContent = serializeContent(content);
+    json.id = chapterDetails.id;
     json.content = DOMPurify.sanitize(serializedContent);
-    json.translatorId = auth.user.id;
+    json.translatorId = user.id;
+    json.language = chosenLanguage;
     console.log("Form Data:", json);
     try {
-      await dispatch(editChapterAction(bookId, chapterDetails.id, { data: json }));
+      await dispatch(editChapterAction(bookId, { data: json }));
       await dispatch(getAllChaptersByBookIdAction(bookId));
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -92,6 +108,17 @@ export default function EditChapterModal({ open, onClose, bookId, chapterDetails
           defaultValue={chapterDetails.chapterNum}
         />
         <TextField margin="normal" required fullWidth id="title" label="Chapter title" name="title" defaultValue={chapterDetails.title} />
+        <Autocomplete
+          limitTags={1}
+          id="languages"
+          options={languages}
+          getOptionLabel={(option) => option.name}
+          defaultValue={chapterDetails.language}
+          onChange={(event, newValue) => setChosenLanguage(newValue)}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => <TextField {...params} label="Language" placeholder="Language" />}
+          sx={{ width: "500px" }}
+        />
         <input type="hidden" name="content" value={JSON.stringify(content)} />
         {content && (
           <Slate

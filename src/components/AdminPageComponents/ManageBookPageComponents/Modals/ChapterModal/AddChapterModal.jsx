@@ -5,7 +5,18 @@ import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import { Backdrop, Box, Button, Checkbox, CircularProgress, Dialog, FormControlLabel, TextField, Toolbar } from "@mui/material";
+import {
+  Autocomplete,
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Dialog,
+  FormControlLabel,
+  TextField,
+  Toolbar,
+} from "@mui/material";
 import isHotkey from "is-hotkey";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,11 +32,14 @@ import { InsertImageButton, withImages } from "../../../../UploadChapterPageComp
 import { MarkButton, toggleMark } from "../../../../UploadChapterPageComponents/MarkButton";
 import { HOTKEYS } from "../../../../UploadChapterPageComponents/ToolbarFunctions";
 import DOMPurify from "dompurify";
+import { getAllLanguages } from "../../../../../redux/book/book.action";
 export default function AddChapterModal({ open, onClose, bookId }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const jwt = localStorage.getItem("jwt");
   const { user } = useSelector((store) => store.auth);
+  const { languages } = useSelector((store) => store.book);
+  const [chosenLanguage, setChosenLanguage] = useState([]);
   const editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
   const initialValue = useMemo(
     () =>
@@ -60,6 +74,7 @@ export default function AddChapterModal({ open, onClose, bookId }) {
     const serializedContent = serializeContent(content);
     json.content = DOMPurify.sanitize(serializedContent);
     json.translatorId = user.id;
+    json.language = chosenLanguage;
 
     if (showAdaptation) {
       json.adaptationSeason = {
@@ -84,6 +99,19 @@ export default function AddChapterModal({ open, onClose, bookId }) {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   useEffect(() => {
+    const fetchLanguages = async () => {
+      setLoading(true);
+      try {
+        await dispatch(getAllLanguages());
+      } catch (e) {
+        console.error("Error fetching tags: ", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (!languages) {
+      fetchLanguages();
+    }
     setLoading(true);
     if (jwt) {
       dispatch(getCurrentUserByJwt(jwt)).finally(() => setLoading(false));
@@ -139,6 +167,17 @@ export default function AddChapterModal({ open, onClose, bookId }) {
               placeholder="Ex: 1, 2"
               value={adaptationSeason.part}
               onChange={handleAdaptationChange}
+            />
+            <Autocomplete
+              limitTags={1}
+              id="language"
+              options={languages}
+              getOptionLabel={(option) => option.name}
+              defaultValue={[]}
+              onChange={(event, newValue) => setChosenLanguage(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => <TextField {...params} label="Language" placeholder="Language" />}
+              sx={{ width: "500px" }}
             />
           </>
         )}

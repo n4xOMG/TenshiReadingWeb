@@ -109,9 +109,7 @@ export default function AddChapterModal({ open, onClose, bookId }) {
         setLoading(false);
       }
     };
-    if (!languages) {
-      fetchLanguages();
-    }
+    fetchLanguages();
     setLoading(true);
     if (jwt) {
       dispatch(getCurrentUserByJwt(jwt)).finally(() => setLoading(false));
@@ -168,19 +166,19 @@ export default function AddChapterModal({ open, onClose, bookId }) {
               value={adaptationSeason.part}
               onChange={handleAdaptationChange}
             />
-            <Autocomplete
-              limitTags={1}
-              id="language"
-              options={languages}
-              getOptionLabel={(option) => option.name}
-              defaultValue={[]}
-              onChange={(event, newValue) => setChosenLanguage(newValue)}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderInput={(params) => <TextField {...params} label="Language" placeholder="Language" />}
-              sx={{ width: "500px" }}
-            />
           </>
         )}
+        <Autocomplete
+          limitTags={1}
+          id="language"
+          options={languages}
+          getOptionLabel={(option) => option.name}
+          defaultValue={[]}
+          onChange={(event, newValue) => setChosenLanguage(newValue)}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => <TextField {...params} label="Language" placeholder="Language" />}
+          sx={{ width: "500px" }}
+        />
         <input type="hidden" name="content" value={JSON.stringify(content)} />
         <Slate
           editor={editor}

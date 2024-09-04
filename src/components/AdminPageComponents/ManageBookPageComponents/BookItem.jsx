@@ -2,7 +2,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, Card, Grid, IconButton, Typography } from "@mui/material";
 import React from "react";
-import LazyLoad from "react-lazyload";
 import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../../utils/optimizeImages";
 export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style }) => {
   return (
@@ -15,21 +14,19 @@ export const BookItem = React.memo(({ book, onSelect, onEdit, onDelete, style })
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", p: 3 }} onClick={() => onSelect(book.id)}>
-          <LazyLoad height={200} offset={100}>
-            <img
-              src={getOptimizedImageUrl(getResponsiveImageUrl(book.bookCover))}
-              alt={`Cover of ${book.title}`}
-              loading="lazy"
-              width={80}
-              height={120}
-              style={{
-                borderRadius: "4px",
-                marginRight: "16px",
-                aspectRatio: "80/120",
-                objectFit: "cover",
-              }}
-            />
-          </LazyLoad>
+          <img
+            src={getOptimizedImageUrl(getResponsiveImageUrl(book.bookCover))}
+            alt={`Cover of ${book.title}`}
+            loading="lazy"
+            width={80}
+            height={120}
+            style={{
+              borderRadius: "4px",
+              marginRight: "16px",
+              aspectRatio: "80/120",
+              objectFit: "cover",
+            }}
+          />
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: "medium" }}>
               {book.title}

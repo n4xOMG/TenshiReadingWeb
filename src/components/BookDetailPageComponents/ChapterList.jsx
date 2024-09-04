@@ -31,7 +31,10 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
-  const [selectedLanguageId, setSelectedLanguageId] = useState(null); // Initialize to null
+  const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
+    return localStorage.getItem("selectedLanguageId") || 3;
+  });
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -45,12 +48,8 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
 
   const handleLanguageChange = (langId) => {
     if (langId !== selectedLanguageId) {
-      // Avoid unnecessary re-fetching
       setSelectedLanguageId(langId);
-
-      setTimeout(() => {
-        fetchChapters(langId);
-      }, 500); // Delay before fetching chapters
+      localStorage.setItem("selectedLanguageId", langId);
     }
   };
 
@@ -71,11 +70,12 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
   );
 
   useEffect(() => {
-    if (selectedLanguageId) {
+    setLoading(true);
+    setTimeout(() => {
+      const lang = languages.find((lang) => lang.id === selectedLanguageId);
+      setSelectedLanguage(lang);
       fetchChapters(selectedLanguageId);
-    } else {
-      setSelectedLanguageId(3); // Set the default language id to 3 once during initialization
-    }
+    }, 500);
   }, [selectedLanguageId, fetchChapters]);
 
   useEffect(() => {
@@ -104,7 +104,9 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
               <ListItemIcon>
                 <GTranslateIcon />
               </ListItemIcon>
-              <ListItemText primary="Available Languages" />
+              <ListItemText
+                primary={selectedLanguage ? `${selectedLanguage.countryCode} - ${selectedLanguage.name}` : "Available Languages"}
+              />
               {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
@@ -115,7 +117,7 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
                       key={lang.id}
                       sx={{ pl: 4 }}
                       onClick={() => handleLanguageChange(lang.id)}
-                      selected={lang.id === selectedLanguageId} // Highlight the selected language
+                      selected={lang.id === selectedLanguageId}
                     >
                       <ListItemText primary={lang.countryCode + " - " + lang.name} />
                     </ListItemButton>
@@ -134,14 +136,24 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
             <Tabs
               value={value}
               onChange={handleChange}
-              indicatorColor="blue"
-              textColor="black"
+              indicatorColor="primary"
+              textColor="inherit"
               variant="fullWidth"
               aria-label="Chapters tab"
-              sx={{ backgroundColor: "grey.200" }}
+              sx={{
+                backgroundColor: "#f9fafb",
+                "& .Mui-selected": {
+                  backgroundColor: "#f9fafb", // Same as background color
+                  color: "black",
+                },
+                "& .MuiTab-root:not(.Mui-selected)": {
+                  backgroundColor: "grey.300",
+                  color: "black", // Gray color for non-selected tabs
+                },
+              }}
             >
-              <Tab label="All" {...a11yProps(0)} sx={{ color: "black", borderRight: 1, borderColor: "darkgrey" }} />
-              <Tab label="Anime Adapted" {...a11yProps(1)} sx={{ color: "black" }} />
+              <Tab label="All" {...a11yProps(0)} />
+              <Tab label="Anime Adapted" {...a11yProps(1)} />
             </Tabs>
           </AppBar>
 

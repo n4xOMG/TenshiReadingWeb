@@ -14,10 +14,11 @@ export const deserializeContent = (el, markAttributes = {}) => {
 
   const nodeAttributes = { ...markAttributes };
 
-  // define attributes for text nodes
   switch (el.nodeName) {
     case "STRONG":
       nodeAttributes.bold = true;
+      break;
+    // Add more cases as needed
   }
 
   const children = Array.from(el.childNodes)
@@ -39,6 +40,8 @@ export const deserializeContent = (el, markAttributes = {}) => {
       return jsx("element", { type: "paragraph" }, children);
     case "A":
       return jsx("element", { type: "link", url: el.getAttribute("href") }, children);
+    case "IMG":
+      return jsx("element", { type: "image", url: el.getAttribute("src"), alt: el.getAttribute("alt") }, children);
     default:
       return children;
   }

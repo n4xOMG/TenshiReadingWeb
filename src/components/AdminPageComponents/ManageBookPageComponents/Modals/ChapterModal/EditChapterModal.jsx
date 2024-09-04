@@ -5,7 +5,18 @@ import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import { Autocomplete, Backdrop, Box, Button, CircularProgress, Dialog, TextField, Toolbar } from "@mui/material";
+import {
+  Autocomplete,
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Dialog,
+  FormControlLabel,
+  TextField,
+  Toolbar,
+} from "@mui/material";
 import DOMPurify from "dompurify";
 import isHotkey from "is-hotkey";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -32,11 +43,27 @@ export default function EditChapterModal({ open, onClose, bookId, chapterDetails
   const [chosenLanguage, setChosenLanguage] = useState(chapterDetails.language || []);
   const editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
   const [content, setContent] = useState(null);
+  const [showAdaptation, setShowAdaptation] = useState(chapterDetails.adaptationSeason ? true : false);
+  const [adaptationSeason, setAdaptationSeason] = useState(
+    chapterDetails.adaptationSeason || {
+      season: "",
+      episode: "",
+      part: "",
+    }
+  );
 
+  const handleAdaptationChange = (e) => {
+    const { name, value } = e.target;
+    setAdaptationSeason((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
   useEffect(() => {
     const fetchChapterContent = async () => {
       setLoading(true);
       try {
+        console.log("Chapter content: ", chapterDetails.content);
         const html = chapterDetails.content;
         const document = new DOMParser().parseFromString(html, "text/html");
         setContent(deserializeContent(document.body));
@@ -73,6 +100,13 @@ export default function EditChapterModal({ open, onClose, bookId, chapterDetails
     json.content = DOMPurify.sanitize(serializedContent);
     json.translatorId = user.id;
     json.language = chosenLanguage;
+    if (showAdaptation) {
+      json.adaptationSeason = {
+        season: adaptationSeason.season,
+        episode: adaptationSeason.episode,
+        part: adaptationSeason.part,
+      };
+    }
     console.log("Form Data:", json);
     try {
       await dispatch(editChapterAction(bookId, { data: json }));
@@ -108,6 +142,53 @@ export default function EditChapterModal({ open, onClose, bookId, chapterDetails
           defaultValue={chapterDetails.chapterNum}
         />
         <TextField margin="normal" required fullWidth id="title" label="Chapter title" name="title" defaultValue={chapterDetails.title} />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showAdaptation}
+              onChange={(e) => setShowAdaptation(e.target.checked)}
+              name="showAdaptation"
+              color="primary"
+            />
+          }
+          label="Adapted Chapter"
+        />
+        {showAdaptation && (
+          <>
+            <TextField
+              margin="normal"
+              fullWidth
+              id="season"
+              label="Season"
+              name="season"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.season}
+              onChange={handleAdaptationChange}
+            />
+            <TextField
+              type="number"
+              margin="normal"
+              fullWidth
+              id="episode"
+              label="Episode"
+              name="episode"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.episode}
+              onChange={handleAdaptationChange}
+            />
+            <TextField
+              type="number"
+              margin="normal"
+              fullWidth
+              id="part"
+              label="Part"
+              name="part"
+              placeholder="Ex: 1, 2"
+              value={adaptationSeason.part}
+              onChange={handleAdaptationChange}
+            />
+          </>
+        )}
         <Autocomplete
           limitTags={1}
           id="languages"

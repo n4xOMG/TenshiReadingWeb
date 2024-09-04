@@ -45,7 +45,6 @@ export default function ChapterDetailPage() {
     setLoading(false);
   }, [dispatch, bookId, chapterId, user, book]);
 
-  // Save reading progress
   const saveProgress = useCallback(async () => {
     if (!user) return;
 
@@ -75,7 +74,6 @@ export default function ChapterDetailPage() {
     }
   }, [totalPages, progresses, chapterId]);
 
-  // Save progress before unloading or navigating away
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       debouncedSaveProgress();
@@ -96,7 +94,6 @@ export default function ChapterDetailPage() {
     };
   }, [debouncedSaveProgress]);
 
-  // Determine character count per page based on screen width
   const getCharacterCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 300) return 150;
@@ -106,7 +103,6 @@ export default function ChapterDetailPage() {
     return 700;
   }, []);
 
-  // Generate pages from chapter content
   const pages = useMemo(() => {
     const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
 
@@ -118,12 +114,10 @@ export default function ChapterDetailPage() {
     return contentPages.filter((page) => page.trim() !== "");
   }, [chapter, getCharacterCount, book]);
 
-  // Update total pages when content changes
   useEffect(() => {
     setTotalPages(pages.length);
   }, [pages]);
 
-  // Navigation handlers
   const handleNavigation = useCallback(
     (path) => {
       saveProgress();
@@ -135,14 +129,11 @@ export default function ChapterDetailPage() {
   );
 
   const handleChapterClick = useCallback(
-    (chapterId) => {
-      saveProgress();
-      setCurrentPage(0);
-      setTotalPages(0);
-      setChapterId(chapterId);
-      window.location.href = `/books/${bookId}/chapters/${chapterId}`;
+    (newChapterId) => {
+      handleNavigation(`/books/${bookId}/chapters/${newChapterId}`);
+      setChapterId(newChapterId);
     },
-    [saveProgress, bookId]
+    [handleNavigation, bookId]
   );
 
   const handleBackToBookPage = useCallback(() => {
@@ -234,7 +225,7 @@ export default function ChapterDetailPage() {
                 totalPages={totalPages}
                 initialPage={currentPage}
                 saveProgress={saveProgress}
-                onPageChange={handlePageChange} // Pass down the callback
+                onPageChange={handlePageChange}
               />
             )}
           </Box>

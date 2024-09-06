@@ -38,6 +38,7 @@ import {
 const initialState = {
   jwt: null,
   error: null,
+  favoured: null,
   book: null,
   books: [],
   avgRating: [],
@@ -66,9 +67,9 @@ export const bookReducer = (state = initialState, action) => {
 
     case GET_BOOK_SUCCESS:
     case BOOK_UPLOAD_SUCCEED:
-    case FOLLOW_BOOK_SUCCESS:
       return { ...state, loading: false, error: null, book: action.payload };
-
+    case FOLLOW_BOOK_SUCCESS:
+      return { ...state, loading: false, error: null, favoured: action.payload };
     case GET_ALL_BOOK_SUCCESS:
     case SEARCH_BOOK_SUCCESS:
       return { ...state, loading: false, error: null, books: action.payload };

@@ -13,6 +13,23 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
     }
   }, [initialPage]);
 
+  const handlePageFlip = useCallback(
+    (e) => {
+      const pageIndex = e.data;
+      if (pageIndex >= totalPages || pageIndex < 0) {
+        return;
+      }
+
+      setCurrentPage(pageIndex);
+      onPageChange(pageIndex);
+
+      if (pageIndex === totalPages - 1) {
+        saveProgress();
+      }
+    },
+    [totalPages, onPageChange, saveProgress]
+  );
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "ArrowRight") {
@@ -32,26 +49,6 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
     };
   }, [currentPage, totalPages]);
 
-  const handlePageFlip = useCallback(
-    (e) => {
-      const pageIndex = e.data;
-      console.log("handlePageFlip called with pageIndex:", pageIndex);
-
-      if (pageIndex >= totalPages || pageIndex < 0) {
-        return;
-      }
-
-      setCurrentPage(pageIndex);
-      onPageChange(pageIndex); // Update the parent component's state
-
-      if (pageIndex === totalPages - 1) {
-        saveProgress();
-      }
-      console.log("Current page: ", pageIndex);
-    },
-    [totalPages, onPageChange, saveProgress]
-  );
-
   const nonClickableAreaStyle = {
     position: "absolute",
     top: "20%",
@@ -62,7 +59,7 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
   };
 
   return (
-    <div>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <div style={{ ...nonClickableAreaStyle }} />
       <HTMLFlipBook
         ref={flipBookRef}
@@ -70,9 +67,9 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
         height={733}
         size="stretch"
         minWidth={315}
-        maxWidth={2000}
+        maxWidth="100%"
         minHeight={400}
-        maxHeight={2000}
+        maxHeight="100%"
         mobileScrollSupport={true}
         swipeDistance={30}
         flippingTime={500}

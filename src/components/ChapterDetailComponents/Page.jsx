@@ -2,15 +2,22 @@ import React from "react";
 
 export const Page = React.forwardRef((props, ref) => {
   return (
-    <div className="relative w-full h-full bg-[#202124] flex items-center justify-center p-5" ref={ref} style={{ overflow: "hidden" }}>
+    <div
+      className="relative h-full bg-[#202124] flex items-center justify-center p-5"
+      ref={ref}
+      style={{
+        width: "100%", // Full width of the container
+        height: "100%", // Full height of the container
+        objectFit: "contain", // Ensures content fits within the page
+      }}
+    >
       <div
         className="page-content"
         style={{
+          width: "100%",
+          height: "100%",
           maxWidth: "100%",
           maxHeight: "100%",
-          width: "auto",
-          height: "auto",
-          objectFit: "contain", // Ensures the content fits within the page
         }}
       >
         {props.children}

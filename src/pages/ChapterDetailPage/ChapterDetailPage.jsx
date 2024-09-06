@@ -62,7 +62,7 @@ export default function ChapterDetailPage() {
     await dispatch(saveChapterProgressAction(bookId, chapterId, user.id, progress));
   }, [dispatch, bookId, chapterId, user, currentPage, totalPages]);
 
-  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
+  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 10000), [saveProgress]);
 
   useEffect(() => {
     if (totalPages > 0) {
@@ -107,8 +107,8 @@ export default function ChapterDetailPage() {
     const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
 
     if (book && book.bookCover) {
-      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" />`);
-      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" />`);
+      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: auto;object-fit: contain;" />`);
+      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: auto;object-fit: contain;" />`);
     }
 
     return contentPages.filter((page) => page.trim() !== "");
@@ -140,13 +140,9 @@ export default function ChapterDetailPage() {
     handleNavigation(`/books/${bookId}`);
   }, [handleNavigation, bookId]);
 
-  const handlePageChange = useCallback(
-    (pageIndex) => {
-      setCurrentPage(pageIndex);
-      debouncedSaveProgress();
-    },
-    [debouncedSaveProgress]
-  );
+  const handlePageChange = useCallback((pageIndex) => {
+    setCurrentPage(pageIndex);
+  }, []);
 
   return (
     <div className="flex flex-col w-full h-full items-center bg-[#202124]">
@@ -216,7 +212,6 @@ export default function ChapterDetailPage() {
               height: "100%",
               minHeight: "100vh",
               justifyContent: "center",
-              alignItems: "center",
             }}
           >
             {chapter && currentPage !== undefined && (

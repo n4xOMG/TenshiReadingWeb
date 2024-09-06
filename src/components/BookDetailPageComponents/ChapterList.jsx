@@ -76,11 +76,12 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
       setSelectedLanguage(lang);
       fetchChapters(selectedLanguageId);
     }, 500);
-  }, [selectedLanguageId, fetchChapters]);
+  }, [selectedLanguageId, fetchChapters, onCalculateProgress]);
 
   useEffect(() => {
     if (user) {
       dispatch(getReadingProgressByBookChaptersAndUser(user.id, chapters));
+      onCalculateProgress(chapters, progresses);
     }
     if (chapters?.length > 0) {
       onFirstChapterId(chapters[0].id);

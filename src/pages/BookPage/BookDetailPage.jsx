@@ -49,22 +49,31 @@ export const BookDetailPage = () => {
       const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
       const averageProgress = Math.floor(totalProgress / chapters.length);
       setOverallProgress(averageProgress);
+    } else if (Array.isArray(progresses) && progresses.length <= 0) {
+      setOverallProgress(0);
     }
   }, []);
 
   const handleFollowBook = checkAuth(async () => {
     try {
-      await dispatch(followBookAction(bookId));
-      setIsFavorite(!isFavorite);
+      setLoading(true);
+      setTimeout(() => {
+        dispatch(followBookAction(bookId));
+        setIsFavorite(!isFavorite);
+      }, 300);
     } catch (error) {
       console.error("Error following book:", error);
+    } finally {
+      setLoading(false);
     }
   });
 
   const handleRating = checkAuth(async (value) => {
     try {
       setLoading(true);
-      await dispatch(ratingBookAction(bookId, value));
+      setTimeout(() => {
+        dispatch(ratingBookAction(bookId, value));
+      }, 300);
     } catch (error) {
       console.error("Error rating book:", error);
     } finally {

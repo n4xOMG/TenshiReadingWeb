@@ -63,20 +63,19 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
       <div style={{ ...nonClickableAreaStyle }} />
       <HTMLFlipBook
         ref={flipBookRef}
-        width={550}
+        width="100%"
         height={733}
         size="stretch"
         minWidth={315}
-        maxWidth="100%"
         minHeight={400}
-        maxHeight="100%"
         mobileScrollSupport={true}
         swipeDistance={30}
-        flippingTime={500}
+        flippingTime={10}
         showCover={true}
         className="text-left text-yellow-50 bg-[#202124] px-3 overflow-hidden"
         onFlip={handlePageFlip}
         startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0}
+        style={{ width: "100%", height: "100%" }} // Ensure it takes the full width and height
       >
         {pages.map((page, index) => (
           <Page key={index} number={index}>

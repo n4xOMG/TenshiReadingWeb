@@ -41,7 +41,11 @@ export const deserializeContent = (el, markAttributes = {}) => {
     case "A":
       return jsx("element", { type: "link", url: el.getAttribute("href") }, children);
     case "IMG":
-      return jsx("element", { type: "image", url: el.getAttribute("src"), alt: el.getAttribute("alt") }, children);
+      return jsx(
+        "element",
+        { type: "image", url: el.getAttribute("src"), alt: el.getAttribute("alt"), style: el.getAttribute("style") },
+        children
+      );
     default:
       return children;
   }
@@ -71,7 +75,7 @@ const serialize = (node) => {
     case "link":
       return `<a href="${escapeHTML(node.url)}">${children}</a>`;
     case "image":
-      return `<img src="${escapeHTML(node.url)}" alt="${escapeHTML(node.alt)}" />`;
+      return `<img src="${escapeHTML(node.url)}" alt="${escapeHTML(node.alt)}" style="width: 100%; height: 100%; object-fit: contain;" />`;
     default:
       return children;
   }

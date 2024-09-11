@@ -100,6 +100,8 @@ export default function ChapterDetailPage() {
     if (width < 400) return 250;
     if (width < 500) return 350;
     if (width < 600) return 450;
+    if (width < 700) return 550;
+    if (width < 800) return 600;
     return 700;
   }, []);
 
@@ -107,8 +109,8 @@ export default function ChapterDetailPage() {
     const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
 
     if (book && book.bookCover) {
-      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: auto;object-fit: contain;" />`);
-      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: auto;object-fit: contain;" />`);
+      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: 100%;object-fit: contain;" />`);
+      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: 100%;object-fit: contain;" />`);
     }
 
     return contentPages.filter((page) => page.trim() !== "");
@@ -145,7 +147,7 @@ export default function ChapterDetailPage() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-full items-center bg-[#202124]">
+    <div className="flex flex-col w-screen h-full items-center object-contain bg-[#202124]">
       {loading ? (
         <div className="flex justify-center">
           <CircularProgress />
@@ -206,12 +208,13 @@ export default function ChapterDetailPage() {
               backgroundColor: "#202124",
               flexGrow: 1,
               px: 3,
-              pb: 5,
+              pb: 0, // Remove padding-bottom
               pt: 5,
               width: "100%",
-              height: "100%",
-              minHeight: "100vh",
+              height: "100vh", // Ensure it takes the full viewport height
+              display: "flex", // Add flex display
               justifyContent: "center",
+              alignItems: "center", // Center the content vertically
             }}
           >
             {chapter && currentPage !== undefined && (

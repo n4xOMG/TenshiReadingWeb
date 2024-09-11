@@ -1,7 +1,10 @@
-import { Box, LinearProgress, List, ListItem, ListItemText } from "@mui/material";
+import { Box, LinearProgress, List, ListItem, ListItemText, useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 
 export function TabChapters({ chapters, progresses, onNavigate, bookId }) {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <List sx={{ spaceY: 2 }}>
       {chapters?.map((chapter, index) => {
@@ -26,7 +29,7 @@ export function TabChapters({ chapters, progresses, onNavigate, bookId }) {
             }}
             onClick={() => onNavigate(`/books/${bookId}/chapters/${chapter.id}`)}
           >
-            <ListItemText primary={chapter.chapterNum + " - " + chapter.title} />
+            <ListItemText primary={isSmallScreen ? `Ch.${chapter.chapterNum} ` : `${chapter.chapterNum} - ${chapter.title}`} />
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <LinearProgress
                 variant="determinate"

@@ -6,9 +6,9 @@ export const Page = React.forwardRef((props, ref) => {
       className="relative h-full bg-[#202124] flex items-center justify-center p-5"
       ref={ref}
       style={{
-        width: "100%", // Full width of the container
-        height: "100%", // Full height of the container
-        objectFit: "contain", // Ensures content fits within the page
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
       }}
     >
       <div

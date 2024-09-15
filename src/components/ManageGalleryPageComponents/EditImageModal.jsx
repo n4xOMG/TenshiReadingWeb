@@ -1,5 +1,5 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Box, Button, CircularProgress, Dialog, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { editImageAction, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";

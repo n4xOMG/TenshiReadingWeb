@@ -1,43 +1,43 @@
 import { Box, Container, Grid, Link, Typography } from "@mui/material";
 import React from "react";
-import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
 import LazyLoad from "react-lazyload";
+import { getOptimizedImageUrl } from "../../utils/optimizeImages";
 
 export default function LandingPage() {
   const firstSectionImages = [
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772102/V1_ydkbtk.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405683/LN_V1_Cover_zgaqma.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772070/V6_nj0nmo.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405683/LN_V2_Cover_ulgkj3.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772071/V9_a3nx8a.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405682/LN_V3_Cover_qz78il.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772071/V11_myvzyz.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405777/LN_V4_Cover_lle0fy.webp",
     },
   ];
 
   const secondSectionImages = [
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772070/V7_sok4wb.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405457/devilish_Mahiru_z2qfjf.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772070/V8_tbbm0s.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405457/Mahiru_sitting_on_the_desk_bccqmn.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772071/V10_zzldnu.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405457/Summer_Mahiru_u00vzs.jpg",
     },
     {
-      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1724772070/V5.5_t4ofef.jpg",
+      url: "https://res.cloudinary.com/ds2ykbawv/image/upload/v1726405460/Mahiru_at_the_beach_dpyvyj.jpg",
     },
   ];
 
   return (
     <Box component="main" sx={{ flex: 1 }}>
       <Box component="section" sx={{ width: "100%", py: { xs: 1, md: 3, lg: 5 }, backgroundColor: "background.paper" }}>
-        <Container sx={{ display: "grid", gap: 8, px: { xs: 4, md: 6 }, gridTemplateColumns: { lg: "1fr 1fr" }, gap: { lg: 16 } }}>
+        <Container sx={{ display: "grid", gap: { xs: 4, md: 6, lg: 16 }, px: { xs: 4, md: 6 }, gridTemplateColumns: { lg: "1fr 1fr" } }}>
           <Box>
             <Typography variant="h3" component="h2" sx={{ fontWeight: "bold", lineHeight: 1.2 }}>
               The Angel Next Door Spoils Me Rotten
@@ -90,7 +90,7 @@ export default function LandingPage() {
         </Container>
       </Box>
       <Box component="section" sx={{ width: "100%", py: { xs: 12, md: 24, lg: 32 } }}>
-        <Container sx={{ display: "grid", gap: 8, px: { xs: 4, md: 6 }, gridTemplateColumns: { lg: "1fr 1fr" }, gap: { lg: 16 } }}>
+        <Container sx={{ display: "grid", gap: { xs: 6, md: 8, lg: 16 }, px: { xs: 4, md: 6 }, gridTemplateColumns: { lg: "1fr 1fr" } }}>
           <Grid container spacing={4}>
             {secondSectionImages.map((image, index) => (
               <Grid item xs={6} key={index}>

@@ -75,7 +75,7 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
         className="text-left text-yellow-50 bg-[#202124] px-3 overflow-hidden"
         onFlip={handlePageFlip}
         startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0}
-        style={{ width: "100%", height: "100%" }} // Ensure it takes the full width and height
+        style={{ width: "100%", height: "100%" }}
       >
         {pages.map((page, index) => (
           <Page key={index} number={index}>

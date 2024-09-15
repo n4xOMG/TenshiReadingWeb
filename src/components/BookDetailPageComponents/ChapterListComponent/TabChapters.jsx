@@ -29,7 +29,13 @@ export function TabChapters({ chapters, progresses, onNavigate, bookId }) {
             }}
             onClick={() => onNavigate(`/books/${bookId}/chapters/${chapter.id}`)}
           >
-            <ListItemText primary={isSmallScreen ? `Ch.${chapter.chapterNum} ` : `${chapter.chapterNum} - ${chapter.title}`} />
+            <ListItemText
+              primary={
+                isSmallScreen
+                  ? `(${chapter.language?.countryCode}) Ch.${chapter.chapterNum} `
+                  : `(${chapter.language?.countryCode}) ${chapter.chapterNum}  ${chapter.title}`
+              }
+            />
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <LinearProgress
                 variant="determinate"

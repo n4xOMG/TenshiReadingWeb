@@ -120,7 +120,7 @@ export default function AddChapterModal({ open, onClose, bookId }) {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <Box component="form" onSubmit={handleSubmit} noValidate className="rounded-lg border-stone-950 px-3">
         <TextField margin="normal" required fullWidth id="chapterNum" label="Chapter number" name="chapterNum" />
-        <TextField margin="normal" required fullWidth id="title" label="Chapter title" name="title" />
+        <TextField margin="normal" fullWidth id="title" label="Chapter title" name="title" />
         <FormControlLabel
           control={
             <Checkbox

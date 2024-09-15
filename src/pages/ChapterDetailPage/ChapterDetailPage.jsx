@@ -1,20 +1,21 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import { Box, Button, CircularProgress, Drawer, IconButton, List, ListItem, ListItemText } from "@mui/material";
+import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CloseIcon from "@mui/icons-material/Close";
 import { Flipbook } from "../../components/ChapterDetailComponents/Flipbook";
+import { FloatingMenu } from "../../components/ChapterDetailComponents/FloatingMenu";
+import { getBookByIdAction } from "../../redux/book/book.action";
 import {
-  getAllChaptersByBookIdAction,
   getChapterById,
+  getChaptersByBookAndLanguageAction,
   getReadingProgressByUserAndChapter,
   saveChapterProgressAction,
 } from "../../redux/chapter/chapter.action";
 import { splitContent } from "./SplitContent";
-import { debounce } from "lodash";
-import { getBookByIdAction } from "../../redux/book/book.action";
 export default function ChapterDetailPage() {
   const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
   const dispatch = useDispatch();
@@ -30,11 +31,17 @@ export default function ChapterDetailPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [readingMode, setReadingMode] = useState(() => {
+    return localStorage.getItem("readingMode") || "flipbook";
+  });
+  const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
+    return localStorage.getItem("selectedLanguageId") || 0;
+  });
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
-  // Fetch chapter, book, and progress data on mount and when dependencies change
   useEffect(() => {
     setLoading(true);
-    dispatch(getAllChaptersByBookIdAction(bookId));
+    dispatch(getChaptersByBookAndLanguageAction(bookId, selectedLanguageId));
     dispatch(getChapterById(bookId, chapterId));
     if (!book) {
       dispatch(getBookByIdAction(bookId));
@@ -49,20 +56,25 @@ export default function ChapterDetailPage() {
     if (!user) return;
 
     let progress = 0;
-    const pagesRead = Math.ceil((currentPage + 1) / 2);
-    const totalFlipPages = Math.ceil(totalPages / 2);
+    if (readingMode === "flipbook") {
+      const pagesRead = Math.ceil((currentPage + 1) / 2);
+      const totalFlipPages = Math.ceil(totalPages / 2);
 
-    if (totalFlipPages > 1) {
-      progress = (pagesRead / totalFlipPages) * 100;
-      if (pagesRead >= totalFlipPages) progress = 100;
-    } else if (totalFlipPages === 1) {
-      progress = 100;
+      if (totalFlipPages > 1) {
+        progress = (pagesRead / totalFlipPages) * 100;
+        if (pagesRead >= totalFlipPages) progress = 100;
+      } else if (totalFlipPages === 1) {
+        progress = 100;
+      }
+    } else {
+      progress = ((currentPage + 1) / totalPages) * 100;
+      if (currentPage + 1 >= totalPages) progress = 100;
     }
 
     await dispatch(saveChapterProgressAction(bookId, chapterId, user.id, progress));
-  }, [dispatch, bookId, chapterId, user, currentPage, totalPages]);
+  }, [dispatch, bookId, chapterId, user, currentPage, totalPages, readingMode]);
 
-  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 10000), [saveProgress]);
+  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
 
   useEffect(() => {
     if (totalPages > 0) {
@@ -93,7 +105,24 @@ export default function ChapterDetailPage() {
       window.removeEventListener("popstate", handleNavigation);
     };
   }, [debouncedSaveProgress]);
+  const handlePageClick = () => {
+    setIsMenuVisible(!isMenuVisible);
+  };
+  const handleNextChapter = () => {
+    const currentChapterIndex = chapters.findIndex((ch) => ch.id === chapterId);
+    if (currentChapterIndex < chapters.length - 1) {
+      const nextChapterId = chapters[currentChapterIndex + 1].id;
+      handleChapterClick(nextChapterId);
+    }
+  };
 
+  const handlePreviousChapter = () => {
+    const currentChapterIndex = chapters.findIndex((ch) => ch.id === chapterId);
+    if (currentChapterIndex > 0) {
+      const previousChapterId = chapters[currentChapterIndex - 1].id;
+      handleChapterClick(previousChapterId);
+    }
+  };
   const getCharacterCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 300) return 150;
@@ -146,6 +175,11 @@ export default function ChapterDetailPage() {
     setCurrentPage(pageIndex);
   }, []);
 
+  const handleReadingModeChange = useCallback(() => {
+    const newMode = readingMode === "flipbook" ? "vertical" : "flipbook";
+    setReadingMode(newMode);
+    localStorage.setItem("readingMode", newMode);
+  }, [readingMode]);
   return (
     <div className="flex flex-col w-screen h-full items-center object-contain bg-[#202124]">
       {loading ? (
@@ -167,7 +201,7 @@ export default function ChapterDetailPage() {
               <IconButton onClick={() => setIsSidebarOpen(false)}>
                 <CloseIcon />
               </IconButton>
-              <List>
+              <List sx={{ overflow: "auto" }}>
                 {chapters?.map((chapter) => (
                   <ListItem
                     button
@@ -183,6 +217,9 @@ export default function ChapterDetailPage() {
                   </ListItem>
                 ))}
               </List>
+              <Button variant="contained" onClick={handleReadingModeChange} sx={{ position: "fixed", bottom: 2 }}>
+                Switch to {readingMode === "flipbook" ? "Vertical" : "Flipbook"} Mode
+              </Button>
             </div>
           </Drawer>
           <IconButton
@@ -202,31 +239,55 @@ export default function ChapterDetailPage() {
           >
             <DehazeIcon />
           </IconButton>
+
           <Box
             component="main"
             sx={{
               backgroundColor: "#202124",
               flexGrow: 1,
-              px: 3,
-              pb: 0, // Remove padding-bottom
-              pt: 5,
+              px: 5,
+              pt: 2,
               width: "100%",
-              height: "100vh", // Ensure it takes the full viewport height
-              display: "flex", // Add flex display
+              height: "100vh",
+              display: "flex",
               justifyContent: "center",
-              alignItems: "center", // Center the content vertically
+              alignItems: "center",
+              overflow: isMenuVisible ? "hidden" : "auto",
             }}
+            onClick={handlePageClick}
           >
-            {chapter && currentPage !== undefined && (
-              <Flipbook
-                pages={pages}
-                totalPages={totalPages}
-                initialPage={currentPage}
-                saveProgress={saveProgress}
-                onPageChange={handlePageChange}
-              />
-            )}
+            {chapter &&
+              currentPage !== undefined &&
+              (readingMode === "flipbook" ? (
+                <Flipbook
+                  pages={pages}
+                  totalPages={totalPages}
+                  initialPage={currentPage}
+                  saveProgress={saveProgress}
+                  onPageChange={handlePageChange}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    p: 5,
+                    bgcolor: "#202124",
+                    color: "white",
+                    overflowY: "auto",
+                  }}
+                >
+                  {pages.map((page, index) => (
+                    <Box key={index} sx={{ mb: "20px", textAlign: "left" }}>
+                      <div dangerouslySetInnerHTML={{ __html: page }} />
+                    </Box>
+                  ))}
+                </Box>
+              ))}
           </Box>
+          {readingMode === "vertical" && isMenuVisible && (
+            <FloatingMenu onNextChapter={handleNextChapter} onPreviousChapter={handlePreviousChapter} />
+          )}
         </>
       )}
     </div>

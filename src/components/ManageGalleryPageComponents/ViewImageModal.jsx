@@ -27,7 +27,7 @@ export default function ViewImageModal({ open, onClose, image }) {
       >
         <img
           src={image.imageUrl}
-          alt="Seleted Image"
+          alt="Seleted "
           className="object-contain"
           style={{
             maxHeight: "90vh",

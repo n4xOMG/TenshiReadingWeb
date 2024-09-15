@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createEditor } from "slate";
 import { withHistory } from "slate-history";
 import { Editable, Slate, withReact } from "slate-react";
-import { deserializeContent, serializeContent } from "../../../../../pages/UploadChapterPage/HtmlSerialize";
+import { deserializeContent, serializeContent } from "../../../../../utils/HtmlSerialize";
 import { getCurrentUserByJwt } from "../../../../../redux/authentication/auth.actions";
 import { editChapterAction, getAllChaptersByBookIdAction } from "../../../../../redux/chapter/chapter.action";
 import { BlockButton } from "../../../../UploadChapterPageComponents/BlockButton";

@@ -72,7 +72,7 @@ export const Flipbook = ({ pages, totalPages, initialPage, saveProgress, onPageC
         swipeDistance={30}
         flippingTime={10}
         showCover={true}
-        className="text-left text-yellow-50 bg-[#202124] px-3 overflow-hidden"
+        className="text-left text-yellow-50 bg-[#202124] overflow-auto"
         onFlip={handlePageFlip}
         startPage={currentPage !== null && currentPage !== undefined ? currentPage : 0}
         style={{ width: "100%", height: "100%" }}

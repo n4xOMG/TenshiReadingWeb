@@ -27,6 +27,9 @@ import {
   GET_LANGUAGES_BY_BOOK_FAILED,
   GET_LANGUAGES_BY_BOOK_REQUEST,
   GET_LANGUAGES_BY_BOOK_SUCCESS,
+  GET_READING_PROGRESSES_BY_BOOK_FAILED,
+  GET_READING_PROGRESSES_BY_BOOK_REQUEST,
+  GET_READING_PROGRESSES_BY_BOOK_SUCCESS,
   RATING_BOOK_FAILED,
   RATING_BOOK_REQUEST,
   RATING_BOOK_SUCCESS,
@@ -44,6 +47,7 @@ const initialState = {
   avgRating: [],
   languages: [],
   language: null,
+  progresses: [],
   rating: null,
   loading: false,
 };
@@ -60,6 +64,7 @@ export const bookReducer = (state = initialState, action) => {
     case GET_AVG_BOOK_RATING_REQUEST:
     case GET_LANGUAGES_BY_BOOK_REQUEST:
     case GET_ALL_LANGUAGES_REQUEST:
+    case GET_READING_PROGRESSES_BY_BOOK_REQUEST:
     case ADD_NEW_LANGUAGE_REQUEST:
     case EDIT_LANGUAGE_REQUEST:
     case DELETE_LANGUAGE_REQUEST:
@@ -85,6 +90,9 @@ export const bookReducer = (state = initialState, action) => {
     case GET_ALL_LANGUAGES_SUCCESS:
       return { ...state, loading: false, error: null, languages: action.payload };
 
+    case GET_READING_PROGRESSES_BY_BOOK_SUCCESS:
+      return { ...state, loading: false, error: null, progresses: action.payload };
+
     case ADD_NEW_LANGUAGE_SUCCESS:
     case EDIT_LANGUAGE_SUCCESS:
       return { ...state, loading: false, error: null, language: action.payload };
@@ -100,6 +108,7 @@ export const bookReducer = (state = initialState, action) => {
     case SEARCH_BOOK_FAILED:
     case GET_LANGUAGES_BY_BOOK_FAILED:
     case GET_ALL_LANGUAGES_FAILED:
+    case GET_READING_PROGRESSES_BY_BOOK_FAILED:
       return { ...state, loading: false, error: action.payload };
 
     default:

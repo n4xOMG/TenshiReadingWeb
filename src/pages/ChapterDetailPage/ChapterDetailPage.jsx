@@ -271,7 +271,7 @@ export default function ChapterDetailPage() {
                   sx={{
                     width: "100%",
                     height: "100%",
-                    p: 5,
+                    p: 3,
                     bgcolor: "#202124",
                     color: "white",
                     overflowY: "auto",

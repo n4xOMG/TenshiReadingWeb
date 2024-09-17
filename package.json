@@ -23,7 +23,7 @@
     "escape-html": "^1.0.3",
     "font-awesome": "^4.7.0",
     "fs-extra": "^11.2.0",
-    "html-react-parser": "^5.1.12",
+    "html-react-parser": "^5.1.16",
     "htmlparser2": "^9.1.0",
     "image-extensions": "^1.1.0",
     "is-hotkey": "^0.2.0",

@@ -37,7 +37,7 @@ const initialState = {
   chapter: null,
   chapters: [],
   adaptedChapters: [],
-  progresses: [],
+  readingProgress: null,
   loading: false,
 };
 
@@ -62,7 +62,7 @@ export const chapterReducer = (state = initialState, action) => {
 
     case SAVE_PROGRESS_SUCCESS:
     case GET_PROGRESS_SUCCESS:
-      return { ...state, loading: false, error: null, progresses: action.payload };
+      return { ...state, loading: false, error: null, readingProgress: action.payload };
     case DELETE_CHAPTER_SUCCEED:
       return { ...state, loading: false, error: null };
     case GET_ALL_CHAPTER_SUCCESS:

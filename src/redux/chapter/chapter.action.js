@@ -127,11 +127,11 @@ export const saveChapterProgressAction = (bookId, chapterId, userId, progress) =
     dispatch({ type: SAVE_PROGRESS_FAILED, payload: error.message });
   }
 };
-export const getReadingProgressByUserAndChapter = (userId, chapterId) => async (dispatch) => {
+export const getReadingProgressByUserAndChapter = (chapterId) => async (dispatch) => {
   dispatch({ type: GET_PROGRESS_REQUEST });
   console.log("Action getReadingProgressByUserAndChapter dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}/${chapterId}`);
+    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/chapters/${chapterId}`);
     console.log("Got progress for ", chapterId, ": ", data);
     dispatch({ type: GET_PROGRESS_SUCCESS, payload: data });
     return { payload: data };
@@ -139,12 +139,12 @@ export const getReadingProgressByUserAndChapter = (userId, chapterId) => async (
     dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }
 };
-export const getReadingProgressByUser = (userId) => async (dispatch) => {
+export const getReadingProgressByUser = () => async (dispatch) => {
   dispatch({ type: GET_PROGRESS_REQUEST });
   console.log("Action getReadingProgressByUserAndChapter dispatched");
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/${userId}`);
-    console.log("Got progress for ", userId, ": ", data);
+    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress`);
+    console.log("Got progress for user", data);
     dispatch({ type: GET_PROGRESS_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {

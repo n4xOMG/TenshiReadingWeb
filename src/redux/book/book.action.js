@@ -38,6 +38,9 @@ import {
   GET_LANGUAGES_BY_BOOK_FAILED,
   GET_LANGUAGES_BY_BOOK_REQUEST,
   GET_LANGUAGES_BY_BOOK_SUCCESS,
+  GET_READING_PROGRESSES_BY_BOOK_FAILED,
+  GET_READING_PROGRESSES_BY_BOOK_REQUEST,
+  GET_READING_PROGRESSES_BY_BOOK_SUCCESS,
   RATING_BOOK_FAILED,
   RATING_BOOK_REQUEST,
   RATING_BOOK_SUCCESS,
@@ -229,6 +232,19 @@ export const getAllLanguages = () => async (dispatch) => {
   } catch (error) {
     console.log("Api error when trying to get book languages: ", error);
     dispatch({ type: GET_LANGUAGES_BY_BOOK_FAILED, payload: error.message });
+  }
+};
+
+export const getAllReadingProgressesByBook = (bookId) => async (dispatch) => {
+  console.log("Action getAllReadingProgressesByBook dispatched");
+  dispatch({ type: GET_READING_PROGRESSES_BY_BOOK_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/books/${bookId}`);
+    console.log("got all progresses", data);
+    dispatch({ type: GET_READING_PROGRESSES_BY_BOOK_SUCCESS, payload: data });
+  } catch (error) {
+    console.log("Api error when trying to get book progresses: ", error);
+    dispatch({ type: GET_READING_PROGRESSES_BY_BOOK_FAILED, payload: error.message });
   }
 };
 

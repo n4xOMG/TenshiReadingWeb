@@ -26,11 +26,11 @@ function a11yProps(index) {
     "aria-controls": `full-width-tabpanel-${index}`,
   };
 }
-export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
+export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
+  const { chapters, adaptedChapters } = useSelector((store) => store.chapter);
   const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
     return localStorage.getItem("selectedLanguageId") || 3;
   });
@@ -80,7 +80,6 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
 
   useEffect(() => {
     if (user) {
-      dispatch(getReadingProgressByBookChaptersAndUser(user.id, chapters));
       onCalculateProgress(chapters, progresses);
     }
     if (chapters?.length > 0) {

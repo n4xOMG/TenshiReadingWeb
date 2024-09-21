@@ -1,295 +1,114 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CloseIcon from "@mui/icons-material/Close";
-import DehazeIcon from "@mui/icons-material/Dehaze";
-import { Box, Button, CircularProgress, Drawer, IconButton, List, ListItem, ListItemText } from "@mui/material";
-import { debounce } from "lodash";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { Flipbook } from "../../components/ChapterDetailComponents/Flipbook";
-import { FloatingMenu } from "../../components/ChapterDetailComponents/FloatingMenu";
+import MangaChapterDetail from "./MangaChapterDetail";
+import NovelChapterDetail from "./NovelChapterDetail";
+import LoadingSpinner from "../../components/LoadingSpinner";
+import { getChapterById, getChaptersByBookAndLanguageAction, getReadingProgressByUserAndChapter } from "../../redux/chapter/chapter.action";
 import { getBookByIdAction } from "../../redux/book/book.action";
-import {
-  getChapterById,
-  getChaptersByBookAndLanguageAction,
-  getReadingProgressByUserAndChapter,
-  saveChapterProgressAction,
-} from "../../redux/chapter/chapter.action";
-import { splitContent } from "./SplitContent";
+
 export default function ChapterDetailPage() {
-  const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { chapter, chapters, progresses = [] } = useSelector((store) => store.chapter);
+  const { chapter, chapters, readingProgress } = useSelector((store) => store.chapter);
   const { user } = useSelector((store) => store.auth);
   const { book } = useSelector((store) => store.book);
 
+  const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isFloatingMenuVisible, setFloatingMenuVisible] = useState(false);
   const [bookId] = useState(paramBookId);
   const [chapterId, setChapterId] = useState(paramChapterId);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [readingMode, setReadingMode] = useState(() => {
-    return localStorage.getItem("readingMode") || "flipbook";
-  });
-  const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
+  const [selectedLanguageId] = useState(() => {
     return localStorage.getItem("selectedLanguageId") || 0;
   });
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
-  useEffect(() => {
+  const fetchChapterDetail = useCallback(async () => {
     setLoading(true);
-    dispatch(getChaptersByBookAndLanguageAction(bookId, selectedLanguageId));
-    dispatch(getChapterById(bookId, chapterId));
-    if (!book) {
-      dispatch(getBookByIdAction(bookId));
-    }
-    if (user) {
-      dispatch(getReadingProgressByUserAndChapter(user.id, chapterId));
-    }
-    setLoading(false);
-  }, [dispatch, bookId, chapterId, user, book]);
-
-  const saveProgress = useCallback(async () => {
-    if (!user) return;
-
-    let progress = 0;
-    if (readingMode === "flipbook") {
-      const pagesRead = Math.ceil((currentPage + 1) / 2);
-      const totalFlipPages = Math.ceil(totalPages / 2);
-
-      if (totalFlipPages > 1) {
-        progress = (pagesRead / totalFlipPages) * 100;
-        if (pagesRead >= totalFlipPages) progress = 100;
-      } else if (totalFlipPages === 1) {
-        progress = 100;
+    try {
+      await dispatch(getChaptersByBookAndLanguageAction(bookId, selectedLanguageId));
+      await dispatch(getChapterById(bookId, chapterId));
+      if (!book) {
+        await dispatch(getBookByIdAction(bookId));
       }
+      if (user) {
+        await dispatch(getReadingProgressByUserAndChapter(chapterId));
+      }
+    } catch (e) {
+      console.log("Error in manga chapter detail: ", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [dispatch, bookId, chapterId, selectedLanguageId, book, user]);
+
+  useEffect(() => {
+    fetchChapterDetail();
+  }, [fetchChapterDetail]);
+
+  const toggleFloatingMenu = () => {
+    setFloatingMenuVisible((prev) => !prev);
+  };
+  const handleChapterListOpen = (event) => {
+    if (menuOpen) {
+      handleChapterListClose();
     } else {
-      progress = ((currentPage + 1) / totalPages) * 100;
-      if (currentPage + 1 >= totalPages) progress = 100;
-    }
-
-    await dispatch(saveChapterProgressAction(bookId, chapterId, user.id, progress));
-  }, [dispatch, bookId, chapterId, user, currentPage, totalPages, readingMode]);
-
-  const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
-
-  useEffect(() => {
-    if (totalPages > 0) {
-      const progress = Array.isArray(progresses) ? progresses.find((p) => Number(p.chapterId) === Number(chapterId)) : null;
-      if (progress) {
-        const pageIndex = Math.floor((progress.progress / 100) * totalPages);
-        setCurrentPage(pageIndex);
-      }
-    }
-  }, [totalPages, progresses, chapterId]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      debouncedSaveProgress();
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    const handleNavigation = () => {
-      debouncedSaveProgress();
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handleNavigation);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handleNavigation);
-    };
-  }, [debouncedSaveProgress]);
-  const handlePageClick = () => {
-    setIsMenuVisible(!isMenuVisible);
-  };
-  const handleNextChapter = () => {
-    const currentChapterIndex = chapters.findIndex((ch) => ch.id === chapterId);
-    if (currentChapterIndex < chapters.length - 1) {
-      const nextChapterId = chapters[currentChapterIndex + 1].id;
-      handleChapterClick(nextChapterId);
+      setAnchorEl(event.currentTarget);
+      setMenuOpen(true);
     }
   };
 
-  const handlePreviousChapter = () => {
-    const currentChapterIndex = chapters.findIndex((ch) => ch.id === chapterId);
-    if (currentChapterIndex > 0) {
-      const previousChapterId = chapters[currentChapterIndex - 1].id;
-      handleChapterClick(previousChapterId);
-    }
+  const handleChapterListClose = () => {
+    setAnchorEl(null);
+    setMenuOpen(false);
   };
-  const getCharacterCount = useCallback(() => {
-    const width = window.innerWidth;
-    if (width < 300) return 150;
-    if (width < 400) return 250;
-    if (width < 500) return 350;
-    if (width < 600) return 450;
-    if (width < 700) return 550;
-    if (width < 800) return 600;
-    return 700;
-  }, []);
 
-  const pages = useMemo(() => {
-    const contentPages = chapter ? splitContent(chapter.content, getCharacterCount()) : [];
+  const handleChapterChange = (nextChapterId) => {
+    setChapterId(nextChapterId);
+    navigate(`/books/${bookId}/chapters/${nextChapterId}`);
+  };
 
-    if (book && book.bookCover) {
-      contentPages.unshift(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: 100%;object-fit: contain;" />`);
-      contentPages.push(`<img src="${book.bookCover}" alt="Book Cover" style="width: 100%;height: 100%;object-fit: contain;" />`);
-    }
-
-    return contentPages.filter((page) => page.trim() !== "");
-  }, [chapter, getCharacterCount, book]);
-
-  useEffect(() => {
-    setTotalPages(pages.length);
-  }, [pages]);
-
-  const handleNavigation = useCallback(
-    (path) => {
-      saveProgress();
-      setTimeout(() => {
-        navigate(path);
-      }, 100);
-    },
-    [saveProgress, navigate]
-  );
-
-  const handleChapterClick = useCallback(
-    (newChapterId) => {
-      handleNavigation(`/books/${bookId}/chapters/${newChapterId}`);
-      setChapterId(newChapterId);
-    },
-    [handleNavigation, bookId]
-  );
-
-  const handleBackToBookPage = useCallback(() => {
-    handleNavigation(`/books/${bookId}`);
-  }, [handleNavigation, bookId]);
-
-  const handlePageChange = useCallback((pageIndex) => {
-    setCurrentPage(pageIndex);
-  }, []);
-
-  const handleReadingModeChange = useCallback(() => {
-    const newMode = readingMode === "flipbook" ? "vertical" : "flipbook";
-    setReadingMode(newMode);
-    localStorage.setItem("readingMode", newMode);
-  }, [readingMode]);
   return (
-    <div className="flex flex-col w-screen h-full items-center object-contain bg-[#202124]">
+    <>
       {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <LoadingSpinner />
       ) : (
         <>
-          <Drawer anchor="left" open={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}>
-            <div style={{ width: 250 }}>
-              <Button
-                variant="text"
-                onClick={handleBackToBookPage}
-                sx={{ justifyContent: "flex-start", textAlign: "left", color: "black" }}
-              >
-                <ArrowBackIcon sx={{ marginRight: 1, height: 16, width: 16 }} />
-                Back to Book page
-              </Button>
-              <IconButton onClick={() => setIsSidebarOpen(false)}>
-                <CloseIcon />
-              </IconButton>
-              <List sx={{ overflow: "auto" }}>
-                {chapters?.map((chapter) => (
-                  <ListItem
-                    button
-                    key={chapter.id}
-                    onClick={() => handleChapterClick(chapter.id)}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "grey.200",
-                      },
-                    }}
-                  >
-                    <ListItemText primary={`Chapter ${chapter.chapterNum}: ${chapter.title}`} />
-                  </ListItem>
-                ))}
-              </List>
-              <Button variant="contained" onClick={handleReadingModeChange} sx={{ position: "fixed", bottom: 2 }}>
-                Switch to {readingMode === "flipbook" ? "Vertical" : "Flipbook"} Mode
-              </Button>
-            </div>
-          </Drawer>
-          <IconButton
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            sx={{
-              position: "fixed",
-              top: 16,
-              left: 16,
-              zIndex: 2,
-              backgroundColor: "white",
-              border: "1px solid",
-              borderColor: "grey.300",
-              "&:hover": {
-                backgroundColor: "grey.100",
-              },
-            }}
-          >
-            <DehazeIcon />
-          </IconButton>
-
-          <Box
-            component="main"
-            sx={{
-              backgroundColor: "#202124",
-              flexGrow: 1,
-              px: 5,
-              pt: 2,
-              width: "100%",
-              height: "100vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: isMenuVisible ? "hidden" : "auto",
-            }}
-            onClick={handlePageClick}
-          >
-            {chapter &&
-              currentPage !== undefined &&
-              (readingMode === "flipbook" ? (
-                <Flipbook
-                  pages={pages}
-                  totalPages={totalPages}
-                  initialPage={currentPage}
-                  saveProgress={saveProgress}
-                  onPageChange={handlePageChange}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "100%",
-                    p: 3,
-                    bgcolor: "#202124",
-                    color: "white",
-                    overflowY: "auto",
-                  }}
-                >
-                  {pages.map((page, index) => (
-                    <Box key={index} sx={{ mb: "20px", textAlign: "left" }}>
-                      <div dangerouslySetInnerHTML={{ __html: page }} />
-                    </Box>
-                  ))}
-                </Box>
-              ))}
-          </Box>
-          {readingMode === "vertical" && isMenuVisible && (
-            <FloatingMenu onNextChapter={handleNextChapter} onPreviousChapter={handlePreviousChapter} />
+          {book.categories.some((category) => category.name.toLowerCase() === "manga") && (
+            <MangaChapterDetail
+              anchorEl={anchorEl}
+              bookId={bookId}
+              chapter={chapter}
+              chapters={chapters}
+              readingProgress={readingProgress}
+              user={user}
+              isFloatingMenuVisible={isFloatingMenuVisible}
+              toggleFloatingMenu={toggleFloatingMenu}
+              handleChapterChange={handleChapterChange}
+              handleChapterListOpen={handleChapterListOpen}
+              handleChapterListClose={handleChapterListClose}
+            />
+          )}
+          {book.categories.some((category) => category.name.toLowerCase() === "light novel") && (
+            <NovelChapterDetail
+              anchorEl={anchorEl}
+              bookId={bookId}
+              chapter={chapter}
+              chapters={chapters}
+              readingProgress={readingProgress}
+              user={user}
+              isFloatingMenuVisible={isFloatingMenuVisible}
+              toggleFloatingMenu={toggleFloatingMenu}
+              handleChapterChange={handleChapterChange}
+              handleChapterListOpen={handleChapterListOpen}
+              handleChapterListClose={handleChapterListClose}
+            />
           )}
         </>
       )}
-    </div>
+    </>
   );
 }

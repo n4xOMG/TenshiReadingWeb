@@ -1,70 +1,42 @@
-import { Backdrop, Box } from "@mui/material";
+import { Backdrop, Box, useTheme } from "@mui/material";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
-import FloatingMenu from "../../components/ChapterDetailComponents/MangaChapterDetail/FloatingMenu";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import FloatingMenu from "../../components/ChapterDetailComponents/FloatingMenu";
 import MangaPageContent from "../../components/ChapterDetailComponents/MangaChapterDetail/MangaPageContent";
 import MangaPageNavigation from "../../components/ChapterDetailComponents/MangaChapterDetail/MangaPageNavigation";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import { getBookByIdAction } from "../../redux/book/book.action";
-import {
-  getChapterById,
-  getChaptersByBookAndLanguageAction,
-  getReadingProgressByUserAndChapter,
-  saveChapterProgressAction,
-} from "../../redux/chapter/chapter.action";
+import { saveChapterProgressAction } from "../../redux/chapter/chapter.action";
+import Headbar from "../../components/ChapterDetailComponents/Headbar";
 
-export default function MangaChapterDetail() {
-  const { bookId: paramBookId, chapterId: paramChapterId } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { chapter, chapters, readingProgress } = useSelector((store) => store.chapter);
-  const { user } = useSelector((store) => store.auth);
-  const { book } = useSelector((store) => store.book);
-
+export default function MangaChapterDetail({
+  anchorEl,
+  bookId,
+  chapter,
+  chapters,
+  readingProgress,
+  user,
+  isFloatingMenuVisible,
+  toggleFloatingMenu,
+  handleChapterChange,
+  handleChapterListOpen,
+  handleChapterListClose,
+}) {
   const [currentPage, setCurrentPage] = useState(0);
   const [hoverZone, setHoverZone] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [bookId] = useState(paramBookId);
-  const [chapterId, setChapterId] = useState(paramChapterId);
+  const [loading, setLoading] = useState(false);
   const [initialPageSet, setInitialPageSet] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isFloatingMenuVisible, setFloatingMenuVisible] = useState(false);
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem("viewMode") || "single";
   });
-  const [selectedLanguageId] = useState(() => {
-    return localStorage.getItem("selectedLanguageId") || 0;
-  });
-
-  const fetchChapterDetail = useCallback(async () => {
-    setLoading(true);
-    try {
-      await dispatch(getChaptersByBookAndLanguageAction(bookId, selectedLanguageId));
-      await dispatch(getChapterById(bookId, chapterId));
-      if (!book) {
-        await dispatch(getBookByIdAction(bookId));
-      }
-      if (user) {
-        await dispatch(getReadingProgressByUserAndChapter(chapterId));
-      }
-    } catch (e) {
-      console.log("Error in manga chapter detail: ", e);
-    } finally {
-      setLoading(false);
-    }
-  }, [dispatch, bookId, chapterId, selectedLanguageId, book, user]);
-
-  useEffect(() => {
-    fetchChapterDetail();
-  }, [fetchChapterDetail]);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const theme = useTheme();
   const totalPages = Math.max((chapter?.content.match(/<img/g) || []).length, 1);
 
   useEffect(() => {
+    setLoading(true);
     if (!initialPageSet && readingProgress && !isNaN(readingProgress.progress) && totalPages > 0) {
       const initialPage = Math.floor((readingProgress.progress / 100) * totalPages);
       console.log("Setting initialPage:", initialPage);
@@ -75,9 +47,11 @@ export default function MangaChapterDetail() {
       }
       setInitialPageSet(true);
     }
+    setLoading(false);
   }, [readingProgress, totalPages, initialPageSet]);
 
   const saveProgress = useCallback(async () => {
+    setLoading(true);
     if (!user) return;
 
     let progress = 0;
@@ -96,8 +70,9 @@ export default function MangaChapterDetail() {
       if (currentPage + 1 >= totalPages) progress = 100;
     }
 
-    await dispatch(saveChapterProgressAction(bookId, chapterId, user.id, progress));
-  }, [dispatch, bookId, chapterId, user, currentPage, totalPages, viewMode]);
+    await dispatch(saveChapterProgressAction(bookId, chapter?.id, user.id, progress));
+    setLoading(false);
+  }, [dispatch, bookId, chapter?.id, user, currentPage, totalPages, viewMode]);
 
   const debouncedSaveProgress = useMemo(() => debounce(saveProgress, 300), [saveProgress]);
 
@@ -126,11 +101,6 @@ export default function MangaChapterDetail() {
     setCurrentPage(newCurrentPage);
   };
 
-  const handleChapterChange = (chapterId) => {
-    setChapterId(chapterId);
-    setCurrentPage(0);
-  };
-
   const handleViewModeChange = (value) => {
     setViewMode(value);
     localStorage.setItem("viewMode", value);
@@ -154,36 +124,16 @@ export default function MangaChapterDetail() {
     },
     [currentPage, viewMode]
   );
-
+  const handleBackToBookPage = () => {
+    debouncedSaveProgress();
+    navigate(`/books/${bookId}`);
+  };
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
-
-  const toggleFloatingMenu = () => {
-    setFloatingMenuVisible((prev) => !prev);
-  };
-
-  const handleChapterListOpen = (event) => {
-    if (menuOpen) {
-      handleChapterListClose();
-    } else {
-      setAnchorEl(event.currentTarget);
-      setMenuOpen(true);
-    }
-  };
-
-  const handleChapterListClose = () => {
-    setAnchorEl(null);
-    setMenuOpen(false);
-  };
-
-  const handleBackToBookPage = () => {
-    debouncedSaveProgress();
-    navigate(`/books/${bookId}`);
-  };
 
   return (
     <>
@@ -206,7 +156,6 @@ export default function MangaChapterDetail() {
                 chapter={chapter}
                 viewMode={viewMode}
                 currentPage={currentPage}
-                totalPages={totalPages}
                 handlePageChange={handlePageChange}
                 hoverZone={hoverZone}
                 setHoverZone={setHoverZone}
@@ -218,7 +167,7 @@ export default function MangaChapterDetail() {
           {isFloatingMenuVisible && (
             <>
               <Backdrop
-                sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: "rgba(0, 0, 0, 0.5)" }}
+                sx={{ color: "#fff", zIndex: theme.zIndex.drawer + 1, bgcolor: "rgba(0, 0, 0, 0.5)" }}
                 open={isFloatingMenuVisible}
                 onClick={toggleFloatingMenu}
               />
@@ -227,9 +176,10 @@ export default function MangaChapterDetail() {
                   display: "flex",
                   flexDirection: "column",
                   gap: 5,
-                  zIndex: (theme) => theme.zIndex.drawer + 2,
+                  zIndex: theme.zIndex.drawer + 2,
                 }}
               >
+                <Headbar chapter={chapter} onNavigate={handleBackToBookPage} />
                 <FloatingMenu
                   anchorEl={anchorEl}
                   bookId={bookId}

@@ -2,8 +2,9 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { editImageAction, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
-import UploadToCloudinary from "../../utils/uploadToCloudinary";
+import { editImageAction, getAllGalleryImages, getAllImageTags } from "../../../redux/gallery/gallery.action";
+import UploadToCloudinary from "../../../utils/uploadToCloudinary";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function EditImageModal({ open, onClose, imageDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -69,9 +70,7 @@ export default function EditImageModal({ open, onClose, imageDetails }) {
         <h2 className="text-xl mb-4">Edit Image</h2>
 
         {loading ? (
-          <div className="flex justify-center">
-            <CircularProgress />
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <TextField

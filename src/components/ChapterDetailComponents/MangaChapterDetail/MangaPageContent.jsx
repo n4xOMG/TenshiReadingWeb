@@ -2,16 +2,7 @@ import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import { useMemo } from "react";
 
-const MangaPageContent = ({
-  chapter,
-  viewMode,
-  currentPage,
-  totalPages,
-  handlePageChange,
-  hoverZone,
-  setHoverZone,
-  toggleFloatingMenu,
-}) => {
+const MangaPageContent = ({ chapter, viewMode, currentPage, handlePageChange, hoverZone, setHoverZone, toggleFloatingMenu }) => {
   const extractImageUrls = (htmlContent) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");

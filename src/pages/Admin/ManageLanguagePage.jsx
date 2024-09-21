@@ -3,10 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addNewLanguage, getAllLanguages } from "../../redux/book/book.action";
-import EditLanguageModal from "../../components/ManageLanguagePageComponent/EditLanguageModal";
-import DeleteLanguageModal from "../../components/ManageLanguagePageComponent/DeleteLanguageModal";
-import CountrySelect from "../../components/ManageLanguagePageComponent/CountrySelect";
-
+import EditLanguageModal from "../../components/AdminPageComponents/ManageLanguagePageComponent/EditLanguageModal";
+import DeleteLanguageModal from "../../components/AdminPageComponents/ManageLanguagePageComponent/DeleteLanguageModal";
+import CountrySelect from "../../components/AdminPageComponents/ManageLanguagePageComponent/CountrySelect";
 export default function ManageLanguagePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();

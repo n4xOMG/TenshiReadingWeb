@@ -53,7 +53,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/books/:bookId" element={<BookDetailPage />} />
-        <Route path="/books/:bookId/chapters/:chapterId" element={<MangaChapterDetail />} />
+        <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
         <Route path="/admin/*" element={user?.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
         <Route path="/profile" element={<ProfilePage />} />

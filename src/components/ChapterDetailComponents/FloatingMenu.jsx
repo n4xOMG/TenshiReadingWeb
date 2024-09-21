@@ -1,19 +1,140 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { BottomNavigation, BottomNavigationAction } from "@mui/material";
-export const FloatingMenu = ({ onNextChapter, onPreviousChapter }) => (
-  <BottomNavigation
-    showLabels
-    sx={{
-      position: "fixed",
-      bottom: 0,
-      width: "100%",
-      zIndex: 3,
-      bgcolor: "#202124",
-      color: "white",
-    }}
-  >
-    <BottomNavigationAction sx={{ color: "white" }} label="Previous Chapter" icon={<ArrowBackIcon />} onClick={onPreviousChapter} />
-    <BottomNavigationAction sx={{ color: "white" }} label="Next Chapter" icon={<ArrowForwardIcon />} onClick={onNextChapter} />
-  </BottomNavigation>
-);
+import { ChevronLeft, ChevronRight, Fullscreen, Layers, MenuBook } from "@mui/icons-material";
+import HomeIcon from "@mui/icons-material/Home";
+import ListIcon from "@mui/icons-material/List";
+import { Box, Fade, IconButton, Menu, MenuItem, useMediaQuery, useTheme } from "@mui/material";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import React from "react";
+const viewModeIcon = {
+  single: <Layers />,
+  double: <MenuBook />,
+};
+const themeModeIcon = {
+  light: <LightModeIcon />,
+  dark: <DarkModeIcon />,
+};
+export default function FloatingMenu({
+  anchorEl,
+  bookId,
+  currentChapterId,
+  open,
+  chapters,
+  viewMode,
+  themeMode,
+  onChapterListOpen,
+  onChapterListClose,
+  onViewModeChange,
+  onThemeModeChange,
+  onChapterChange,
+  onNavigate,
+}) {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleFullScreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  };
+
+  const handleViewModeChange = () => {
+    const modes = ["single"];
+    if (!isSmallScreen) {
+      modes.push("double");
+    }
+    const currentIndex = modes.indexOf(viewMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    onViewModeChange(modes[nextIndex]);
+  };
+
+  const handleThemeModeChange = () => {
+    const modes = ["light", "dark"];
+    const currentIndex = modes.indexOf(themeMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    onThemeModeChange(modes[nextIndex]);
+  };
+
+  const currentChapterIndex = chapters.findIndex((chapter) => chapter.id === currentChapterId);
+
+  return (
+    <Fade in={open}>
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: { xs: "20%", sm: "15%", md: "10%", lg: "5%" },
+          left: "50%",
+          transform: "translateX(-50%)",
+          bgcolor: "#050505",
+          backdropFilter: "blur(10px)",
+          borderRadius: 2,
+          boxShadow: 3,
+          p: { xs: 1, sm: 2 },
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+          height: "auto",
+        }}
+      >
+        <IconButton
+          onClick={() => onChapterChange(chapters[currentChapterIndex - 1].id)}
+          disabled={currentChapterIndex === 0}
+          aria-label="Previous chapter"
+          sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+        >
+          <ChevronLeft />
+        </IconButton>
+
+        <IconButton onClick={onChapterListOpen} aria-label="Chapters list" sx={{ color: "white" }}>
+          <ListIcon />
+        </IconButton>
+
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={onChapterListClose}>
+          {chapters.map((chapter) => (
+            <MenuItem
+              key={chapter.id}
+              onClick={() => {
+                onChapterChange(chapter.id);
+                onChapterListClose();
+              }}
+              sx={{ color: "white" }}
+            >
+              {chapter.title}
+            </MenuItem>
+          ))}
+        </Menu>
+
+        {viewMode && (
+          <IconButton aria-label={`Current view mode: ${viewMode}`} onClick={handleViewModeChange} sx={{ color: "white" }}>
+            {viewModeIcon[viewMode]}
+          </IconButton>
+        )}
+        {themeMode && (
+          <IconButton
+            aria-label={`Current theme: ${themeMode}`}
+            onClick={handleThemeModeChange}
+            sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+          >
+            {themeModeIcon[themeMode]}
+          </IconButton>
+        )}
+        <IconButton
+          onClick={() => onChapterChange(chapters[currentChapterIndex + 1].id)}
+          disabled={currentChapterIndex === chapters.length - 1}
+          aria-label="Next chapter"
+          sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+        >
+          <ChevronRight />
+        </IconButton>
+        <IconButton onClick={onNavigate} aria-label="Back to Book Page" sx={{ color: "white" }}>
+          <HomeIcon />
+        </IconButton>
+        <IconButton onClick={handleFullScreen} aria-label="Full Screen" sx={{ color: "white" }}>
+          <Fullscreen />
+        </IconButton>
+      </Box>
+    </Fade>
+  );
+}

@@ -7,7 +7,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { deleteImageAction, getAllGalleryImages } from "../../redux/gallery/gallery.action";
+import { deleteImageAction, getAllGalleryImages } from "../../../redux/gallery/gallery.action";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function DeleteImageModal({ open, onClose, deleteImage }) {
   const [imageId, setImageId] = useState(deleteImage.id);
   const [loading, setLoading] = useState(false);
@@ -28,9 +29,7 @@ export default function DeleteImageModal({ open, onClose, deleteImage }) {
   return (
     <>
       {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <LoadingSpinner />
       ) : (
         <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
           <DialogTitle id="alert-dialog-title">{"Delete this image?"}</DialogTitle>

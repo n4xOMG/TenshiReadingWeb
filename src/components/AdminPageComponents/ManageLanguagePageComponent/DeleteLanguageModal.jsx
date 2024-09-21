@@ -7,7 +7,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { deleteLanguageAction, getAllLanguages } from "../../redux/book/book.action";
+import { deleteLanguageAction, getAllLanguages } from "../../../redux/book/book.action";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function DeleteLanguageModal({ open, onClose, deleteLanguage }) {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -28,9 +29,7 @@ export default function DeleteLanguageModal({ open, onClose, deleteLanguage }) {
   return (
     <>
       {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <LoadingSpinner />
       ) : (
         <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
           <DialogTitle id="alert-dialog-title">{"Delete this language?"}</DialogTitle>

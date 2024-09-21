@@ -20,12 +20,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
-import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
 import UpdateProfileModal from "../../components/ProfilePageComponent/UpdateProfileModal";
 import { getAllUserFollowingBookAction } from "../../redux/book/book.action";
 import { getReadingProgressByUser } from "../../redux/chapter/chapter.action";
 import { getUserFavImages } from "../../redux/gallery/gallery.action";
 import { formatDate } from "../../utils/formatDate";
+import ViewImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/ViewImageModal";
 
 const getProgressColor = (progress) => {
   if (progress === 100) return "bg-green-500";

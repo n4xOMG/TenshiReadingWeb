@@ -14,7 +14,7 @@ import { addImageToFav, getAllGalleryImages, getAllImageTags } from "../../redux
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { getOptimizedImageUrl, getResponsiveImageUrl } from "../../utils/optimizeImages";
 import { useAuthCheck } from "../../utils/useAuthCheck";
-import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
+import ViewImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/ViewImageModal";
 
 export default function ImageGalleryPage() {
   const dispatch = useDispatch();

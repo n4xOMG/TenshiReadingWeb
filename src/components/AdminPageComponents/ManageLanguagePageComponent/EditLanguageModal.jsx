@@ -1,7 +1,8 @@
 import { Box, Button, CircularProgress, Modal, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { editLanguageAction, getAllLanguages } from "../../redux/book/book.action";
+import { editLanguageAction, getAllLanguages } from "../../../redux/book/book.action";
+import LoadingSpinner from "../../LoadingSpinner";
 
 export default function EditLanguageModal({ open, onClose, languageDetails }) {
   const dispatch = useDispatch();
@@ -33,9 +34,7 @@ export default function EditLanguageModal({ open, onClose, languageDetails }) {
         <h2 className="text-xl mb-4">Edit Language</h2>
 
         {loading ? (
-          <div className="flex justify-center">
-            <CircularProgress />
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <TextField

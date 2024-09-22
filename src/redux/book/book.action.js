@@ -71,7 +71,7 @@ export const getAllBookAction = () => async (dispatch) => {
     dispatch({ type: GET_ALL_BOOK_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    console.log("error trying to get all books", error);
+    console.log("error trying to get all books", error.message);
     dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
   }
 };
@@ -82,7 +82,7 @@ export const getAllUserFollowingBookAction = (userId) => async (dispatch) => {
     dispatch({ type: GET_ALL_BOOK_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    console.log("error trying to get all user favoured books", error);
+    console.log("error trying to get all user favoured books", error.message);
     dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
   }
 };
@@ -94,7 +94,7 @@ export const getBookByIdAction = (bookId) => async (dispatch) => {
     dispatch({ type: GET_BOOK_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    console.log("Api error when trying to retreiving book: ", error);
+    console.log("Api error when trying to retreiving book: ", error.message);
     dispatch({ type: GET_BOOK_FAILED, payload: error.message });
   }
 };
@@ -111,7 +111,7 @@ export const getReadingProgressByBookChaptersAndUser = (userId, chapters) => asy
     dispatch({ type: GET_PROGRESS_SUCCESS, payload: readingProgresses });
     return { payload: readingProgresses };
   } catch (error) {
-    console.log("Api error when trying to add new book: ", error);
+    console.log("Api error when trying to add new book: ", error.message);
     dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }
 };
@@ -122,18 +122,17 @@ export const addNewBookAction = (bookData) => async (dispatch) => {
     const { data } = await api.post(`${API_BASE_URL}/translator/books`, bookData.data);
     dispatch({ type: BOOK_UPLOAD_SUCCEED, payload: data });
   } catch (error) {
-    console.log("Api error when trying to add new book: ", error);
+    console.log("Api error when trying to add new book: ", error.message);
     dispatch({ type: BOOK_UPLOAD_FAILED, payload: error.message });
   }
 };
 export const editBookAction = (bookData) => async (dispatch) => {
-  console.log("Edit book with data: ", bookData.data);
   dispatch({ type: BOOK_EDIT_REQUEST });
   try {
     const response = await api.put(`${API_BASE_URL}/translator/books/${bookData.data.id}`, bookData.data);
     dispatch({ type: BOOK_EDIT_SUCCEED, payload: response.data });
   } catch (error) {
-    console.log("Api error when trying to edit book: ", error);
+    console.log("Api error when trying to edit book: ", error.message);
     dispatch({ type: BOOK_EDIT_FAILED, payload: error.message });
   }
 };
@@ -144,7 +143,7 @@ export const deleteBookAction = (bookId) => async (dispatch) => {
     const { data } = await api.delete(`${API_BASE_URL}/translator/books/${bookId}`);
     dispatch({ type: BOOK_DELETE_SUCCEED, payload: data });
   } catch (error) {
-    console.log("Api error when trying to delete book: ", error);
+    console.log("Api error when trying to delete book: ", error.message);
     dispatch({ type: BOOK_DELETE_FAILED, payload: error.message });
   }
 };
@@ -154,7 +153,7 @@ export const followBookAction = (bookId) => async (dispatch) => {
     const { data } = await api.put(`${API_BASE_URL}/api/books/follow/${bookId}`);
     dispatch({ type: FOLLOW_BOOK_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to follow book: ", error);
+    console.log("Api error when trying to follow book: ", error.message);
     dispatch({ type: FOLLOW_BOOK_FAILED, payload: error.message });
   }
 };
@@ -166,7 +165,7 @@ export const searchBookAction = (query) => async (dispatch) => {
     dispatch({ type: SEARCH_BOOK_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    console.log("error", error);
+    console.log("error", error.message);
     dispatch({ type: SEARCH_BOOK_FAILED, payload: error });
   }
 };
@@ -177,7 +176,7 @@ export const ratingBookAction = (bookId, rating) => async (dispatch) => {
     const { data } = await api.patch(`${API_BASE_URL}/api/books/rating/${bookId}`, { rating });
     dispatch({ type: RATING_BOOK_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to rating book: ", error);
+    console.log("Api error when trying to rating book: ", error.message);
     dispatch({ type: RATING_BOOK_FAILED, payload: error.message });
   }
 };
@@ -198,8 +197,10 @@ export const getBookRatingByUserAction = (bookId) => async (dispatch) => {
 
 export const getAvgBookRating = (bookId) => async (dispatch) => {
   dispatch({ type: GET_AVG_BOOK_RATING_REQUEST });
+  console.log("Get avg rating for: ", bookId);
   try {
     const { data } = await api.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
+    console.log("Got avg rating: ", data);
     dispatch({ type: GET_AVG_BOOK_RATING_SUCCESS, payload: data });
   } catch (error) {
     if (error.response && error.response.status === 204) {
@@ -214,7 +215,6 @@ export const getAllReadingProgressesByBook = (bookId) => async (dispatch) => {
   dispatch({ type: GET_READING_PROGRESSES_BY_BOOK_REQUEST });
   try {
     const { data } = await api.get(`${API_BASE_URL}/api/reading-progress/books/${bookId}`);
-    console.log("got all progresses", data);
     dispatch({ type: GET_READING_PROGRESSES_BY_BOOK_SUCCESS, payload: data });
   } catch (error) {
     console.log("Api error when trying to get book progresses: ", error);
@@ -228,7 +228,7 @@ export const getAllLanguages = () => async (dispatch) => {
     const { data } = await api.get(`${API_BASE_URL}/admin/languages`);
     dispatch({ type: GET_LANGUAGES_BY_BOOK_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to get book languages: ", error);
+    console.log("Api error when trying to get book languages: ", error.message);
     dispatch({ type: GET_LANGUAGES_BY_BOOK_FAILED, payload: error.message });
   }
 };
@@ -238,7 +238,7 @@ export const getLanguagesByBook = (bookId) => async (dispatch) => {
     const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/languages`);
     dispatch({ type: GET_LANGUAGES_BY_BOOK_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to get book languages: ", error);
+    console.log("Api error when trying to get book languages: ", error.message);
     dispatch({ type: GET_LANGUAGES_BY_BOOK_FAILED, payload: error.message });
   }
 };
@@ -248,7 +248,7 @@ export const addNewLanguage = (reqData) => async (dispatch) => {
     const { data } = await api.post(`${API_BASE_URL}/admin/languages`, reqData.data);
     dispatch({ type: ADD_NEW_LANGUAGE_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to add language: ", error);
+    console.log("Api error when trying to add language: ", error.message);
     dispatch({ type: ADD_NEW_LANGUAGE_FAILED, payload: error.message });
   }
 };
@@ -259,7 +259,7 @@ export const editLanguageAction = (reqData) => async (dispatch) => {
     const { data } = await api.put(`${API_BASE_URL}/admin/languages/${reqData.data.id}`, reqData.data);
     dispatch({ type: EDIT_LANGUAGE_SUCCESS, payload: data });
   } catch (error) {
-    console.log("Api error when trying to edit language: ", error);
+    console.log("Api error when trying to edit language: ", error.message);
     dispatch({ type: EDIT_LANGUAGE_FAILED, payload: error.message });
   }
 };

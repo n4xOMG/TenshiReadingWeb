@@ -3,14 +3,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import HomeIcon from "@mui/icons-material/Home";
 import ImageIcon from "@mui/icons-material/Image";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PeopleIcon from "@mui/icons-material/People";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import { Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import LandingPage from "./LandingPage";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useAuthCheck } from "../../utils/useAuthCheck";
+import HomeLandingPage from "./HomeLandingPage";
 export default function UserPages() {
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
@@ -21,8 +21,14 @@ export default function UserPages() {
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
-    { text: "Books", icon: <LibraryBooksIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/books" },
-    { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
+
+    {
+      text: "Characters Wiki",
+      icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />,
+      path: "https://otonari-no-tenshi.fandom.com/wiki/Otonari_no_Tenshi-sama_Wiki",
+      external: true,
+    },
+    { text: "FAQ", icon: <QuestionAnswerIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/faq" },
   ];
   const handleSignOut = () => {
     localStorage.removeItem("jwt");
@@ -105,11 +111,17 @@ export default function UserPages() {
                 <ListItem
                   button
                   key={index}
+                  component={item.external ? "a" : "div"}
+                  href={item.external ? item.path : undefined}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
                   onClick={() => {
-                    if (item.text === "Profile") {
-                      handleProfile();
-                    } else {
-                      navigate(item.path);
+                    if (!item.external) {
+                      if (item.text === "Profile") {
+                        handleProfile();
+                      } else {
+                        navigate(item.path);
+                      }
                     }
                   }}
                 >
@@ -147,8 +159,8 @@ export default function UserPages() {
         }}
       >
         {/* Main Content */}
-        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, pt: 1, px: 3, overflow: "auto" }}>
-          <LandingPage />
+        <Box sx={{ display: "flex", flex: 1, flexDirection: "column", gap: 4, pt: 1, px: isSmallScreen ? 2 : 5, overflow: "auto" }}>
+          <HomeLandingPage />
         </Box>
       </Box>
 

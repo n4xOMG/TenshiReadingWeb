@@ -21,7 +21,6 @@ import {
 } from "./auth.actionType";
 import { api, API_BASE_URL } from "../../api/api";
 export const loginUserAction = (loginData) => async (dispatch) => {
-  console.log("Action getCurrentUserByJwt dispatched");
   dispatch({ type: LOGIN_REQUEST });
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/signin`, loginData.data);
@@ -33,7 +32,7 @@ export const loginUserAction = (loginData) => async (dispatch) => {
     dispatch({ type: LOGIN_SUCCEED, payload: data.token });
     return { payload: data };
   } catch (error) {
-    console.log("Api error: ", error);
+    console.log("Api error: ", error.message);
     dispatch({ type: LOGIN_FAILED, payload: error.message });
   }
 };
@@ -43,13 +42,11 @@ export const registerUserAction = (registerData) => async (dispatch) => {
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/signup`, registerData.data);
     if (data.token) {
-      console.log("Register token: ", data.token);
       localStorage.setItem("jwt", data.token);
     }
-    console.log("Register succeed!");
     dispatch({ type: REGISTER_SUCCEED, payload: data.token });
   } catch (error) {
-    console.log("Register failed ", error);
+    console.log("Register failed ", error.message);
     dispatch({ type: REGISTER_FAILED, payload: error.message });
   }
 };
@@ -63,7 +60,6 @@ export const getCurrentUserByJwt = (jwt) => async (dispatch) => {
       },
     });
 
-    console.log("Profile", data);
     dispatch({ type: GET_PROFILE_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
@@ -80,10 +76,9 @@ export const sendForgotPasswordMail = (email) => async (dispatch) => {
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
 
-    console.log("Email sent", data);
     dispatch({ type: FORGOT_PASSWORD_SUCCEED, payload: data.message });
   } catch (error) {
-    console.log("Api error: ", error);
+    console.log("Api error: ", error.message);
     dispatch({ type: FORGOT_PASSWORD_FAILED, payload: error.message });
   }
 };
@@ -93,10 +88,9 @@ export const resetPasswordAction = (code, password) => async (dispatch) => {
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/reset-password?code=${code}`, { password });
 
-    console.log("Password changed!", data);
     dispatch({ type: RESET_PASSWORD_SUCCEED, payload: data.message });
   } catch (error) {
-    console.log("Api error: ", error);
+    console.log("Api error: ", error.message);
     dispatch({ type: RESET_PASSWORD_FAILED, payload: error.message });
   }
 };
@@ -106,11 +100,10 @@ export const updateUserProfile = (reqData) => async (dispatch) => {
   try {
     const { data } = await api.get(`${API_BASE_URL}/api/user/profile`, reqData.data);
 
-    console.log("Profile", data);
     dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
-    console.log("Api error: ", error);
+    console.log("Api error: ", error.message);
     dispatch({ type: UPDATE_PROFILE_FAILED, payload: error.message });
   }
 };

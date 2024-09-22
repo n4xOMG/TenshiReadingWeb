@@ -11,12 +11,10 @@ import SignUp from "./pages/Auth/SignUp";
 import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
 import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
-import BooksPage from "./pages/HomePage/BooksPage";
 import ProfilePage from "./pages/HomePage/ProfilePage";
 import UserPages from "./pages/HomePage/UserPages";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
 import { useAuthCheck } from "./utils/useAuthCheck";
-import MangaChapterDetail from "./pages/ChapterDetailPage/MangaChapterDetail";
 
 function App() {
   const dispatch = useDispatch();
@@ -57,7 +55,6 @@ function App() {
         <Route path="/admin/*" element={user?.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/books" element={<BooksPage />} />
       </Routes>
       <AuthDialog />
     </div>

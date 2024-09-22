@@ -49,7 +49,7 @@ const initialState = {
   favoured: null,
   book: null,
   books: [],
-  avgRating: [],
+  avgRating: null,
   languages: [],
   language: null,
   categories: [],

@@ -29,6 +29,8 @@ import {
   GET_TAGS_BY_IMAGE_FAILED,
   GET_TAGS_BY_IMAGE_REQUEST,
   GET_TAGS_BY_IMAGE_SUCCESS,
+  GET_USER_FAV_IMAGES_FAILED,
+  GET_USER_FAV_IMAGES_SUCCESS,
 } from "./gallery.actionType";
 
 const initialState = {
@@ -36,6 +38,7 @@ const initialState = {
   error: null,
   image: null,
   images: [],
+  favImages: [],
   totalPages: null,
   tag: null,
   tags: [],
@@ -78,7 +81,8 @@ export const galleryReducer = (state = initialState, action) => {
 
     case GET_ALL_IMAGES_SUCCESS:
       return { ...state, loading: false, error: null, images: action.payload.images, totalPages: action.payload.totalPages };
-
+    case GET_USER_FAV_IMAGES_SUCCESS:
+      return { ...state, loading: false, error: null, favImages: action.payload };
     case GET_ALL_IMAGE_TAGS_SUCCESS:
     case GET_TAGS_BY_IMAGE_SUCCESS:
       return { ...state, loading: false, error: null, tags: action.payload };
@@ -90,6 +94,7 @@ export const galleryReducer = (state = initialState, action) => {
     case ADD_TO_FAV_FAILED:
     case GET_ALL_IMAGES_FAILED:
     case GET_ALL_IMAGE_TAGS_FAILED:
+    case GET_USER_FAV_IMAGES_FAILED:
     case EDIT_IMAGE_FAILED:
     case EDIT_IMAGE_TAG_FAILED:
     case DELETE_IMAGE_FAILED:

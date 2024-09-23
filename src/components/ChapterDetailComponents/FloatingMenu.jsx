@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Fullscreen, Layers, MenuBook } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
 import ListIcon from "@mui/icons-material/List";
-import { Box, Fade, IconButton, Menu, MenuItem, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Fade, IconButton, Menu, MenuItem, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import React from "react";
@@ -78,18 +78,34 @@ export default function FloatingMenu({
           height: "auto",
         }}
       >
-        <IconButton
-          onClick={() => onChapterChange(chapters[currentChapterIndex - 1].id)}
-          disabled={currentChapterIndex === 0}
-          aria-label="Previous chapter"
-          sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+        <Tooltip
+          title={
+            <>
+              <p>Previous chapter</p>
+            </>
+          }
         >
-          <ChevronLeft />
-        </IconButton>
+          <IconButton
+            onClick={() => onChapterChange(chapters[currentChapterIndex - 1].id)}
+            disabled={currentChapterIndex === 0}
+            aria-label="Previous chapter"
+            sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+          >
+            <ChevronLeft />
+          </IconButton>
+        </Tooltip>
 
-        <IconButton onClick={onChapterListOpen} aria-label="Chapters list" sx={{ color: "white" }}>
-          <ListIcon />
-        </IconButton>
+        <Tooltip
+          title={
+            <>
+              <p>Chapter List</p>
+            </>
+          }
+        >
+          <IconButton onClick={onChapterListOpen} aria-label="Chapters list" sx={{ color: "white" }}>
+            <ListIcon />
+          </IconButton>
+        </Tooltip>
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={onChapterListClose}>
           {chapters.map((chapter) => (
@@ -99,41 +115,66 @@ export default function FloatingMenu({
                 onChapterChange(chapter.id);
                 onChapterListClose();
               }}
-              sx={{ color: "white" }}
+              sx={{ color: "black" }}
             >
-              {chapter.title}
+              {chapter.chapterNum}: {chapter.title}
             </MenuItem>
           ))}
         </Menu>
 
         {viewMode && (
-          <IconButton aria-label={`Current view mode: ${viewMode}`} onClick={handleViewModeChange} sx={{ color: "white" }}>
-            {viewModeIcon[viewMode]}
-          </IconButton>
+          <Tooltip
+            title={
+              <>
+                <p>Change view mode</p>
+                <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>Current view mode: {viewMode}</p>
+              </>
+            }
+          >
+            <IconButton aria-label={`Current view mode: ${viewMode}`} onClick={handleViewModeChange} sx={{ color: "white" }}>
+              {viewModeIcon[viewMode]}
+            </IconButton>
+          </Tooltip>
         )}
         {themeMode && (
+          <Tooltip
+            title={
+              <>
+                <p>Change theme mode</p>
+                <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>Current theme: {themeMode}</p>
+              </>
+            }
+          >
+            <IconButton
+              aria-label={`Current theme: ${themeMode}`}
+              onClick={handleThemeModeChange}
+              sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+            >
+              {themeModeIcon[themeMode]}
+            </IconButton>
+          </Tooltip>
+        )}
+
+        <Tooltip title={<p>Back to book detail page</p>}>
+          <IconButton onClick={onNavigate} aria-label="Back to Book Page" sx={{ color: "white" }}>
+            <HomeIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={<p>Enter fullscreen mode</p>}>
+          <IconButton onClick={handleFullScreen} aria-label="Full Screen" sx={{ color: "white" }}>
+            <Fullscreen />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={<p>Next chapter</p>}>
           <IconButton
-            aria-label={`Current theme: ${themeMode}`}
-            onClick={handleThemeModeChange}
+            onClick={() => onChapterChange(chapters[currentChapterIndex + 1].id)}
+            disabled={currentChapterIndex === chapters.length - 1}
+            aria-label="Next chapter"
             sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
           >
-            {themeModeIcon[themeMode]}
+            <ChevronRight />
           </IconButton>
-        )}
-        <IconButton
-          onClick={() => onChapterChange(chapters[currentChapterIndex + 1].id)}
-          disabled={currentChapterIndex === chapters.length - 1}
-          aria-label="Next chapter"
-          sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
-        >
-          <ChevronRight />
-        </IconButton>
-        <IconButton onClick={onNavigate} aria-label="Back to Book Page" sx={{ color: "white" }}>
-          <HomeIcon />
-        </IconButton>
-        <IconButton onClick={handleFullScreen} aria-label="Full Screen" sx={{ color: "white" }}>
-          <Fullscreen />
-        </IconButton>
+        </Tooltip>
       </Box>
     </Fade>
   );

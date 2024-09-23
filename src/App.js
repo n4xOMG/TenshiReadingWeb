@@ -10,9 +10,9 @@ import SignIn from "./pages/Auth/SignIn";
 import SignUp from "./pages/Auth/SignUp";
 import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
-import ImageGalleryPage from "./pages/Gallery/ImageGalleryPage";
 import ProfilePage from "./pages/HomePage/ProfilePage";
 import UserPages from "./pages/HomePage/UserPages";
+import ImageGalleryPage from "./pages/HomePage/ImageGalleryPage";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
 import { useAuthCheck } from "./utils/useAuthCheck";
 

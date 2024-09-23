@@ -31,6 +31,9 @@ import {
   GET_TAGS_BY_IMAGE_FAILED,
   GET_TAGS_BY_IMAGE_REQUEST,
   GET_TAGS_BY_IMAGE_SUCCESS,
+  GET_USER_FAV_IMAGES_FAILED,
+  GET_USER_FAV_IMAGES_REQUEST,
+  GET_USER_FAV_IMAGES_SUCCESS,
 } from "./gallery.actionType";
 
 export const getAllGalleryImages = (page, size) => async (dispatch) => {
@@ -48,14 +51,14 @@ export const getAllGalleryImages = (page, size) => async (dispatch) => {
 };
 
 export const getUserFavImages = (userId) => async (dispatch) => {
-  dispatch({ type: GET_ALL_IMAGES_REQUEST });
+  dispatch({ type: GET_USER_FAV_IMAGES_REQUEST });
   try {
     const { data } = await api.get(`${API_BASE_URL}/api/gallery/favoured/${userId}`);
-    dispatch({ type: GET_ALL_IMAGES_SUCCESS, payload: data });
+    dispatch({ type: GET_USER_FAV_IMAGES_SUCCESS, payload: data });
     return { payload: data };
   } catch (error) {
     console.log("error trying to get all images", error.message);
-    dispatch({ type: GET_ALL_IMAGES_FAILED, payload: error });
+    dispatch({ type: GET_USER_FAV_IMAGES_FAILED, payload: error });
   }
 };
 

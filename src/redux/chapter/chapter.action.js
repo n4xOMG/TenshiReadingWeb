@@ -120,13 +120,3 @@ export const getReadingProgressByUserAndChapter = (chapterId) => async (dispatch
     dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
   }
 };
-export const getReadingProgressByUser = () => async (dispatch) => {
-  dispatch({ type: GET_PROGRESS_REQUEST });
-  try {
-    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress`);
-    dispatch({ type: GET_PROGRESS_SUCCESS, payload: data });
-    return { payload: data };
-  } catch (error) {
-    dispatch({ type: GET_PROGRESS_FAILED, payload: error.message });
-  }
-};

@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAdaptedChaptersByBookAndLanguageAction, getChaptersByBookAndLanguageAction } from "../../redux/chapter/chapter.action";
 import { TabChapters } from "./ChapterListComponent/TabChapters";
 import { TabPanel } from "./ChapterListComponent/TabPanel";
-import { getReadingProgressByBookChaptersAndUser } from "../../redux/book/book.action";
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
@@ -109,7 +108,7 @@ export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavi
               />
               {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse sx={{ bgcolor: "grey.100" }} in={open} timeout="auto" unmountOnExit>
               {languages?.length > 0 ? (
                 <List component="div" disablePadding>
                   {languages.map((lang) => (

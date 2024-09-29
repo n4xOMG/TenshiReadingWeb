@@ -25,15 +25,25 @@ export const loginUserAction = (loginData) => async (dispatch) => {
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/signin`, loginData.data);
     if (data.token) {
-      console.log(data.token);
       localStorage.setItem("jwt", data.token);
     }
-    console.log("Login succeed", data);
     dispatch({ type: LOGIN_SUCCEED, payload: data.token });
     return { payload: data };
   } catch (error) {
-    console.log("Api error: ", error.message);
-    dispatch({ type: LOGIN_FAILED, payload: error.message });
+    if (error.response) {
+      console.log("Error response data: ", error.response.data); // Log error response
+      console.log("Error response status: ", error.response.status); // Log error status
+
+      if (error.response.status === 401) {
+        // Use the message from the backend response
+        dispatch({ type: LOGIN_FAILED, payload: error.response.data.message });
+      } else {
+        dispatch({ type: LOGIN_FAILED, payload: error.message });
+      }
+    } else {
+      console.log("No response from server");
+      dispatch({ type: LOGIN_FAILED, payload: "No response from server" });
+    }
   }
 };
 
@@ -41,13 +51,21 @@ export const registerUserAction = (registerData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/signup`, registerData.data);
-    if (data.token) {
-      localStorage.setItem("jwt", data.token);
-    }
     dispatch({ type: REGISTER_SUCCEED, payload: data.token });
   } catch (error) {
-    console.log("Register failed ", error.message);
-    dispatch({ type: REGISTER_FAILED, payload: error.message });
+    if (error.response) {
+      console.log("Error response data: ", error.response.data);
+      console.log("Error response status: ", error.response.status);
+
+      if (error.response.status === 406) {
+        dispatch({ type: REGISTER_FAILED, payload: error.response.data.message });
+      } else {
+        dispatch({ type: REGISTER_FAILED, payload: error.message });
+      }
+    } else {
+      console.log("No response from server");
+      dispatch({ type: REGISTER_FAILED, payload: "No response from server" });
+    }
   }
 };
 
@@ -98,7 +116,7 @@ export const resetPasswordAction = (code, password) => async (dispatch) => {
 export const updateUserProfile = (reqData) => async (dispatch) => {
   dispatch({ type: UPDATE_PROFILE_REQUEST });
   try {
-    const { data } = await api.get(`${API_BASE_URL}/api/user/profile`, reqData.data);
+    const { data } = await api.put(`${API_BASE_URL}/api/user/profile`, reqData.data);
 
     dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: data });
     return { payload: data };

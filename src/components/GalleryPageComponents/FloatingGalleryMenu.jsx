@@ -1,10 +1,10 @@
-import { Filter, Home as HomeIcon, Person as UserIcon } from "@mui/icons-material";
+import { Home as HomeIcon, Person as UserIcon } from "@mui/icons-material";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import HelpIcon from "@mui/icons-material/Help";
 import PlagiarismIcon from "@mui/icons-material/Plagiarism";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import { Box, Button, IconButton, Tooltip, useTheme } from "@mui/material";
+import { Box, IconButton, Tooltip, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const navItems = [
   { name: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/", description: "Return to the main page" },
   {
@@ -60,10 +60,10 @@ const FloatingGalleryMenu = ({ onToggleSideDrawer }) => {
           <Tooltip
             key={navItem.name}
             title={
-              <>
+              <div>
                 <p>{navItem.name}</p>
                 <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>{navItem.description}</p>
-              </>
+              </div>
             }
           >
             {navItem.external ? (
@@ -78,28 +78,16 @@ const FloatingGalleryMenu = ({ onToggleSideDrawer }) => {
                 <span className="sr-only">{navItem.name}</span>
               </Box>
             ) : (
-              <>
-                <Tooltip
-                  title={
-                    <>
-                      <p>{navItem.name}</p>
-                      <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>{navItem.description}</p>
-                    </>
-                  }
-                >
-                  <IconButton onClick={() => navigate(navItem.path)}>{navItem.icon}</IconButton>
-                  <span className="sr-only">{navItem.name}</span>
-                </Tooltip>
-              </>
+              <IconButton onClick={() => navigate(navItem.path)}>{navItem.icon}</IconButton>
             )}
           </Tooltip>
         ))}
         <Tooltip
           title={
-            <>
+            <div>
               <p>Filters</p>
               <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>Apply filters to the gallery</p>
-            </>
+            </div>
           }
         >
           <IconButton variant="text" size="small" sx={{ borderRadius: "50%" }} onClick={onToggleSideDrawer}>

@@ -10,11 +10,12 @@ import SignIn from "./pages/Auth/SignIn";
 import SignUp from "./pages/Auth/SignUp";
 import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
-import ProfilePage from "./pages/HomePage/ProfilePage";
-import UserPages from "./pages/HomePage/UserPages";
 import ImageGalleryPage from "./pages/HomePage/ImageGalleryPage";
+import Profile from "./pages/HomePage/Profile";
+import UserPages from "./pages/HomePage/UserPages";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
 import { useAuthCheck } from "./utils/useAuthCheck";
+import FAQ from "./pages/HomePage/FAQ";
 
 function App() {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ function App() {
   const { AuthDialog } = useAuthCheck();
   useEffect(() => {
     console.log("Auth state:", user);
-    if (jwt) {
+    if (jwt || user) {
       dispatch(getCurrentUserByJwt(jwt))
         .then((result) => {
           if (result && result.error === "UNAUTHORIZED") {
@@ -54,7 +55,8 @@ function App() {
         <Route path="/books/:bookId/chapters/:chapterId" element={<ChapterDetailPage />} />
         <Route path="/admin/*" element={user?.role.name === "ADMIN" ? <Dashboard /> : <UserPages />} />
         <Route path="/gallery" element={<ImageGalleryPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
       <AuthDialog />
     </div>

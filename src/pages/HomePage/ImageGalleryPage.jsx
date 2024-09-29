@@ -53,7 +53,9 @@ export default function ImageGalleryPage() {
   const handleFavoriteToggle = checkAuth(async (imageId) => {
     setLoading(true);
     try {
-      await dispatch(addImageToFav(imageId));
+      setTimeout(() => {
+        dispatch(addImageToFav(imageId));
+      }, 300);
     } catch (error) {
       console.error("Error toggling favorite: ", error);
     } finally {
@@ -154,27 +156,27 @@ export default function ImageGalleryPage() {
                 ))}
               </Grid>
               <Stack spacing={2}>
-                <Pagination count={totalPages} page={page} showFirstButton showLastButton onChange={handlePageChange} />
+                <Pagination count={totalPages ? totalPages : 0} page={page} showFirstButton showLastButton onChange={handlePageChange} />
               </Stack>
             </Box>
             <FloatingGalleryMenu onToggleSideDrawer={toggleSideDrawer} />
+            {selectedImage && <ViewImageModal open={true} onClose={() => setSelectedImage(null)} image={selectedImage} />}
+            <AuthDialog />
+            {isSideDrawerOpen && (
+              <>
+                <SideDrawerFilter
+                  tags={tags}
+                  filter={filter}
+                  selectedTags={selectedTags}
+                  open={isSideDrawerOpen}
+                  onToggleSideDrawer={toggleSideDrawer}
+                  setFilter={setFilter}
+                  onToggleTag={toggleTag}
+                  clearFilters={clearFilters}
+                />
+              </>
+            )}
           </Box>
-          {selectedImage && <ViewImageModal open={true} onClose={() => setSelectedImage(null)} image={selectedImage} />}
-          <AuthDialog />
-          {isSideDrawerOpen && (
-            <>
-              <SideDrawerFilter
-                tags={tags}
-                filter={filter}
-                selectedTags={selectedTags}
-                open={isSideDrawerOpen}
-                onToggleSideDrawer={toggleSideDrawer}
-                setFilter={setFilter}
-                onToggleTag={toggleTag}
-                clearFilters={clearFilters}
-              />
-            </>
-          )}
         </>
       )}
     </>

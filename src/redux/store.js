@@ -5,10 +5,14 @@ import { bookReducer } from "./book/book.reducer";
 import { chapterReducer } from "./chapter/chapter.reducer";
 import { galleryReducer } from "./gallery/gallery.reducer";
 import { commentReducer } from "./comment/comment.reducer";
+import { userReducer } from "./user/user.reducer";
+import { faqReducer } from "./faq/faq.reducer";
 
 const rootReducers = combineReducers({
   auth: authReducer,
   book: bookReducer,
+  user: userReducer,
+  faq: faqReducer,
   comment: commentReducer,
   chapter: chapterReducer,
   gallery: galleryReducer,

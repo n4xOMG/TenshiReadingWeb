@@ -4,6 +4,11 @@ import {
   GET_ALL_USERS_FAILED,
   GET_ALL_USERS_REQUEST,
   GET_ALL_USERS_SUCCESS,
+  GET_READING_PROGRESS_BY_USER_SUCCESS,
+  GET_USER_FAV_BOOKS_FAILED,
+  GET_USER_FAV_BOOKS_SUCCESS,
+  GET_USER_FAV_IMAGES_FAILED,
+  GET_USER_FAV_IMAGES_SUCCESS,
   SUSPEND_USER_FAILED,
   SUSPEND_USER_REQUEST,
   UNSUSPEND_USER_FAILED,
@@ -19,6 +24,9 @@ const initialState = {
   user: null,
   users: [],
   loading: false,
+  readingProgresses: [],
+  favouriteBooks: [],
+  favouriteImages: [],
 };
 
 export const userReducer = (state = initialState, action) => {
@@ -31,6 +39,12 @@ export const userReducer = (state = initialState, action) => {
       return { ...state, loading: true, error: null };
     case GET_ALL_USERS_SUCCESS:
       return { ...state, loading: false, error: null, users: action.payload };
+    case GET_READING_PROGRESS_BY_USER_SUCCESS:
+      return { ...state, loading: false, error: null, readingProgresses: action.payload };
+    case GET_USER_FAV_BOOKS_SUCCESS:
+      return { ...state, loading: false, error: null, favouriteBooks: action.payload };
+    case GET_USER_FAV_IMAGES_SUCCESS:
+      return { ...state, loading: false, error: null, favouriteImages: action.payload };
     case UPDATE_USER_SUCCESS:
       return {
         ...state,
@@ -43,10 +57,14 @@ export const userReducer = (state = initialState, action) => {
       return { ...state, loading: false, error: null };
 
     case GET_ALL_USERS_FAILED:
+    case GET_USER_FAV_BOOKS_FAILED:
+    case GET_USER_FAV_IMAGES_FAILED:
     case SUSPEND_USER_FAILED:
     case UNSUSPEND_USER_FAILED:
     case UPDATE_USER_FAILED:
     case DELETE_CHAPTER_FAILED:
       return { ...state, loading: true, error: action.payload };
+    default:
+      return state;
   }
 };

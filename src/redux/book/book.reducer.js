@@ -44,7 +44,6 @@ import {
 } from "./book.actionType";
 
 const initialState = {
-  jwt: null,
   error: null,
   favoured: null,
   book: null,

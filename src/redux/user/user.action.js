@@ -6,6 +6,15 @@ import {
   GET_ALL_USERS_FAILED,
   GET_ALL_USERS_REQUEST,
   GET_ALL_USERS_SUCCESS,
+  GET_READING_PROGRESS_BY_USER_FAILED,
+  GET_READING_PROGRESS_BY_USER_REQUEST,
+  GET_READING_PROGRESS_BY_USER_SUCCESS,
+  GET_USER_FAV_BOOKS_FAILED,
+  GET_USER_FAV_BOOKS_REQUEST,
+  GET_USER_FAV_BOOKS_SUCCESS,
+  GET_USER_FAV_IMAGES_FAILED,
+  GET_USER_FAV_IMAGES_REQUEST,
+  GET_USER_FAV_IMAGES_SUCCESS,
   SUSPEND_USER_FAILED,
   SUSPEND_USER_REQUEST,
   SUSPEND_USER_SUCCESS,
@@ -86,5 +95,37 @@ export const unsuspendUserAction = (userId) => async (dispatch) => {
   } catch (error) {
     console.log("Api error: ", error);
     dispatch({ type: UNSUSPEND_USER_FAILED, payload: error.message });
+  }
+};
+export const getReadingProgressByUser = () => async (dispatch) => {
+  dispatch({ type: GET_READING_PROGRESS_BY_USER_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/reading-progress`);
+    dispatch({ type: GET_READING_PROGRESS_BY_USER_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    dispatch({ type: GET_READING_PROGRESS_BY_USER_FAILED, payload: error.message });
+  }
+};
+export const getAllUserFollowingBookAction = () => async (dispatch) => {
+  dispatch({ type: GET_USER_FAV_BOOKS_REQUEST });
+  try {
+    const { data } = await api.get(`/api/books/favoured`);
+    dispatch({ type: GET_USER_FAV_BOOKS_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get all user favoured books", error.message);
+    dispatch({ type: GET_USER_FAV_BOOKS_FAILED, payload: error });
+  }
+};
+export const getUserFavImages = () => async (dispatch) => {
+  dispatch({ type: GET_USER_FAV_IMAGES_REQUEST });
+  try {
+    const { data } = await api.get(`${API_BASE_URL}/api/gallery/favoured`);
+    dispatch({ type: GET_USER_FAV_IMAGES_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get all images", error.message);
+    dispatch({ type: GET_USER_FAV_IMAGES_FAILED, payload: error });
   }
 };

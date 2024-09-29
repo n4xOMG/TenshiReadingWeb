@@ -5,7 +5,7 @@ import React from "react";
 export default function SideDrawerFilter({ open, tags, filter, setFilter, clearFilters, selectedTags, onToggleSideDrawer, onToggleTag }) {
   return (
     <Drawer anchor="right" open={open} onClose={onToggleSideDrawer}>
-      <Box sx={{ width: { xs: 400, sm: 540 }, maxWidth: "100vh", p: 2 }}>
+      <Box sx={{ width: "auto", p: 2 }}>
         <Box sx={{ mb: 2 }}>
           <Typography variant="h6">Filter Gallery</Typography>
           <Typography variant="body2" color="text.secondary">

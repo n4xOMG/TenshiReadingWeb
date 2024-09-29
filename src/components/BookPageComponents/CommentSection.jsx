@@ -2,12 +2,13 @@ import { Avatar, Box, Button, CircularProgress, List, ListItem, ListItemAvatar, 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createCommentAction, getAllCommentByBookAction } from "../../redux/comment/comment.action";
+import { useAuthCheck } from "../../utils/useAuthCheck";
 
 export function CommentSection({ book }) {
   const { comments, loading, error } = useSelector((store) => store.comment);
   const [newComment, setNewComment] = useState("");
   const dispatch = useDispatch();
-
+  const { checkAuth, AuthDialog } = useAuthCheck();
   const fetchComments = async () => {
     try {
       await dispatch(getAllCommentByBookAction(book.id));
@@ -24,7 +25,7 @@ export function CommentSection({ book }) {
     setNewComment(event.target.value);
   };
 
-  const handleCreateComment = async () => {
+  const handleCreateComment = checkAuth(async () => {
     const reqData = {
       bookId: book.id,
       data: {
@@ -34,7 +35,7 @@ export function CommentSection({ book }) {
     await dispatch(createCommentAction(reqData));
     await dispatch(getAllCommentByBookAction(book.id));
     setNewComment("");
-  };
+  });
 
   return (
     <Box bgcolor={"#f4f4f5"} p={2} borderRadius={2}>
@@ -94,6 +95,7 @@ export function CommentSection({ book }) {
           </Box>
         </>
       )}
+      <AuthDialog />
     </Box>
   );
 }

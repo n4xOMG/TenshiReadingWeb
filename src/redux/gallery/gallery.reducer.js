@@ -78,7 +78,6 @@ export const galleryReducer = (state = initialState, action) => {
 
     case GET_ALL_IMAGES_SUCCESS:
       return { ...state, loading: false, error: null, images: action.payload.images, totalPages: action.payload.totalPages };
-
     case GET_ALL_IMAGE_TAGS_SUCCESS:
     case GET_TAGS_BY_IMAGE_SUCCESS:
       return { ...state, loading: false, error: null, tags: action.payload };

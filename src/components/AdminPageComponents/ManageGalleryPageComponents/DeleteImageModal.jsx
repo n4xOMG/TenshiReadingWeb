@@ -1,41 +1,39 @@
-import { CircularProgress } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { deleteLanguageAction, getAllLanguages } from "../../redux/book/book.action";
-export default function DeleteLanguageModal({ open, onClose, deleteLanguage }) {
+import { deleteImageAction, getAllGalleryImages } from "../../../redux/gallery/gallery.action";
+import LoadingSpinner from "../../LoadingSpinner";
+export default function DeleteImageModal({ open, onClose, deleteImage }) {
+  const [imageId, setImageId] = useState(deleteImage.id);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-
+  useEffect(() => {
+    console.log("Id: ", deleteImage.id);
+    setImageId(deleteImage.id);
+  }, [deleteImage]);
   const handleDelete = async (event) => {
     event.preventDefault();
+    console.log("imageId: ", imageId);
     setLoading(true);
-    try {
-      await dispatch(deleteLanguageAction(deleteLanguage.id));
-      await dispatch(getAllLanguages());
-    } catch (e) {
-      console.log("Error trying delete language: ", e);
-    } finally {
-      setLoading(false);
-      onClose();
-    }
+    await dispatch(deleteImageAction(imageId));
+    await dispatch(getAllGalleryImages(0, 4));
+    setLoading(false);
+    onClose();
   };
   return (
     <>
       {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <LoadingSpinner />
       ) : (
         <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-          <DialogTitle id="alert-dialog-title">{"Delete this language?"}</DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"Delete this image?"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">Do you want to delete this language?</DialogContentText>
+            <DialogContentText id="alert-dialog-description">Do you want to delete this image?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={onClose}>No</Button>

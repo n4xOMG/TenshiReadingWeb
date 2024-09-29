@@ -1,27 +1,21 @@
-import { CircularProgress } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { deleteTagAction, getAllImageTags } from "../../redux/gallery/gallery.action";
+import { deleteTagAction, getAllImageTags } from "../../../redux/gallery/gallery.action";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function DeleteTagModal({ open, onClose, deleteTag }) {
-  const [tagId, setTagId] = useState(deleteTag.id);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-  useEffect(() => {
-    console.log("Id: ", deleteTag.id);
-    setTagId(deleteTag.id);
-  }, [deleteTag]);
   const handleDelete = async (event) => {
     event.preventDefault();
-    console.log("tagId: ", tagId);
     setLoading(true);
     try {
-      await dispatch(deleteTagAction(tagId));
+      await dispatch(deleteTagAction(deleteTag.id));
       await dispatch(getAllImageTags());
     } catch (e) {
       console.log("Error trying delete tag: ", e);
@@ -33,9 +27,7 @@ export default function DeleteTagModal({ open, onClose, deleteTag }) {
   return (
     <>
       {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <LoadingSpinner />
       ) : (
         <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
           <DialogTitle id="alert-dialog-title">{"Delete this tag?"}</DialogTitle>

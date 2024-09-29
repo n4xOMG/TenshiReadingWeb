@@ -12,6 +12,7 @@ import { CommentSection } from "../../components/BookPageComponents/CommentSecti
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import {
   followBookAction,
+  getAllReadingProgressesByBook,
   getAvgBookRating,
   getBookByIdAction,
   getBookRatingByUserAction,
@@ -25,7 +26,7 @@ export const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
-  const { book, rating, languages } = useSelector((store) => store.book);
+  const { book, rating, languages, progresses = [] } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ export const BookDetailPage = () => {
     await dispatch(getLanguagesByBook(bookId));
     await dispatch(getAvgBookRating(bookId));
     if (user) {
+      await dispatch(getAllReadingProgressesByBook(bookId));
       await dispatch(getBookRatingByUserAction(bookId));
     }
     setLoading(false);
@@ -194,6 +196,7 @@ export const BookDetailPage = () => {
               <ProgressBar progress={overallProgress} />
               <ChapterList
                 languages={languages}
+                progresses={progresses}
                 onCalculateProgress={calculateOverallProgress}
                 onNavigate={navigate}
                 bookId={bookId}

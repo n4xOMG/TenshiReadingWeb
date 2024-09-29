@@ -1,17 +1,16 @@
 import { Backdrop, Box, Button, Card, CircularProgress, Grid, InputBase, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Menu from "../../components/ManageGalleryPageComponents/Menu";
 import { getAllGalleryImages } from "../../redux/gallery/gallery.action";
 import { useNavigate } from "react-router-dom";
-import AddImageModal from "../../components/ManageGalleryPageComponents/AddImageModal";
-import EditImageModal from "../../components/ManageGalleryPageComponents/EditImageModal";
-import DeleteImageModal from "../../components/ManageGalleryPageComponents/DeleteImageModal";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import LazyLoad from "react-lazyload";
-import ViewImageModal from "../../components/ManageGalleryPageComponents/ViewImageModal";
-
+import AddImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/AddImageModal";
+import EditImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/EditImageModal";
+import DeleteImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/DeleteImageModal";
+import ViewImageModal from "../../components/AdminPageComponents/ManageGalleryPageComponents/ViewImageModal";
+import Menu from "../../components/AdminPageComponents/ManageGalleryPageComponents/Menu";
 export default function ManageGallery() {
   const dispatch = useDispatch();
   const navigate = useNavigate();

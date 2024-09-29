@@ -1,20 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { Box, Button, Modal, TextField } from "@mui/material";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { editTagAction, getAllImageTags } from "../../redux/gallery/gallery.action";
-import { Box, Button, CircularProgress, Modal, TextField } from "@mui/material";
+import { editTagAction, getAllImageTags } from "../../../redux/gallery/gallery.action";
+import LoadingSpinner from "../../LoadingSpinner";
 
 export default function EditTagModal({ open, onClose, tagDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(tagDetails.name || "");
   const [description, setDescription] = useState(tagDetails.description || "");
-  const [id, setId] = useState(tagDetails.id || "");
-
-  useEffect(() => {
-    setId(tagDetails.id || "");
-    setName(tagDetails.name || "");
-    setDescription(tagDetails.description || "");
-  }, [tagDetails]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,7 +16,7 @@ export default function EditTagModal({ open, onClose, tagDetails }) {
     try {
       const data = new FormData(event.currentTarget);
       const json = Object.fromEntries(data.entries());
-      json.id = id;
+      json.id = tagDetails.id;
       console.log("Payload to be sent:", { data: json });
       await dispatch(editTagAction({ data: json }));
       await dispatch(getAllImageTags());
@@ -37,12 +31,10 @@ export default function EditTagModal({ open, onClose, tagDetails }) {
   return (
     <Modal open={open} onClose={onClose}>
       <Box component={"form"} onSubmit={handleSubmit} className="bg-gray-800 text-white p-4 rounded mx-auto my-20 w-1/3">
-        <h2 className="text-xl mb-4">Edit Image</h2>
+        <h2 className="text-xl mb-4">Edit Tag</h2>
 
         {loading ? (
-          <div className="flex justify-center">
-            <CircularProgress />
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <TextField

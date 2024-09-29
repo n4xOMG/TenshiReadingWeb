@@ -4,20 +4,22 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { editBookAction, getAllBookAction, getAllLanguages } from "../../../../../redux/book/book.action";
+import { editBookAction, getAllBookAction, getAllCategories, getAllLanguages } from "../../../../../redux/book/book.action";
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
 export default function EditBookModal({ open, onClose, bookDetails }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const { languages } = useSelector((store) => store.book);
+  const { languages, categories } = useSelector((store) => store.book);
   const [chosenLanguages, setChosenLanguages] = useState(bookDetails.languages || []);
+  const [chosenCategories, setChosenCategories] = useState(bookDetails.categories || []);
   const [publishDate, setPublishDate] = useState(dayjs(bookDetails?.publishDate || new Date()));
 
-  const fetchLanguages = async () => {
+  const fetchLanguagesAndCategories = async () => {
     setLoading(true);
     try {
       await dispatch(getAllLanguages());
+      await dispatch(getAllCategories());
     } catch (e) {
       console.error("Error fetching tags: ", e);
     } finally {
@@ -26,7 +28,7 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
   };
 
   useEffect(() => {
-    fetchLanguages();
+    fetchLanguagesAndCategories();
   }, [dispatch]);
 
   const handleSubmit = async (event) => {
@@ -38,6 +40,7 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
     json.id = bookDetails.id;
     json.publishDate = publishDate.toISOString();
     json.languages = chosenLanguages;
+    json.categories = chosenCategories;
     try {
       console.log("Edit data: ", { data: json });
       await dispatch(editBookAction({ data: json }));
@@ -109,10 +112,22 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
               id="languages"
               options={languages}
               getOptionLabel={(option) => option.name}
-              defaultValue={bookDetails.languages}
+              defaultValue={chosenLanguages}
               onChange={(event, newValue) => setChosenLanguages(newValue)}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               renderInput={(params) => <TextField {...params} label="Languages" placeholder="Languages" />}
+              sx={{ width: "500px" }}
+            />
+            <Autocomplete
+              multiple
+              limitTags={2}
+              id="categories"
+              options={categories}
+              getOptionLabel={(option) => option.name}
+              defaultValue={chosenCategories}
+              onChange={(event, newValue) => setChosenCategories(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => <TextField {...params} label="Categories" placeholder="Categories" />}
               sx={{ width: "500px" }}
             />
           </Grid>

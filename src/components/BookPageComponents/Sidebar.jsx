@@ -1,7 +1,7 @@
 import { Home as HomeIcon, MenuBook, Person as UserIcon } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import PeopleIcon from "@mui/icons-material/People";
 import {
   Backdrop,
@@ -29,8 +29,13 @@ export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpe
   const menuItems = [
     { text: "Home", icon: <HomeIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/" },
     { text: "Gallery", icon: <ImageIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/gallery" },
-    { text: "Books", icon: <LibraryBooksIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/books" },
-    { text: "Characters Wiki", icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/character" },
+    {
+      text: "Characters Wiki",
+      icon: <PeopleIcon sx={{ fontSize: 20, color: "text.secondary" }} />,
+      path: "https://otonari-no-tenshi.fandom.com/wiki/Otonari_no_Tenshi-sama_Wiki",
+      external: true,
+    },
+    { text: "FAQ", icon: <QuestionAnswerIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/faq" },
   ];
   if (user) {
     menuItems.push({ text: "Profile", icon: <UserIcon sx={{ fontSize: 20, color: "text.secondary" }} />, path: "/profile" });
@@ -102,11 +107,17 @@ export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpe
                 <ListItem
                   button
                   key={index}
+                  component={item.external ? "a" : "div"}
+                  href={item.external ? item.path : undefined}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
                   onClick={() => {
-                    if (item.text === "Profile") {
-                      handleProfile();
-                    } else {
-                      navigate(item.path);
+                    if (!item.external) {
+                      if (item.text === "Profile") {
+                        handleProfile();
+                      } else {
+                        navigate(item.path);
+                      }
                     }
                   }}
                 >

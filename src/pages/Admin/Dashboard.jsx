@@ -8,12 +8,16 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import SpeakerNotesOffIcon from "@mui/icons-material/SpeakerNotesOff";
 import GTranslateIcon from "@mui/icons-material/GTranslate";
+import CategoryIcon from "@mui/icons-material/Category";
+import QuizIcon from "@mui/icons-material/Quiz";
 import ManageUser from "./ManageUser";
 import ManageBookPage from "./ManageBookPage";
 import ManageGallery from "./ManageGallery";
 import ManageTagPage from "./ManageTagPage";
 import ManageSensitiveWords from "./ManageSensitiveWords";
 import ManageLanguagePage from "./ManageLanguagePage";
+import ManageCategoryPage from "./ManageCategoryPage";
+import ManageFAQ from "./ManageFAQ";
 export default function Dashboard() {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -27,6 +31,8 @@ export default function Dashboard() {
     { name: "Image Tags", page: "tags", icon: <LocalOfferIcon /> },
     { name: "Sensitive Words", page: "sensitive-words", icon: <SpeakerNotesOffIcon /> },
     { name: "Book Languages", page: "book-languages", icon: <GTranslateIcon /> },
+    { name: "Book Categories", page: "book-categories", icon: <CategoryIcon /> },
+    { name: "FAQ", page: "faq", icon: <QuizIcon /> },
   ];
   const renderMainContent = () => {
     switch (currentPage) {
@@ -42,6 +48,10 @@ export default function Dashboard() {
         return <ManageSensitiveWords />;
       case "book-languages":
         return <ManageLanguagePage />;
+      case "book-categories":
+        return <ManageCategoryPage />;
+      case "faq":
+        return <ManageFAQ />;
       default:
         return <ManageUser />;
     }

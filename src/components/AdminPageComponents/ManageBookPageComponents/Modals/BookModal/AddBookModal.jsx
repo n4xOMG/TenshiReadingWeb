@@ -1,7 +1,7 @@
 import { Autocomplete, Backdrop, Box, Button, CircularProgress, Dialog, Grid, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewBookAction, getAllBookAction, getAllLanguages } from "../../../../../redux/book/book.action";
+import { addNewBookAction, getAllBookAction, getAllCategories, getAllLanguages } from "../../../../../redux/book/book.action";
 import UploadToCloudinary from "../../../../../utils/uploadToCloudinary";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -10,21 +10,22 @@ export default function AddBookModal({ open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [publishDate, setPublishDate] = useState(new Date());
-  const { languages } = useSelector((store) => store.book);
+  const { languages, categories } = useSelector((store) => store.book);
   const [chosenLanguages, setChosenLanguages] = useState([]);
-
+  const [chosenCategories, setChosenCategories] = useState([]);
   useEffect(() => {
-    const fetchLanguages = async () => {
+    const fetchLanguagesAndCategories = async () => {
       setLoading(true);
       try {
         await dispatch(getAllLanguages());
+        await dispatch(getAllCategories());
       } catch (e) {
-        console.error("Error fetching tags: ", e);
+        console.error("Error fetching languages and categories: ", e);
       } finally {
         setLoading(false);
       }
     };
-    fetchLanguages();
+    fetchLanguagesAndCategories();
   }, [dispatch]);
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,6 +35,7 @@ export default function AddBookModal({ open, onClose }) {
     json.bookCover = selectedImage;
     json.publishDate = publishDate.toISOString();
     json.languages = chosenLanguages;
+    json.categories = chosenCategories;
     await dispatch(addNewBookAction({ data: json }));
     await dispatch(getAllBookAction());
     onClose();
@@ -77,6 +79,18 @@ export default function AddBookModal({ open, onClose }) {
               onChange={(event, newValue) => setChosenLanguages(newValue)}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               renderInput={(params) => <TextField {...params} label="Languages" placeholder="Languages" />}
+              sx={{ width: "500px" }}
+            />
+            <Autocomplete
+              multiple
+              limitTags={2}
+              id="categories"
+              options={categories}
+              getOptionLabel={(option) => option.name}
+              defaultValue={[]}
+              onChange={(event, newValue) => setChosenCategories(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => <TextField {...params} label="Categories" placeholder="Categories" />}
               sx={{ width: "500px" }}
             />
           </Grid>

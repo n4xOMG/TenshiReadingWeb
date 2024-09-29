@@ -20,10 +20,7 @@ import { useNavigate } from "react-router-dom";
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
+      nixOMG {new Date().getFullYear()}
     </Typography>
   );
 }
@@ -44,7 +41,8 @@ export default function SignIn() {
     const rememberMe = data.get("remember");
     const result = await dispatch(loginUserAction({ data: json, rememberMe }));
     if (result) {
-      await dispatch(getCurrentUserByJwt(result.payload));
+      console.log("Result: ", result);
+      await dispatch(getCurrentUserByJwt(result.payload.token));
       navigate("/");
     }
   };
@@ -81,7 +79,23 @@ export default function SignIn() {
             />
             {error && <Alert severity="error">{error}</Alert>}
             <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 3,
+                backgroundColor: "black",
+                color: "white",
+                borderRadius: 2,
+                alignSelf: "flex-start",
+                "&:hover": {
+                  backgroundColor: "#fdf6e3",
+                  color: "black",
+                },
+              }}
+            >
               Sign In
             </Button>
             <Grid container>

@@ -14,9 +14,9 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addTagAction, getAllImageTags } from "../../redux/gallery/gallery.action";
-import EditTagModal from "../../components/ManageTagPageComponent/EditTagModal";
-import DeleteTagModal from "../../components/ManageTagPageComponent/DeleteTagModal";
 import { useNavigate } from "react-router-dom";
+import DeleteTagModal from "../../components/AdminPageComponents/ManageTagPageComponent/DeleteTagModal";
+import EditTagModal from "../../components/AdminPageComponents/ManageTagPageComponent/EditTagModal";
 
 export default function ManageTagPage() {
   const dispatch = useDispatch();

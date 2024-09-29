@@ -1,9 +1,10 @@
 import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import UploadToCloudinary from "../../utils/uploadToCloudinary";
 import { useDispatch } from "react-redux";
-import { addImageAction, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { addImageAction, getAllGalleryImages, getAllImageTags } from "../../../redux/gallery/gallery.action";
+import UploadToCloudinary from "../../../utils/uploadToCloudinary";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function AddImageModal({ open, onClose }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -62,9 +63,7 @@ export default function AddImageModal({ open, onClose }) {
       <Modal open={open} onClose={onClose}>
         <Box component={"form"} onSubmit={handleSubmit} className="bg-gray-800 text-white p-4 rounded mx-auto my-20 w-1/3">
           {loading ? (
-            <div className="flex justify-center">
-              <CircularProgress />
-            </div>
+            <LoadingSpinner />
           ) : (
             <>
               <h2 className="text-xl mb-4">Upload Image</h2>

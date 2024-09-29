@@ -19,18 +19,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAdaptedChaptersByBookAndLanguageAction, getChaptersByBookAndLanguageAction } from "../../redux/chapter/chapter.action";
 import { TabChapters } from "./ChapterListComponent/TabChapters";
 import { TabPanel } from "./ChapterListComponent/TabPanel";
-import { getReadingProgressByBookChaptersAndUser } from "../../redux/book/book.action";
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
     "aria-controls": `full-width-tabpanel-${index}`,
   };
 }
-export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
+export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { chapters, adaptedChapters, progresses = [] } = useSelector((store) => store.chapter);
+  const { chapters, adaptedChapters } = useSelector((store) => store.chapter);
   const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
     return localStorage.getItem("selectedLanguageId") || 3;
   });
@@ -80,7 +79,6 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
 
   useEffect(() => {
     if (user) {
-      dispatch(getReadingProgressByBookChaptersAndUser(user.id, chapters));
       onCalculateProgress(chapters, progresses);
     }
     if (chapters?.length > 0) {
@@ -110,7 +108,7 @@ export const ChapterList = ({ languages, onCalculateProgress, onNavigate, bookId
               />
               {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse sx={{ bgcolor: "grey.100" }} in={open} timeout="auto" unmountOnExit>
               {languages?.length > 0 ? (
                 <List component="div" disablePadding>
                   {languages.map((lang) => (

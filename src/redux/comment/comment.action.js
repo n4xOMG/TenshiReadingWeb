@@ -23,10 +23,20 @@ export const createCommentAction = (reqData) => async (dispatch) => {
   try {
     const { data } = await api.post(`${API_BASE_URL}/api/books/${reqData.bookId}/comments`, reqData.data);
     dispatch({ type: CREATE_COMMENT_SUCCESS, payload: data });
-    console.log("created comment: ", data);
   } catch (error) {
-    console.log("error", error);
-    dispatch({ type: CREATE_COMMENT_FAILED, payload: error });
+    if (error.response) {
+      console.log("Error response data: ", error.response.data);
+      console.log("Error response status: ", error.response.status);
+
+      if (error.response.status === 400) {
+        dispatch({ type: CREATE_COMMENT_FAILED, payload: error.response.data.message });
+      } else {
+        dispatch({ type: CREATE_COMMENT_FAILED, payload: error.message });
+      }
+    } else {
+      console.log("No response from server");
+      dispatch({ type: CREATE_COMMENT_FAILED, payload: "No response from server" });
+    }
   }
 };
 

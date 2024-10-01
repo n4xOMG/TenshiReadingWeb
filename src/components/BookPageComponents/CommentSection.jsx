@@ -1,12 +1,27 @@
-import { Avatar, Box, Button, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createCommentAction, getAllCommentByBookAction } from "../../redux/comment/comment.action";
 import { useAuthCheck } from "../../utils/useAuthCheck";
+import { formatDate } from "../../utils/formatDate";
 
 export function CommentSection({ book }) {
   const { comments, loading, error } = useSelector((store) => store.comment);
   const [newComment, setNewComment] = useState("");
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { checkAuth, AuthDialog } = useAuthCheck();
   const fetchComments = async () => {
@@ -14,6 +29,7 @@ export function CommentSection({ book }) {
       await dispatch(getAllCommentByBookAction(book.id));
     } catch (e) {
       console.log("Error fetching words: ", e);
+      setOpen(true);
     }
   };
 
@@ -36,7 +52,12 @@ export function CommentSection({ book }) {
     await dispatch(getAllCommentByBookAction(book.id));
     setNewComment("");
   });
-
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
   return (
     <Box bgcolor={"#f4f4f5"} p={2} borderRadius={2}>
       {loading ? (
@@ -59,7 +80,7 @@ export function CommentSection({ book }) {
                   secondary={
                     <React.Fragment>
                       <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
-                        {comment.createdAt}
+                        {formatDate(comment.createdAt)}
                       </Typography>
                       {" — "}
                       {comment.content}
@@ -87,11 +108,13 @@ export function CommentSection({ book }) {
             <Button variant="contained" color="primary" onClick={handleCreateComment} sx={{ ml: 2 }}>
               Submit
             </Button>
-            {error && (
-              <Typography color="error" sx={{ mt: 1 }}>
-                {error.response.data}
-              </Typography>
-            )}
+            <Snackbar open={open} autoHideDuration={5000} onClose={handleClose}>
+              {error && (
+                <Alert onClose={handleClose} severity="error" variant="filled" sx={{ width: "100%" }}>
+                  {error}
+                </Alert>
+              )}
+            </Snackbar>
           </Box>
         </>
       )}

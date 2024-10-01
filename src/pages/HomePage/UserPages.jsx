@@ -1,4 +1,4 @@
-import { MenuBook, Person as UserIcon } from "@mui/icons-material";
+import { Person as UserIcon } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import DehazeIcon from "@mui/icons-material/Dehaze";
 import HomeIcon from "@mui/icons-material/Home";
@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 import HomeLandingPage from "./HomeLandingPage";
+import mahiru from "./mahiru.png";
 export default function UserPages() {
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
@@ -86,7 +87,7 @@ export default function UserPages() {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <MenuBook sx={{ fontSize: 32, color: "primary.main" }} />
+              <Box component="img" src={mahiru} sx={{ width: 32, height: 32 }} alt="Logo" />
               <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>Tenshi</Box>
             </Box>
             <IconButton

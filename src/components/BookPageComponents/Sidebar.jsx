@@ -1,8 +1,8 @@
-import { Home as HomeIcon, MenuBook, Person as UserIcon } from "@mui/icons-material";
+import { Home as HomeIcon, Person as UserIcon } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";
-import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import PeopleIcon from "@mui/icons-material/People";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import {
   Backdrop,
   Box,
@@ -19,6 +19,7 @@ import {
 import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import logo from "../../pages/HomePage/mahiru.png";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpen }) {
   const { user } = useSelector((store) => store.auth);
@@ -82,7 +83,7 @@ export default function Sidebar({ isSidebarOpen, isBackdropOpen, setIsSidebarOpe
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <MenuBook sx={{ fontSize: 32, color: "primary.main" }} />
+              <Box component="img" src={logo} sx={{ width: 32, height: 32 }} alt="Logo" />
               <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>Tenshi</Box>
             </Box>
             <IconButton

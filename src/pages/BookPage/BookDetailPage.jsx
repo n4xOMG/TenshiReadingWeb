@@ -50,7 +50,9 @@ export const BookDetailPage = () => {
     if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
       const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
       const averageProgress = Math.floor(totalProgress / chapters.length);
-      setOverallProgress(averageProgress);
+      if (averageProgress > 100) {
+        setOverallProgress(averageProgress);
+      }
     } else if (Array.isArray(progresses) && progresses.length <= 0) {
       setOverallProgress(0);
     }

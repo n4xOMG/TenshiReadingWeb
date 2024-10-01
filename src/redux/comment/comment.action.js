@@ -39,13 +39,11 @@ export const createCommentAction = (reqData) => async (dispatch) => {
     }
   }
 };
-
 export const deleteCommentAction = (commentId) => async (dispatch) => {
   dispatch({ type: DELETE_COMMENT_REQUEST });
   try {
     const { data } = await api.delete(`${API_BASE_URL}/comments/${commentId}`);
     dispatch({ type: DELETE_COMMENT_SUCCESS, payload: data });
-    console.log("deleted comment: ", data);
   } catch (error) {
     console.log("error", error);
     dispatch({ type: DELETE_COMMENT_FAILED, payload: error });
@@ -57,7 +55,6 @@ export const getAllCommentByBookAction = (bookId) => async (dispatch) => {
   try {
     const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/comments`);
     dispatch({ type: GET_ALL_BOOK_COMMENT_SUCCESS, payload: data });
-    console.log("got all book comment: ", data);
     return { payload: data };
   } catch (error) {
     console.log("error trying to get all book comment", error);
@@ -70,7 +67,6 @@ export const getAllSensitiveWord = () => async (dispatch) => {
   try {
     const { data } = await api.get(`${API_BASE_URL}/translator/sensitive-words`);
     dispatch({ type: GET_ALL_SENSITIVE_WORDS_SUCCESS, payload: data });
-    console.log("got words: ", data);
   } catch (error) {
     console.log("error", error);
     dispatch({ type: GET_ALL_SENSITIVE_WORDS_FAILED, payload: error });
@@ -82,7 +78,6 @@ export const addNewSensitiveWord = (reqData) => async (dispatch) => {
   try {
     const { data } = await api.post(`${API_BASE_URL}/translator/sensitive-words`, reqData.data);
     dispatch({ type: ADD_SENSITIVE_WORD_SUCCESS, payload: data });
-    console.log("created comment: ", data);
   } catch (error) {
     console.log("error", error);
     dispatch({ type: ADD_SENSITIVE_WORD_FAILED, payload: error });
@@ -94,7 +89,6 @@ export const deleteSensitiveWord = (wordId) => async (dispatch) => {
   try {
     const { data } = await api.delete(`${API_BASE_URL}/translator/sensitive-words/${wordId}`);
     dispatch({ type: ADD_SENSITIVE_WORD_SUCCESS, payload: data });
-    console.log("created comment: ", data);
   } catch (error) {
     console.log("error", error);
     dispatch({ type: ADD_SENSITIVE_WORD_FAILED, payload: error });

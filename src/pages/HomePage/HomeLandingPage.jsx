@@ -11,7 +11,7 @@ import BookCard from "../../components/LandingPageComponents/BookCard";
 
 export default function HomeLandingPage() {
   const [showAllBooks, setShowAllBooks] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { books, avgRating } = useSelector((store) => store.book);
@@ -20,6 +20,7 @@ export default function HomeLandingPage() {
 
   useEffect(() => {
     const fetchBooksInfo = async () => {
+      setLoading(true);
       try {
         const results = await dispatch(getAllBookAction());
         if (results.payload.length > 0) {
@@ -33,9 +34,9 @@ export default function HomeLandingPage() {
     };
     fetchBooksInfo();
   }, [dispatch]);
-
   useEffect(() => {
     const fetchRating = async () => {
+      setLoading(true);
       try {
         if (selectedBook) {
           await dispatch(getAvgBookRating(selectedBook?.id));
@@ -47,7 +48,7 @@ export default function HomeLandingPage() {
       }
     };
     fetchRating();
-  }, [dispatch, selectedBook]);
+  }, [dispatch]);
 
   const displayedBooks = showAllBooks ? books : books?.slice(0, 4);
 

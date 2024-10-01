@@ -32,6 +32,7 @@ import {
   GET_LANGUAGES_BY_BOOK_FAILED,
   GET_LANGUAGES_BY_BOOK_REQUEST,
   GET_LANGUAGES_BY_BOOK_SUCCESS,
+  GET_LANGUAGES_WITH_COUNTS_SUCCESS,
   GET_READING_PROGRESSES_BY_BOOK_FAILED,
   GET_READING_PROGRESSES_BY_BOOK_REQUEST,
   GET_READING_PROGRESSES_BY_BOOK_SUCCESS,
@@ -56,6 +57,7 @@ const initialState = {
   progresses: [],
   rating: null,
   loading: false,
+  chapterCounts: null,
 };
 
 export const bookReducer = (state = initialState, action) => {
@@ -95,7 +97,8 @@ export const bookReducer = (state = initialState, action) => {
     case GET_LANGUAGES_BY_BOOK_SUCCESS:
     case GET_ALL_LANGUAGES_SUCCESS:
       return { ...state, loading: false, error: null, languages: action.payload };
-
+    case GET_LANGUAGES_WITH_COUNTS_SUCCESS:
+      return { ...state, loading: false, error: null, languages: action.payload.languages, chapterCounts: action.payload.chapterCounts };
     case GET_READING_PROGRESSES_BY_BOOK_SUCCESS:
       return { ...state, loading: false, error: null, progresses: action.payload };
 

@@ -16,7 +16,7 @@ import {
   getAvgBookRating,
   getBookByIdAction,
   getBookRatingByUserAction,
-  getLanguagesByBook,
+  getLanguagesWithChapterCounts,
   ratingBookAction,
 } from "../../redux/book/book.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
@@ -26,7 +26,7 @@ export const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const dispatch = useDispatch();
-  const { book, rating, languages, progresses = [] } = useSelector((store) => store.book);
+  const { book, rating, languages, progresses = [], chapterCounts } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
   const { checkAuth, AuthDialog } = useAuthCheck();
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ export const BookDetailPage = () => {
   const fetchBookAndChapterDetails = useCallback(async () => {
     setLoading(true);
     await dispatch(getBookByIdAction(bookId));
-    await dispatch(getLanguagesByBook(bookId));
+    await dispatch(getLanguagesWithChapterCounts(bookId));
     await dispatch(getAvgBookRating(bookId));
     if (user) {
       await dispatch(getAllReadingProgressesByBook(bookId));
@@ -198,6 +198,7 @@ export const BookDetailPage = () => {
               <ProgressBar progress={overallProgress} />
               <ChapterList
                 languages={languages}
+                chapterCounts={chapterCounts}
                 progresses={progresses}
                 onCalculateProgress={calculateOverallProgress}
                 onNavigate={navigate}

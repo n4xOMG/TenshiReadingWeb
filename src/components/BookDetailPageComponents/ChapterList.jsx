@@ -25,7 +25,7 @@ function a11yProps(index) {
     "aria-controls": `full-width-tabpanel-${index}`,
   };
 }
-export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
+export const ChapterList = ({ languages, progresses, chapterCounts, onCalculateProgress, onNavigate, bookId, user, onFirstChapterId }) => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -99,14 +99,15 @@ export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavi
       ) : (
         <Box sx={{ mb: 6 }}>
           <List>
-            <ListItemButton onClick={handleClick}>
+            <ListItemButton onClick={handleClick} sx={{ bgcolor: "primary.main", color: "white", borderRadius: 1, mb: 2 }}>
               <ListItemIcon>
-                <GTranslateIcon />
+                <GTranslateIcon sx={{ color: "white" }} />
               </ListItemIcon>
               <ListItemText
                 primary={selectedLanguage ? `${selectedLanguage.countryCode} - ${selectedLanguage.name}` : "Available Languages"}
+                primaryTypographyProps={{ fontWeight: "bold" }}
               />
-              {open ? <ExpandLess /> : <ExpandMore />}
+              {open ? <ExpandLess sx={{ color: "white" }} /> : <ExpandMore sx={{ color: "white" }} />}
             </ListItemButton>
             <Collapse sx={{ bgcolor: "grey.100" }} in={open} timeout="auto" unmountOnExit>
               {languages?.length > 0 ? (
@@ -118,7 +119,7 @@ export const ChapterList = ({ languages, progresses, onCalculateProgress, onNavi
                       onClick={() => handleLanguageChange(lang.id)}
                       selected={lang.id === selectedLanguageId}
                     >
-                      <ListItemText primary={lang.countryCode + " - " + lang.name} />
+                      <ListItemText primary={`${lang.countryCode} - ${lang.name} (${chapterCounts[lang.id] || 0} chapters)`} />
                     </ListItemButton>
                   ))}
                 </List>

@@ -53,6 +53,9 @@ import {
   GET_LANGUAGES_BY_BOOK_FAILED,
   GET_LANGUAGES_BY_BOOK_REQUEST,
   GET_LANGUAGES_BY_BOOK_SUCCESS,
+  GET_LANGUAGES_WITH_COUNTS_FAILED,
+  GET_LANGUAGES_WITH_COUNTS_REQUEST,
+  GET_LANGUAGES_WITH_COUNTS_SUCCESS,
   GET_READING_PROGRESSES_BY_BOOK_FAILED,
   GET_READING_PROGRESSES_BY_BOOK_REQUEST,
   GET_READING_PROGRESSES_BY_BOOK_SUCCESS,
@@ -200,7 +203,6 @@ export const getAvgBookRating = (bookId) => async (dispatch) => {
   console.log("Get avg rating for: ", bookId);
   try {
     const { data } = await api.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
-    console.log("Got avg rating: ", data);
     dispatch({ type: GET_AVG_BOOK_RATING_SUCCESS, payload: data });
   } catch (error) {
     if (error.response && error.response.status === 204) {
@@ -295,12 +297,21 @@ export const getCategoriesByBook = (bookId) => async (dispatch) => {
     dispatch({ type: GET_CATEGORIES_BY_BOOK_FAILED, payload: error.message });
   }
 };
+export const getLanguagesWithChapterCounts = (bookId) => async (dispatch) => {
+  dispatch({ type: GET_LANGUAGES_WITH_COUNTS_REQUEST });
+  try {
+    const { data } = await axios.get(`${API_BASE_URL}/books/${bookId}/languages`);
+    const { languages, chapterCounts } = data;
+    dispatch({ type: GET_LANGUAGES_WITH_COUNTS_SUCCESS, payload: { languages, chapterCounts } });
+  } catch (error) {
+    console.log("Api error when trying to retrieve languages and chapter counts: ", error);
+    dispatch({ type: GET_LANGUAGES_WITH_COUNTS_FAILED, payload: error.message });
+  }
+};
 export const addNewCategory = (reqData) => async (dispatch) => {
-  console.log("Action addNewCategorydispatched with data: ", reqData.data);
   dispatch({ type: ADD_NEW_CATEGORY_REQUEST });
   try {
     const { data } = await api.post(`${API_BASE_URL}/admin/books/categories`, reqData.data);
-    console.log("added category", data);
     dispatch({ type: ADD_NEW_CATEGORY_SUCCESS, payload: data });
   } catch (error) {
     console.log("Api error when trying to add category: ", error);
@@ -309,11 +320,9 @@ export const addNewCategory = (reqData) => async (dispatch) => {
 };
 
 export const editCategoryAction = (reqData) => async (dispatch) => {
-  console.log("Action editCategorydispatched with data: ", reqData.data);
   dispatch({ type: EDIT_CATEGORY_REQUEST });
   try {
     const { data } = await api.put(`${API_BASE_URL}/admin/books/categories/${reqData.data.id}`, reqData.data);
-    console.log("edited category", data);
     dispatch({ type: EDIT_CATEGORY_SUCCESS, payload: data });
   } catch (error) {
     console.log("Api error when trying to edit category: ", error);
@@ -325,7 +334,6 @@ export const deleteCategoryAction = (categoryId) => async (dispatch) => {
   dispatch({ type: DELETE_CATEGORY_REQUEST });
   try {
     const { data } = await api.delete(`${API_BASE_URL}/admin/books/categories/${categoryId}`);
-    console.log("deleted category", data);
     dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: data });
   } catch (error) {
     console.log("Api error when trying to delete category: ", error);

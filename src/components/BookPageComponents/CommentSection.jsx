@@ -4,23 +4,29 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Menu,
+  MenuItem,
   Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createCommentAction, getAllCommentByBookAction } from "../../redux/comment/comment.action";
+import { createCommentAction, deleteCommentAction, getAllCommentByBookAction } from "../../redux/comment/comment.action";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 import { formatDate } from "../../utils/formatDate";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 export function CommentSection({ book }) {
   const { comments, loading, error } = useSelector((store) => store.comment);
+  const { user } = useSelector((store) => store.auth);
   const [newComment, setNewComment] = useState("");
+  const [selectedComment, setSelectedComment] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { checkAuth, AuthDialog } = useAuthCheck();
@@ -52,6 +58,21 @@ export function CommentSection({ book }) {
     await dispatch(getAllCommentByBookAction(book.id));
     setNewComment("");
   });
+  const handleMenuOpen = (event, comment) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedComment(comment);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedComment(null);
+  };
+
+  const handleDeleteComment = async () => {
+    await dispatch(deleteCommentAction(selectedComment.id));
+    await fetchComments();
+    handleMenuClose();
+  };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -73,10 +94,10 @@ export function CommentSection({ book }) {
             {comments?.map((comment, index) => (
               <ListItem key={index} alignItems="flex-start">
                 <ListItemAvatar>
-                  <Avatar>{comment.username ? comment.username.charAt(0) : "?"}</Avatar>
+                  <Avatar>{comment.user.username ? comment.user.username.charAt(0) : "?"}</Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  primary={comment.username || "Anonymous"}
+                  primary={comment.user.username || "Anonymous"}
                   secondary={
                     <React.Fragment>
                       <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
@@ -87,6 +108,17 @@ export function CommentSection({ book }) {
                     </React.Fragment>
                   }
                 />
+                {(user?.id === comment.user.id || user?.role?.name === "ADMIN") && (
+                  <>
+                    <IconButton onClick={(event) => handleMenuOpen(event, comment)}>
+                      <MoreVertIcon />
+                    </IconButton>
+
+                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                      <MenuItem onClick={handleDeleteComment}>Delete</MenuItem>
+                    </Menu>
+                  </>
+                )}
               </ListItem>
             ))}
           </List>

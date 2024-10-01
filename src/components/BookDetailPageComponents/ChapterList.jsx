@@ -99,9 +99,24 @@ export const ChapterList = ({ languages, progresses, chapterCounts, onCalculateP
       ) : (
         <Box sx={{ mb: 6 }}>
           <List>
-            <ListItemButton onClick={handleClick} sx={{ bgcolor: "primary.main", color: "white", borderRadius: 1, mb: 2 }}>
+            <ListItemButton
+              onClick={handleClick}
+              sx={{
+                bgcolor: "primary.main",
+                color: "white",
+                borderRadius: 1,
+                mb: 2,
+                "&:hover": {
+                  bgcolor: "#fdf6e3",
+                  color: "black",
+                  "& .MuiListItemIcon-root": {
+                    color: "black",
+                  },
+                },
+              }}
+            >
               <ListItemIcon>
-                <GTranslateIcon sx={{ color: "white" }} />
+                <GTranslateIcon sx={{ color: "gray" }} />
               </ListItemIcon>
               <ListItemText
                 primary={selectedLanguage ? `${selectedLanguage.countryCode} - ${selectedLanguage.name}` : "Available Languages"}

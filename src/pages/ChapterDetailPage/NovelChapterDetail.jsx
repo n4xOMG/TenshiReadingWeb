@@ -106,7 +106,7 @@ export default function NovelChapterDetail({
           sx={{
             display: "flex",
             flexDirection: "column",
-            height: "100%",
+            minHeight: "100vh",
             bgcolor: themeMode === "light" ? "#fdf6e3" : "#212121",
           }}
         >

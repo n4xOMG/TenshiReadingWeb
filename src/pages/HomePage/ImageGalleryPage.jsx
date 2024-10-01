@@ -124,7 +124,7 @@ export default function ImageGalleryPage() {
                             }}
                             onClick={() => handleFavoriteToggle(img.id)}
                           >
-                            {isFavouredByReqUser(user.id, img) ? (
+                            {isFavouredByReqUser(user?.id, img) ? (
                               <FavoriteIcon sx={{ fontSize: 20, color: "red" }} />
                             ) : (
                               <FavoriteBorder sx={{ fontSize: 20 }} />

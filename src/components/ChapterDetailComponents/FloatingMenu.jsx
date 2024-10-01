@@ -117,7 +117,7 @@ export default function FloatingMenu({
               }}
               sx={{ color: "black" }}
             >
-              {chapter.chapterNum}: {chapter.title}
+              {chapter.chapterNum} {": " + chapter.title}
             </MenuItem>
           ))}
         </Menu>

@@ -46,14 +46,15 @@ export const BookDetailPage = () => {
     setLoading(false);
   }, [user, bookId, dispatch]);
 
-  const calculateOverallProgress = useCallback((chapters, progresses) => {
-    if (Array.isArray(progresses) && progresses.length > 0 && chapters.length > 0) {
-      const totalProgress = progresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
-      const averageProgress = Math.floor(totalProgress / chapters.length);
-      if (averageProgress > 100) {
-        setOverallProgress(averageProgress);
-      }
-    } else if (Array.isArray(progresses) && progresses.length <= 0) {
+  const calculateOverallProgress = useCallback((chapters, progresses, selectedLanguageId) => {
+    const filteredChapters = chapters?.filter((chapter) => chapter.languageId === selectedLanguageId);
+    const filteredProgresses = progresses?.filter((progress) => filteredChapters.some((chap) => chap.id === progress.chapterId));
+
+    if (filteredProgresses?.length > 0 && filteredChapters?.length > 0) {
+      const totalProgress = filteredProgresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
+      const averageProgress = Math.floor(totalProgress / filteredChapters.length);
+      setOverallProgress(averageProgress > 100 ? 100 : averageProgress);
+    } else {
       setOverallProgress(0);
     }
   }, []);

@@ -56,6 +56,7 @@ const ManageFAQ = () => {
     } catch (e) {
       console.log("Error adding faq: ", e);
     } finally {
+      setFilteredFAQs(faqs);
       setOpenAddDialog(false);
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = "https://10shiblogapi.work";
+export const API_BASE_URL = "http://localhost:80";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

@@ -25,7 +25,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const { AuthDialog } = useAuthCheck();
   useEffect(() => {
-    console.log("Auth state:", user);
     if (jwt || user) {
       dispatch(getCurrentUserByJwt(jwt))
         .then((result) => {

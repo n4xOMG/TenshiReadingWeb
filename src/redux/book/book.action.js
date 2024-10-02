@@ -200,7 +200,6 @@ export const getBookRatingByUserAction = (bookId) => async (dispatch) => {
 
 export const getAvgBookRating = (bookId) => async (dispatch) => {
   dispatch({ type: GET_AVG_BOOK_RATING_REQUEST });
-  console.log("Get avg rating for: ", bookId);
   try {
     const { data } = await api.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
     dispatch({ type: GET_AVG_BOOK_RATING_SUCCESS, payload: data });

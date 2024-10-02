@@ -1,8 +1,19 @@
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMemo } from "react";
 
-const MangaPageContent = ({ chapter, viewMode, currentPage, handlePageChange, hoverZone, setHoverZone, toggleFloatingMenu }) => {
+const MangaPageContent = ({
+  chapter,
+  viewMode,
+  currentPage,
+  handlePageChange,
+  hoverZone,
+  setHoverZone,
+  toggleFloatingMenu,
+  readingProgress,
+}) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const extractImageUrls = (htmlContent) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
@@ -13,6 +24,26 @@ const MangaPageContent = ({ chapter, viewMode, currentPage, handlePageChange, ho
   const pages = useMemo(() => extractImageUrls(chapter?.content || ""), [chapter?.content]);
 
   const renderPages = () => {
+    if (viewMode === "vertical") {
+      return (
+        <Box
+          onClick={toggleFloatingMenu}
+          sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, px: isSmallScreen ? 5 : 10 }}
+        >
+          {pages.map((page, index) => (
+            <Box
+              key={index}
+              component="img"
+              src={page}
+              alt={`Page ${index + 1}`}
+              loading="lazy"
+              sx={{ width: "100%", objectFit: "contain" }}
+            />
+          ))}
+        </Box>
+      );
+    }
+
     if (viewMode === "double" && currentPage < pages.length - 1) {
       return (
         <Box onClick={toggleFloatingMenu} sx={{ display: "flex", justifyContent: "center", objectFit: "contain", gap: 0 }}>

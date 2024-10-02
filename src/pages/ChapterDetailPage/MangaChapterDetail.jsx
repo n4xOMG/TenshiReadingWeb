@@ -39,7 +39,6 @@ export default function MangaChapterDetail({
     setLoading(true);
     if (!initialPageSet && readingProgress && !isNaN(readingProgress.progress) && totalPages > 0) {
       const initialPage = Math.floor((readingProgress.progress / 100) * totalPages);
-      console.log("Setting initialPage:", initialPage);
       if (initialPage >= totalPages) {
         setCurrentPage(totalPages - 1);
       } else if (initialPage - 1 > 0) {
@@ -160,6 +159,7 @@ export default function MangaChapterDetail({
                 hoverZone={hoverZone}
                 setHoverZone={setHoverZone}
                 toggleFloatingMenu={toggleFloatingMenu}
+                readingProgress={readingProgress}
               />
             </>
           )}

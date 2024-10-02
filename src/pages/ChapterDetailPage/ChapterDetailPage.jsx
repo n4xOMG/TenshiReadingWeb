@@ -91,7 +91,8 @@ export default function ChapterDetailPage() {
               handleChapterListClose={handleChapterListClose}
             />
           )}
-          {book.categories.some((category) => category.name.toLowerCase() === "novel") && (
+          {(book.categories.some((category) => category.name.toLowerCase() === "light novel") ||
+            book.categories.some((category) => category.name.toLowerCase() === "web novel")) && (
             <NovelChapterDetail
               anchorEl={anchorEl}
               bookId={bookId}

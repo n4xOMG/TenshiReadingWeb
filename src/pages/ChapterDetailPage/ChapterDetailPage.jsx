@@ -26,7 +26,6 @@ export default function ChapterDetailPage() {
   const [selectedLanguageId] = useState(() => {
     return localStorage.getItem("selectedLanguageId") || 0;
   });
-
   const fetchChapterDetail = useCallback(async () => {
     setLoading(true);
     try {
@@ -92,7 +91,7 @@ export default function ChapterDetailPage() {
               handleChapterListClose={handleChapterListClose}
             />
           )}
-          {book.categories.some((category) => category.name.toLowerCase() === "light novel") && (
+          {book.categories.some((category) => category.name.toLowerCase() === "novel") && (
             <NovelChapterDetail
               anchorEl={anchorEl}
               bookId={bookId}

@@ -41,7 +41,6 @@ export default function SignIn() {
     const rememberMe = data.get("remember");
     const result = await dispatch(loginUserAction({ data: json, rememberMe }));
     if (result) {
-      console.log("Result: ", result);
       await dispatch(getCurrentUserByJwt(result.payload.token));
       navigate("/");
     }

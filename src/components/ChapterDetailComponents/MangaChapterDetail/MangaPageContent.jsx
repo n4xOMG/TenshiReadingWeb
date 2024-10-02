@@ -49,12 +49,14 @@ const MangaPageContent = ({
         <Box onClick={toggleFloatingMenu} sx={{ display: "flex", justifyContent: "center", objectFit: "contain", gap: 0 }}>
           <Box
             component="img"
+            loading="lazy"
             src={pages[currentPage]}
             alt={`Page ${currentPage + 1}`}
             sx={{ width: "auto", height: "100vh", objectFit: "contain", flexShrink: 0 }}
           />
           <Box
             component="img"
+            loading="lazy"
             src={pages[currentPage + 1]}
             alt={`Page ${currentPage + 2}`}
             sx={{ width: "auto", height: "100vh", objectFit: "contain", flexShrink: 0 }}
@@ -67,6 +69,7 @@ const MangaPageContent = ({
       <Box onClick={toggleFloatingMenu} sx={{ display: "flex", justifyContent: "center", objectFit: "contain" }}>
         <Box
           component="img"
+          loading="lazy"
           src={pages[currentPage]}
           alt={`Page ${currentPage + 1}`}
           sx={{ maxWidth: "100%", height: "100vh", objectFit: "contain" }}

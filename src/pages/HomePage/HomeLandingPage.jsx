@@ -76,9 +76,10 @@ export default function HomeLandingPage() {
                     >
                       <CardMedia
                         component="img"
-                        sx={{ width: { xs: "100%", md: "33%" }, height: 300 }}
+                        sx={{ width: { xs: "100%", md: "33%", cursor: "pointer" }, height: 300 }}
                         image={selectedBook.bookCover}
                         alt="Book cover"
+                        onClick={() => navigate(`/books/${selectedBook.id}`)}
                       />
                       <CardContent sx={{ width: { xs: "100%", md: "67%" }, alignItems: "flex-start", textAlign: "left", pb: 5, px: 5 }}>
                         <Typography variant="h5">{selectedBook.title}</Typography>

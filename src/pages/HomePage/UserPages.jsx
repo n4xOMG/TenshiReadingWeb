@@ -86,7 +86,7 @@ export default function UserPages() {
               alignItems: "center",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("/")}>
               <Box component="img" src={mahiru} sx={{ width: 32, height: 32 }} alt="Logo" />
               <Box sx={{ ml: 2, fontSize: "h6.fontSize", fontWeight: "bold", color: "text.primary" }}>Tenshi</Box>
             </Box>

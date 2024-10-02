@@ -4,10 +4,12 @@ import ListIcon from "@mui/icons-material/List";
 import { Box, Fade, IconButton, Menu, MenuItem, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import HeightIcon from "@mui/icons-material/Height";
 import React from "react";
 const viewModeIcon = {
   single: <Layers />,
   double: <MenuBook />,
+  vertical: <HeightIcon />,
 };
 const themeModeIcon = {
   light: <LightModeIcon />,
@@ -15,7 +17,6 @@ const themeModeIcon = {
 };
 export default function FloatingMenu({
   anchorEl,
-  bookId,
   currentChapterId,
   open,
   chapters,
@@ -40,7 +41,7 @@ export default function FloatingMenu({
   };
 
   const handleViewModeChange = () => {
-    const modes = ["single"];
+    const modes = ["single", "vertical"];
     if (!isSmallScreen) {
       modes.push("double");
     }

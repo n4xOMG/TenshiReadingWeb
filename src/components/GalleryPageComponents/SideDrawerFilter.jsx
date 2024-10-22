@@ -60,10 +60,23 @@ export default function SideDrawerFilter({ open, tags, filter, setFilter, clearF
           </Box>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-          <Button variant="outlined" onClick={clearFilters}>
+          <Button variant="outlined" onClick={clearFilters} sx={{ borderColor: "black", color: "black" }}>
             Clear All
           </Button>
-          <Button variant="contained" onClick={onToggleSideDrawer}>
+          <Button
+            variant="contained"
+            onClick={onToggleSideDrawer}
+            sx={{
+              backgroundColor: "black",
+              color: "white",
+              borderRadius: 2,
+              alignSelf: "flex-start",
+              "&:hover": {
+                backgroundColor: "#fdf6e3",
+                color: "black",
+              },
+            }}
+          >
             Apply Filters
           </Button>
         </Box>

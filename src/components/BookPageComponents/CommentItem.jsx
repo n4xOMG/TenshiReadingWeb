@@ -2,7 +2,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import { Avatar, Box, Button, IconButton, Menu, MenuItem, TextField, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { likeCommentAction } from "../../redux/comment/comment.action";
 import { formatDate } from "../../utils/formatDate";
@@ -12,6 +12,12 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
   const [isReplying, setIsReplying] = useState(false);
   const [likes, setLikes] = useState(comment.likedUsers || 0);
   const [isLiked, setIsLiked] = useState(user ? isFavouredByReqUser(user, comment) : false);
+  const [replyLikes, setReplyLikes] = useState(
+    comment.replyComment.reduce((acc, reply) => {
+      acc[reply.id] = { likes: reply.likedUsers || 0, isLiked: user ? isFavouredByReqUser(user, reply) : false };
+      return acc;
+    }, {})
+  );
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -27,6 +33,7 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
   const handleLikeComment = useCallback(
     checkAuth(async () => {
       try {
@@ -44,6 +51,28 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
     }),
     [dispatch, checkAuth, comment.id, isLiked]
   );
+
+  // Handle like for reply comments
+  const handleLikeReply = checkAuth(async (replyId) => {
+    try {
+      setLoading(true);
+      setTimeout(() => {
+        dispatch(likeCommentAction(replyId));
+        setReplyLikes((prevLikes) => ({
+          ...prevLikes,
+          [replyId]: {
+            isLiked: !prevLikes[replyId].isLiked,
+            likes: prevLikes[replyId].isLiked ? prevLikes[replyId].likes - 1 : prevLikes[replyId].likes + 1,
+          },
+        }));
+      }, 300);
+    } catch (e) {
+      console.log("Error liking reply comment: ", e);
+    } finally {
+      setLoading(false);
+    }
+  });
+
   return (
     <>
       {loading ? (
@@ -68,7 +97,7 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
                   </>
                 )}
               </Box>
-              <Typography variant="body1" sx={{ fontSize: 25 }} color="textPrimary">
+              <Typography variant="body1" sx={{ fontSize: 23 }} color="textPrimary">
                 {comment.content}
               </Typography>
               <Typography variant="body2" color="textSecondary" sx={{ fontSize: 10 }}>
@@ -96,14 +125,26 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
                 <Box sx={{ flex: 1, ml: 1 }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Typography variant="h6">{reply.user.username || "Anonymous"}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {formatDate(reply.createdAt)}
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: 10 }}>
+                      {formatDate(comment.createdAt)}
                     </Typography>
                   </Box>
-                  <Typography variant="body1" color="textPrimary">
+                  <Typography variant="body1" sx={{ fontSize: 23 }} color="textPrimary">
                     {reply.content}
                   </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <IconButton size="small" onClick={() => handleLikeReply(reply.id)} sx={{ gap: 1 }}>
+                      {replyLikes[reply.id]?.isLiked ? <ThumbUpIcon fontSize="small" /> : <ThumbUpOffAltIcon fontSize="small" />}
+                      <Typography variant="body2">{replyLikes[reply.id]?.likes || 0}</Typography>
+                    </IconButton>
+                    {!isReplying && (
+                      <Button variant="outlined" size="small" onClick={handleReply}>
+                        Reply
+                      </Button>
+                    )}
+                  </Box>
                 </Box>
+
                 {(user?.id === reply.user.id || user?.role?.name === "ADMIN") && (
                   <>
                     <IconButton onClick={(event) => handleMenuOpen(event, reply)}>

@@ -41,7 +41,7 @@ export const BookDetailPage = () => {
     await dispatch(getBookByIdAction(bookId));
     await dispatch(getLanguagesWithChapterCounts(bookId));
     await dispatch(getAvgBookRating(bookId));
-    if (user && isTokenExpired(jwt)) {
+    if (user && !isTokenExpired(jwt)) {
       await dispatch(getAllReadingProgressesByBook(bookId));
       await dispatch(getBookRatingByUserAction(bookId));
     }

@@ -8,7 +8,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BookDetails } from "../../components/BookDetailPageComponents/BookDetails";
 import { ChapterList } from "../../components/BookDetailPageComponents/ChapterList";
 import { ProgressBar } from "../../components/BookDetailPageComponents/ProgressBar";
-import { CommentSection } from "../../components/BookPageComponents/CommentSection";
 import Sidebar from "../../components/BookPageComponents/Sidebar";
 import {
   followBookAction,
@@ -20,7 +19,8 @@ import {
   ratingBookAction,
 } from "../../redux/book/book.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
-import { useAuthCheck } from "../../utils/useAuthCheck";
+import { isTokenExpired, useAuthCheck } from "../../utils/useAuthCheck";
+import CommentSection from "../../components/BookPageComponents/CommentSection";
 
 export const BookDetailPage = () => {
   const navigate = useNavigate();
@@ -28,28 +28,29 @@ export const BookDetailPage = () => {
   const dispatch = useDispatch();
   const { book, rating, languages, progresses = [], chapterCounts } = useSelector((store) => store.book);
   const { user } = useSelector((store) => store.auth);
+  const jwt = localStorage.getItem("jwt");
   const { checkAuth, AuthDialog } = useAuthCheck();
   const [loading, setLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
   const [firstChapterId, setFirstChapterId] = useState(null);
+
   const fetchBookAndChapterDetails = useCallback(async () => {
     setLoading(true);
     await dispatch(getBookByIdAction(bookId));
     await dispatch(getLanguagesWithChapterCounts(bookId));
     await dispatch(getAvgBookRating(bookId));
-    if (user) {
+    if (user && isTokenExpired(jwt)) {
       await dispatch(getAllReadingProgressesByBook(bookId));
       await dispatch(getBookRatingByUserAction(bookId));
     }
     setLoading(false);
-  }, [user, bookId, dispatch]);
+  }, [user, bookId, jwt, dispatch]);
 
   const calculateOverallProgress = useCallback((chapters, progresses, selectedLanguageId) => {
     const filteredChapters = chapters?.filter((chapter) => chapter.languageId === selectedLanguageId);
     const filteredProgresses = progresses?.filter((progress) => filteredChapters.some((chap) => chap.id === progress.chapterId));
-
     if (filteredProgresses?.length > 0 && filteredChapters?.length > 0) {
       const totalProgress = filteredProgresses.reduce((acc, progress) => acc + (progress.progress || 0), 0);
       const averageProgress = Math.floor(totalProgress / filteredChapters.length);
@@ -88,11 +89,12 @@ export const BookDetailPage = () => {
 
   useEffect(() => {
     fetchBookAndChapterDetails();
+    console.log("Book detail rerendered");
   }, [fetchBookAndChapterDetails]);
 
   useEffect(() => {
     if (book && user) {
-      setIsFavorite(isFavouredByReqUser(user.id, book));
+      setIsFavorite(isFavouredByReqUser(user, book));
     }
   }, [book, user]);
 
@@ -120,8 +122,7 @@ export const BookDetailPage = () => {
       >
         <DehazeIcon />
       </IconButton>
-
-      <Box container={"true"} sx={{ mx: "auto", px: 10, py: 8, backgroundColor: "#f9fafb" }}>
+      <Box container="true" sx={{ mx: "auto", px: 10, py: 8, backgroundColor: "#f9fafb" }}>
         {loading || !book ? (
           <div className="flex justify-center">
             <CircularProgress />
@@ -207,7 +208,7 @@ export const BookDetailPage = () => {
                 user={user ? user : null}
                 onFirstChapterId={setFirstChapterId}
               />
-              <CommentSection book={book} />
+              <CommentSection bookId={book?.id} user={user} />
             </Grid>
           </Grid>
         )}

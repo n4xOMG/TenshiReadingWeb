@@ -1,7 +1,7 @@
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./pages/Admin/Dashboard";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -10,33 +10,35 @@ import SignIn from "./pages/Auth/SignIn";
 import SignUp from "./pages/Auth/SignUp";
 import { BookDetailPage } from "./pages/BookPage/BookDetailPage";
 import ChapterDetailPage from "./pages/ChapterDetailPage/ChapterDetailPage";
+import FAQ from "./pages/HomePage/FAQ";
 import ImageGalleryPage from "./pages/HomePage/ImageGalleryPage";
 import Profile from "./pages/HomePage/Profile";
 import UserPages from "./pages/HomePage/UserPages";
 import { getCurrentUserByJwt } from "./redux/authentication/auth.actions";
-import { useAuthCheck } from "./utils/useAuthCheck";
-import FAQ from "./pages/HomePage/FAQ";
+import { isTokenExpired, useAuthCheck } from "./utils/useAuthCheck";
 
 function App() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((store) => store.auth);
+  const { user } = useSelector((store) => store.auth, shallowEqual);
   const jwt = localStorage.getItem("jwt");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { AuthDialog } = useAuthCheck();
   useEffect(() => {
-    if (jwt || user) {
-      dispatch(getCurrentUserByJwt(jwt))
-        .then((result) => {
-          if (result && result.error === "UNAUTHORIZED") {
-            navigate("/sign-in");
-          }
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [dispatch, jwt, navigate]);
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        if (jwt && !isTokenExpired(jwt) && !user) {
+          await dispatch(getCurrentUserByJwt(jwt));
+        }
+      } catch (e) {
+        console.log("Error loading app: ", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+    console.log("App rendered");
+  }, [dispatch]);
 
   if (loading) {
     return <CircularProgress />;

@@ -74,11 +74,30 @@ const FloatingGalleryMenu = ({ onToggleSideDrawer }) => {
                 rel="noopener noreferrer"
                 sx={{ textDecoration: "none" }}
               >
-                <IconButton>{navItem.icon}</IconButton>
+                <IconButton
+                  sx={{
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "scale(1.4)",
+                    },
+                  }}
+                >
+                  {navItem.icon}
+                </IconButton>
                 <span className="sr-only">{navItem.name}</span>
               </Box>
             ) : (
-              <IconButton onClick={() => navigate(navItem.path)}>{navItem.icon}</IconButton>
+              <IconButton
+                onClick={() => navigate(navItem.path)}
+                sx={{
+                  transition: "transform 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.4)",
+                  },
+                }}
+              >
+                {navItem.icon}
+              </IconButton>
             )}
           </Tooltip>
         ))}
@@ -90,7 +109,18 @@ const FloatingGalleryMenu = ({ onToggleSideDrawer }) => {
             </div>
           }
         >
-          <IconButton variant="text" size="small" sx={{ borderRadius: "50%" }} onClick={onToggleSideDrawer}>
+          <IconButton
+            variant="text"
+            size="small"
+            sx={{
+              borderRadius: "50%",
+              transition: "transform 0.2s ease-in-out",
+              "&:hover": {
+                transform: "scale(1.4)",
+              },
+            }}
+            onClick={onToggleSideDrawer}
+          >
             <FilterAltIcon sx={{ fontSize: 24 }} />
             <span className="sr-only">Filters</span>
           </IconButton>

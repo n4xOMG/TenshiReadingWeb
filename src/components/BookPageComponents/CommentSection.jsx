@@ -1,86 +1,100 @@
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Menu,
-  MenuItem,
-  Snackbar,
-  TextField,
-  Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Alert, Box, Button, CircularProgress, List, ListItem, Snackbar, TextField, Typography } from "@mui/material";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createCommentAction, deleteCommentAction, getAllCommentByBookAction } from "../../redux/comment/comment.action";
+import {
+  createBookCommentAction,
+  createReplyBookCommentAction,
+  deleteCommentAction,
+  getAllCommentByBookAction,
+} from "../../redux/comment/comment.action";
 import { useAuthCheck } from "../../utils/useAuthCheck";
-import { formatDate } from "../../utils/formatDate";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-export function CommentSection({ book }) {
-  const { comments, loading, error } = useSelector((store) => store.comment);
-  const { user } = useSelector((store) => store.auth);
+import CommentItem from "./CommentItem";
+const CommentSection = ({ bookId, user }) => {
+  const { bookComments, error } = useSelector((store) => store.comment);
+  const [loading, setLoading] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [newReply, setNewReply] = useState("");
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { checkAuth, AuthDialog } = useAuthCheck();
-  const fetchComments = async () => {
+
+  const fetchComments = useCallback(async () => {
     try {
-      await dispatch(getAllCommentByBookAction(book.id));
+      setLoading(true);
+      await dispatch(getAllCommentByBookAction(bookId));
     } catch (e) {
-      console.log("Error fetching words: ", e);
+      console.error("Error fetching comments: ", e);
       setOpen(true);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [bookId, dispatch]);
 
   useEffect(() => {
     fetchComments();
+  }, [fetchComments]);
+
+  const handleCommentChange = useCallback((event) => {
+    setNewComment(event.target.value);
   }, []);
 
-  const handleCommentChange = (event) => {
-    setNewComment(event.target.value);
-  };
+  const handleReplyChange = useCallback((event) => {
+    setNewReply(event.target.value);
+  }, []);
 
-  const handleCreateComment = checkAuth(async () => {
-    const reqData = {
-      bookId: book.id,
-      data: {
-        content: newComment,
-      },
-    };
-    await dispatch(createCommentAction(reqData));
-    await dispatch(getAllCommentByBookAction(book.id));
-    setNewComment("");
-  });
-  const handleMenuOpen = (event, comment) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedComment(comment);
-  };
+  const handleCreateComment = useCallback(
+    checkAuth(async () => {
+      if (newComment.trim()) {
+        const reqData = {
+          bookId: bookId,
+          data: {
+            content: newComment,
+          },
+        };
+        await dispatch(createBookCommentAction(reqData));
+        fetchComments();
+        setNewComment("");
+      } else {
+        alert("Comment cannot be null!");
+      }
+    }),
+    [newComment, bookId, dispatch, fetchComments]
+  );
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedComment(null);
-  };
+  const handleSubmitReply = useCallback(
+    checkAuth(async (parentCommentId) => {
+      if (newReply.trim()) {
+        const reqData = {
+          parentCommentId: parentCommentId,
+          bookId: bookId,
+          data: {
+            content: newReply,
+          },
+        };
+        await dispatch(createReplyBookCommentAction(reqData));
+        fetchComments();
+        setNewReply("");
+      } else {
+        alert("Reply cannot be null!");
+      }
+    }),
+    [newReply, bookId, dispatch, fetchComments]
+  );
 
-  const handleDeleteComment = async () => {
-    await dispatch(deleteCommentAction(selectedComment.id));
-    await fetchComments();
-    handleMenuClose();
-  };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
+  const handleDeleteComment = useCallback(
+    checkAuth(async (commentId) => {
+      await dispatch(deleteCommentAction(commentId));
+      fetchComments();
+    }),
+    [dispatch, fetchComments]
+  );
+
+  const handleClose = useCallback((event, reason) => {
+    if (reason === "clickaway") return;
     setOpen(false);
-  };
+  }, []);
   return (
-    <Box bgcolor={"#f4f4f5"} p={2} borderRadius={2}>
+    <Box bgcolor={"#f4f4f5"} borderRadius={2}>
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
@@ -91,34 +105,17 @@ export function CommentSection({ book }) {
             Comments
           </Typography>
           <List>
-            {comments?.map((comment, index) => (
+            {bookComments?.map((comment, index) => (
               <ListItem key={index} alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar>{comment.user.username ? comment.user.username.charAt(0) : "?"}</Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={comment.user.username || "Anonymous"}
-                  secondary={
-                    <React.Fragment>
-                      <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
-                        {formatDate(comment.createdAt)}
-                      </Typography>
-                      {" — "}
-                      {comment.content}
-                    </React.Fragment>
-                  }
+                <CommentItem
+                  comment={comment}
+                  newReply={newReply}
+                  checkAuth={checkAuth}
+                  handleReplyChange={handleReplyChange}
+                  handleSubmitReply={handleSubmitReply}
+                  handleDeleteComment={handleDeleteComment}
+                  user={user}
                 />
-                {(user?.id === comment.user.id || user?.role?.name === "ADMIN") && (
-                  <>
-                    <IconButton onClick={(event) => handleMenuOpen(event, comment)}>
-                      <MoreVertIcon />
-                    </IconButton>
-
-                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                      <MenuItem onClick={handleDeleteComment}>Delete</MenuItem>
-                    </Menu>
-                  </>
-                )}
               </ListItem>
             ))}
           </List>
@@ -127,13 +124,13 @@ export function CommentSection({ book }) {
               fullWidth
               variant="outlined"
               placeholder="Enter your comment..."
+              required
               value={newComment}
               onChange={handleCommentChange}
               sx={{ bgcolor: "white", borderRadius: 1 }}
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
                   handleCreateComment();
-                  console.log("Enter button pressed.", newComment);
                 }
               }}
             />
@@ -153,4 +150,6 @@ export function CommentSection({ book }) {
       <AuthDialog />
     </Box>
   );
-}
+};
+
+export default memo(CommentSection);

@@ -1,32 +1,44 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUserByJwt } from "../redux/authentication/auth.actions";
+// Helper function to check if the token is expired
+export function isTokenExpired(token) {
+  try {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.exp) {
+      const currentTime = Date.now() / 1000;
+      return decodedToken.exp < currentTime;
+    }
+    return false;
+  } catch (e) {
+    return true;
+  }
+}
 
 export const useAuthCheck = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const checkAuth =
+  const checkAuth = useCallback(
     (fn) =>
-    async (...args) => {
-      const jwt = localStorage.getItem("jwt");
-      const result = await dispatch(getCurrentUserByJwt(jwt));
-      const user = result?.payload;
+      async (...args) => {
+        const jwt = localStorage.getItem("jwt");
 
-      if (!user) {
-        setOpen(true);
-        return;
-      }
-
-      try {
-        await fn(...args);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
+        if (!jwt || isTokenExpired(jwt)) {
+          setOpen(true);
+          return;
+        }
+        try {
+          await fn(...args);
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      },
+    [dispatch]
+  );
 
   const handleClose = () => {
     setOpen(false);

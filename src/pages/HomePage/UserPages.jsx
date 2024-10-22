@@ -7,14 +7,14 @@ import PeopleIcon from "@mui/icons-material/People";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import { Box, Button, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAuthCheck } from "../../utils/useAuthCheck";
 import HomeLandingPage from "./HomeLandingPage";
 import mahiru from "./mahiru.png";
 export default function UserPages() {
   const navigate = useNavigate();
-  const { user } = useSelector((store) => store.auth);
+  const { user } = useSelector((store) => store.auth, shallowEqual);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);

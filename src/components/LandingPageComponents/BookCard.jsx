@@ -3,6 +3,7 @@ import React from "react";
 import LanguageIcon from "@mui/icons-material/Language";
 import { useNavigate } from "react-router-dom";
 import { MenuBook } from "@mui/icons-material";
+import { getOptimizedImageUrl } from "../../utils/optimizeImages";
 function truncateDescription(description, wordLimit) {
   if (!description) return "";
   const words = description.split(" ");
@@ -17,7 +18,13 @@ export default function BookCard({ book }) {
   return (
     <Card sx={{ maxWidth: 400, overflow: "hidden", cursor: "pointer" }} onClick={() => navigate(`/books/${book.id}`)}>
       <Box sx={{ position: "relative", height: 200, overflow: "hidden", textAlign: "left" }}>
-        <CardMedia component="img" alt={`Cover of ${book.title}`} height="200" image={book.bookCover} sx={{ objectFit: "cover" }} />
+        <CardMedia
+          component="img"
+          alt={`Cover of ${book.title}`}
+          height="200"
+          image={getOptimizedImageUrl(book.bookCover)}
+          sx={{ objectFit: "cover" }}
+        />
         <Box
           sx={{
             position: "absolute",

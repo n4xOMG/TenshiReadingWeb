@@ -56,6 +56,9 @@ import {
   GET_LANGUAGES_WITH_COUNTS_FAILED,
   GET_LANGUAGES_WITH_COUNTS_REQUEST,
   GET_LANGUAGES_WITH_COUNTS_SUCCESS,
+  GET_LATEST_UPDATE_BOOK_FAILED,
+  GET_LATEST_UPDATE_BOOK_REQUEST,
+  GET_LATEST_UPDATE_BOOK_SUCCESS,
   GET_READING_PROGRESSES_BY_BOOK_FAILED,
   GET_READING_PROGRESSES_BY_BOOK_REQUEST,
   GET_READING_PROGRESSES_BY_BOOK_SUCCESS,
@@ -76,6 +79,17 @@ export const getAllBookAction = () => async (dispatch) => {
   } catch (error) {
     console.log("error trying to get all books", error.message);
     dispatch({ type: GET_ALL_BOOK_FAILED, payload: error });
+  }
+};
+export const getLatestUpdateBook = () => async (dispatch) => {
+  dispatch({ type: GET_LATEST_UPDATE_BOOK_REQUEST });
+  try {
+    const { data } = await axios.get(`${API_BASE_URL}/books/latest-update`);
+    dispatch({ type: GET_LATEST_UPDATE_BOOK_SUCCESS, payload: data });
+    return { payload: data };
+  } catch (error) {
+    console.log("error trying to get latest book", error.message);
+    dispatch({ type: GET_LATEST_UPDATE_BOOK_FAILED, payload: error });
   }
 };
 export const getAllUserFollowingBookAction = (userId) => async (dispatch) => {
@@ -201,7 +215,7 @@ export const getBookRatingByUserAction = (bookId) => async (dispatch) => {
 export const getAvgBookRating = (bookId) => async (dispatch) => {
   dispatch({ type: GET_AVG_BOOK_RATING_REQUEST });
   try {
-    const { data } = await api.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
+    const { data } = await axios.get(`${API_BASE_URL}/books/rating/average/${bookId}`);
     dispatch({ type: GET_AVG_BOOK_RATING_SUCCESS, payload: data });
   } catch (error) {
     if (error.response && error.response.status === 204) {

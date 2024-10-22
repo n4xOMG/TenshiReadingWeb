@@ -1,11 +1,26 @@
-export const isFavouredByReqUser = (reqUserId, data) => {
-  if (!Array.isArray(data.favoured)) {
-    return false;
-  }
-  for (let user of data.favoured) {
-    if (reqUserId === user.id) {
-      return true;
+export const isFavouredByReqUser = (user, data) => {
+  if (user) {
+    // Check in book list
+    for (let book of user.book) {
+      if (data.id === book.id) {
+        return true;
+      }
+    }
+
+    // Check in img list
+    for (let img of user.img) {
+      if (data.id === img.id) {
+        return true;
+      }
+    }
+
+    // Check in comment list
+    for (let comment of user.comment) {
+      if (data.id === comment.id) {
+        return true;
+      }
     }
   }
+
   return false;
 };

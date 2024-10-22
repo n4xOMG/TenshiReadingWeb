@@ -12,7 +12,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { addImageToFav, getAllGalleryImages, getAllImageTags } from "../../redux/gallery/gallery.action";
 import { isFavouredByReqUser } from "../../utils/isFavouredByReqUser";
 import { useAuthCheck } from "../../utils/useAuthCheck";
-
+import { getOptimizedImageUrl } from "../../utils/optimizeImages";
 export default function ImageGalleryPage() {
   const dispatch = useDispatch();
   const { images, tags, totalPages } = useSelector((store) => store.gallery);
@@ -20,12 +20,14 @@ export default function ImageGalleryPage() {
   const { user } = useSelector((store) => store.auth);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [userFavImages, setUserFavImages] = useState(user ? user.img : []);
   const [selectedImage, setSelectedImage] = useState(null);
   const [filter, setFilter] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const { checkAuth, AuthDialog } = useAuthCheck();
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -44,24 +46,33 @@ export default function ImageGalleryPage() {
 
     fetchTags();
     fetchImages();
-  }, [dispatch]);
-  const handlePageChange = async (event, value) => {
-    event.preventDefault();
-    setPage(value);
-    dispatch(getAllGalleryImages(value - 1, 6));
+  }, [dispatch, user]);
+
+  const isFavouredByUser = (imageId) => {
+    return userFavImages.some((favImg) => favImg.id === imageId);
   };
+
   const handleFavoriteToggle = checkAuth(async (imageId) => {
     setLoading(true);
     try {
-      setTimeout(() => {
-        dispatch(addImageToFav(imageId));
-      }, 300);
+      const isCurrentlyFav = isFavouredByUser(imageId);
+      const updatedFavImages = isCurrentlyFav ? userFavImages.filter((img) => img.id !== imageId) : [...userFavImages, { id: imageId }]; // Add image to fav
+
+      setUserFavImages(updatedFavImages);
+
+      await dispatch(addImageToFav(imageId));
     } catch (error) {
       console.error("Error toggling favorite: ", error);
     } finally {
       setLoading(false);
     }
   });
+
+  const handlePageChange = async (event, value) => {
+    event.preventDefault();
+    setPage(value);
+    dispatch(getAllGalleryImages(value - 1, 6));
+  };
 
   const filteredImages = images?.filter(
     (img) =>
@@ -70,16 +81,31 @@ export default function ImageGalleryPage() {
         (img.tags && img.tags.some((tag) => tag.name.toLowerCase().includes(filter.toLowerCase())))) &&
       (selectedTags.length === 0 || selectedTags.every((tag) => img.tags && img.tags.some((t) => t.name === tag)))
   );
+
   const clearFilters = () => {
     setFilter("");
     setSelectedTags([]);
   };
+
   const toggleTag = (tagName) => {
     setSelectedTags((prev) => (prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]));
   };
+
   const toggleSideDrawer = useCallback(() => {
     setIsSideDrawerOpen((prev) => !prev);
   }, []);
+
+  const handleNextImage = () => {
+    const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
+    const nextIndex = (currentIndex + 1) % images.length;
+    setSelectedImage(images[nextIndex]);
+  };
+
+  const handlePrevImage = () => {
+    const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[prevIndex]);
+  };
 
   return (
     <>
@@ -101,7 +127,8 @@ export default function ImageGalleryPage() {
                           <Box
                             component="img"
                             onClick={() => setSelectedImage(img)}
-                            src={img.imageUrl}
+                            src={getOptimizedImageUrl(img.imageUrl)}
+                            srcSet={getOptimizedImageUrl(img.imageUrl)}
                             alt={img.name}
                             sx={{ width: "100%", height: 192, objectFit: "cover", cursor: "pointer" }}
                           />
@@ -124,7 +151,7 @@ export default function ImageGalleryPage() {
                             }}
                             onClick={() => handleFavoriteToggle(img.id)}
                           >
-                            {isFavouredByReqUser(user?.id, img) ? (
+                            {isFavouredByUser(img.id) ? (
                               <FavoriteIcon sx={{ fontSize: 20, color: "red" }} />
                             ) : (
                               <FavoriteBorder sx={{ fontSize: 20 }} />
@@ -160,7 +187,17 @@ export default function ImageGalleryPage() {
               </Stack>
             </Box>
             <FloatingGalleryMenu onToggleSideDrawer={toggleSideDrawer} />
-            {selectedImage && <ViewImageModal open={true} onClose={() => setSelectedImage(null)} image={selectedImage} />}
+            {selectedImage && (
+              <ViewImageModal
+                open={true}
+                onClose={() => setSelectedImage(null)}
+                image={selectedImage}
+                user={user}
+                onNext={handleNextImage}
+                onPrev={handlePrevImage}
+                onToggleFavorite={handleFavoriteToggle}
+              />
+            )}
             <AuthDialog />
             {isSideDrawerOpen && (
               <>

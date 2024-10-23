@@ -20,6 +20,7 @@ export default function NovelChapterDetail({
   handleChapterChange,
   handleChapterListOpen,
   handleChapterListClose,
+  onToggleSideDrawer,
 }) {
   const [progress, setProgress] = useState(readingProgress ? readingProgress.progress : 0);
   const [loading, setLoading] = useState(false);

@@ -30,10 +30,6 @@ export default function SideDrawerFilter({ open, tags, filter, setFilter, clearF
               }}
             />
           </Box>
-          {/* <FormControlLabel
-            control={<Checkbox checked={showFavoritesOnly} onChange={() => setShowFavoritesOnly(!showFavoritesOnly)} />}
-            label="Show favorites only"
-          /> */}
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Quick filters:

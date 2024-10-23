@@ -28,7 +28,6 @@ export default function HomeLandingPage() {
 
   useEffect(() => {
     fetchBooksInfo();
-    console.log("Home landing page rendered");
   }, [fetchBooksInfo]);
 
   const displayedBooks = showAllBooks ? books : books?.slice(0, 4);

@@ -5,6 +5,7 @@ import { Box, Fade, IconButton, Menu, MenuItem, Tooltip, useMediaQuery, useTheme
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import HeightIcon from "@mui/icons-material/Height";
+import ChatIcon from "@mui/icons-material/Chat";
 import React from "react";
 const viewModeIcon = {
   single: <Layers />,
@@ -19,6 +20,7 @@ export default function FloatingMenu({
   anchorEl,
   currentChapterId,
   open,
+  user,
   chapters,
   viewMode,
   themeMode,
@@ -28,6 +30,7 @@ export default function FloatingMenu({
   onThemeModeChange,
   onChapterChange,
   onNavigate,
+  onToggleSideDrawer,
 }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -40,24 +43,32 @@ export default function FloatingMenu({
     }
   };
 
+  const handleModeChange = (modes, currentMode, onChange) => {
+    const currentIndex = modes.indexOf(currentMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    onChange(modes[nextIndex]);
+  };
+
   const handleViewModeChange = () => {
     const modes = ["single", "vertical"];
-    if (!isSmallScreen) {
-      modes.push("double");
-    }
-    const currentIndex = modes.indexOf(viewMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    onViewModeChange(modes[nextIndex]);
+    if (!isSmallScreen) modes.push("double");
+    handleModeChange(modes, viewMode, onViewModeChange);
   };
 
   const handleThemeModeChange = () => {
     const modes = ["light", "dark"];
-    const currentIndex = modes.indexOf(themeMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    onThemeModeChange(modes[nextIndex]);
+    handleModeChange(modes, themeMode, onThemeModeChange);
   };
 
   const currentChapterIndex = chapters.findIndex((chapter) => chapter.id === currentChapterId);
+
+  const renderIconButton = (tooltipText, ariaLabel, onClick, icon, disabled = false) => (
+    <Tooltip title={<p>{tooltipText}</p>}>
+      <IconButton aria-label={ariaLabel} onClick={onClick} disabled={disabled} sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}>
+        {icon}
+      </IconButton>
+    </Tooltip>
+  );
 
   return (
     <Fade in={open}>
@@ -79,34 +90,15 @@ export default function FloatingMenu({
           height: "auto",
         }}
       >
-        <Tooltip
-          title={
-            <>
-              <p>Previous chapter</p>
-            </>
-          }
-        >
-          <IconButton
-            onClick={() => onChapterChange(chapters[currentChapterIndex - 1].id)}
-            disabled={currentChapterIndex === 0}
-            aria-label="Previous chapter"
-            sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
-          >
-            <ChevronLeft />
-          </IconButton>
-        </Tooltip>
+        {renderIconButton(
+          "Previous chapter",
+          "Previous chapter",
+          () => onChapterChange(chapters[currentChapterIndex - 1].id),
+          <ChevronLeft />,
+          currentChapterIndex === 0
+        )}
 
-        <Tooltip
-          title={
-            <>
-              <p>Chapter List</p>
-            </>
-          }
-        >
-          <IconButton onClick={onChapterListOpen} aria-label="Chapters list" sx={{ color: "white" }}>
-            <ListIcon />
-          </IconButton>
-        </Tooltip>
+        {renderIconButton("Chapter List", "Chapters list", onChapterListOpen, <ListIcon />)}
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={onChapterListClose}>
           {chapters.map((chapter) => (
@@ -123,59 +115,33 @@ export default function FloatingMenu({
           ))}
         </Menu>
 
-        {viewMode && (
-          <Tooltip
-            title={
-              <>
-                <p>Change view mode</p>
-                <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>Current view mode: {viewMode}</p>
-              </>
-            }
-          >
-            <IconButton aria-label={`Current view mode: ${viewMode}`} onClick={handleViewModeChange} sx={{ color: "white" }}>
-              {viewModeIcon[viewMode]}
-            </IconButton>
-          </Tooltip>
-        )}
-        {themeMode && (
-          <Tooltip
-            title={
-              <>
-                <p>Change theme mode</p>
-                <p style={{ fontSize: "0.875rem", color: "text.secondary" }}>Current theme: {themeMode}</p>
-              </>
-            }
-          >
-            <IconButton
-              aria-label={`Current theme: ${themeMode}`}
-              onClick={handleThemeModeChange}
-              sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
-            >
-              {themeModeIcon[themeMode]}
-            </IconButton>
-          </Tooltip>
-        )}
+        {viewMode &&
+          renderIconButton(
+            `Change view mode (Current: ${viewMode})`,
+            `Current view mode: ${viewMode}`,
+            handleViewModeChange,
+            viewModeIcon[viewMode]
+          )}
 
-        <Tooltip title={<p>Back to book detail page</p>}>
-          <IconButton onClick={onNavigate} aria-label="Back to Book Page" sx={{ color: "white" }}>
-            <HomeIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={<p>Enter fullscreen mode</p>}>
-          <IconButton onClick={handleFullScreen} aria-label="Full Screen" sx={{ color: "white" }}>
-            <Fullscreen />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={<p>Next chapter</p>}>
-          <IconButton
-            onClick={() => onChapterChange(chapters[currentChapterIndex + 1].id)}
-            disabled={currentChapterIndex === chapters.length - 1}
-            aria-label="Next chapter"
-            sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
-          >
-            <ChevronRight />
-          </IconButton>
-        </Tooltip>
+        {themeMode &&
+          renderIconButton(
+            `Change theme mode (Current: ${themeMode})`,
+            `Current theme: ${themeMode}`,
+            handleThemeModeChange,
+            themeModeIcon[themeMode]
+          )}
+
+        {renderIconButton("Back to book detail page", "Back to Book Page", onNavigate, <HomeIcon />)}
+
+        {renderIconButton("Enter fullscreen mode", "Full Screen", handleFullScreen, <Fullscreen />)}
+        {renderIconButton("Comments", "Comments", onToggleSideDrawer, <ChatIcon />)}
+        {renderIconButton(
+          "Next chapter",
+          "Next chapter",
+          () => onChapterChange(chapters[currentChapterIndex + 1].id),
+          <ChevronRight />,
+          currentChapterIndex === chapters.length - 1
+        )}
       </Box>
     </Fade>
   );

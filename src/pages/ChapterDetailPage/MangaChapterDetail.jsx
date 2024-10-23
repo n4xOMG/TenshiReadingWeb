@@ -22,6 +22,7 @@ export default function MangaChapterDetail({
   handleChapterChange,
   handleChapterListOpen,
   handleChapterListClose,
+  onToggleSideDrawer,
 }) {
   const [currentPage, setCurrentPage] = useState(0);
   const [hoverZone, setHoverZone] = useState(null);
@@ -192,6 +193,7 @@ export default function MangaChapterDetail({
                   onChapterListClose={handleChapterListClose}
                   onViewModeChange={handleViewModeChange}
                   onChapterChange={handleChapterChange}
+                  onToggleSideDrawer={onToggleSideDrawer}
                 />
                 <MangaPageNavigation
                   totalPages={totalPages}

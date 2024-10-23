@@ -19,6 +19,7 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
     }, {})
   );
   const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -26,8 +27,9 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
     setIsReplying(true);
   };
 
-  const handleMenuOpen = (event) => {
+  const handleMenuOpen = (event, commentId) => {
     setAnchorEl(event.currentTarget);
+    setSelectedCommentId(commentId); // Set the selected comment ID
   };
 
   const handleMenuClose = () => {
@@ -87,12 +89,12 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
 
                 {(user?.id === comment.user.id || user?.role?.name === "ADMIN") && (
                   <>
-                    <IconButton onClick={(event) => handleMenuOpen(event)}>
+                    <IconButton onClick={(event) => handleMenuOpen(event, comment.id)}>
                       <MoreVertIcon />
                     </IconButton>
 
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                      <MenuItem onClick={() => handleDeleteComment(comment.id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => handleDeleteComment(selectedCommentId)}>Delete</MenuItem>
                     </Menu>
                   </>
                 )}
@@ -147,12 +149,12 @@ export default function CommentItem({ comment, user, newReply, checkAuth, handle
 
                 {(user?.id === reply.user.id || user?.role?.name === "ADMIN") && (
                   <>
-                    <IconButton onClick={(event) => handleMenuOpen(event, reply)}>
+                    <IconButton onClick={(event) => handleMenuOpen(event, reply.id)}>
                       <MoreVertIcon />
                     </IconButton>
 
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                      <MenuItem onClick={() => handleDeleteComment(reply.id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => handleDeleteComment(selectedCommentId)}>Delete</MenuItem>
                     </Menu>
                   </>
                 )}

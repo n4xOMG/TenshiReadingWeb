@@ -1,6 +1,6 @@
 import { Favorite, MenuBook, Star } from "@mui/icons-material";
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { followBookAction } from "../../redux/book/book.action";
@@ -18,9 +18,7 @@ export default function LatestBookCard({ book, user }) {
   const [favouriteNum, setFavouriteNum] = useState(book.favCount);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log("Latest book rendered");
-  });
+
   const handleFollowBook = useCallback(
     checkAuth(async () => {
       try {
@@ -138,7 +136,7 @@ export default function LatestBookCard({ book, user }) {
                   }}
                   onClick={handleFollowBook}
                 >
-                  {favouriteNum.toLocaleString()} {isFavorite ? "Favorited" : "Favorites"}
+                  {favouriteNum?.toLocaleString()} {isFavorite ? "Favorited" : "Favorites"}
                 </Button>
               </CardActions>
             </Box>

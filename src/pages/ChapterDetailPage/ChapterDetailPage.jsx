@@ -6,6 +6,7 @@ import NovelChapterDetail from "./NovelChapterDetail";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { getChapterById, getChaptersByBookAndLanguageAction, getReadingProgressByUserAndChapter } from "../../redux/chapter/chapter.action";
 import { getBookByIdAction } from "../../redux/book/book.action";
+import CommentDrawer from "../../components/ChapterDetailComponents/CommentDrawer";
 
 export default function ChapterDetailPage() {
   const dispatch = useDispatch();
@@ -20,12 +21,14 @@ export default function ChapterDetailPage() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isFloatingMenuVisible, setFloatingMenuVisible] = useState(false);
+  const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
   const [bookId] = useState(paramBookId);
   const [chapterId, setChapterId] = useState(paramChapterId);
   const [loading, setLoading] = useState(true);
   const [selectedLanguageId] = useState(() => {
     return localStorage.getItem("selectedLanguageId") || 0;
   });
+
   const fetchChapterDetail = useCallback(async () => {
     setLoading(true);
     try {
@@ -69,7 +72,10 @@ export default function ChapterDetailPage() {
     setChapterId(nextChapterId);
     navigate(`/books/${bookId}/chapters/${nextChapterId}`);
   };
-
+  const toggleSideDrawer = useCallback(() => {
+    console.log("Toggling Drawer");
+    setIsSideDrawerOpen((prev) => !prev);
+  }, []);
   return (
     <>
       {loading ? (
@@ -89,6 +95,7 @@ export default function ChapterDetailPage() {
               handleChapterChange={handleChapterChange}
               handleChapterListOpen={handleChapterListOpen}
               handleChapterListClose={handleChapterListClose}
+              onToggleSideDrawer={toggleSideDrawer}
             />
           )}
           {(book.categories.some((category) => category.name.toLowerCase() === "light novel") ||
@@ -105,7 +112,11 @@ export default function ChapterDetailPage() {
               handleChapterChange={handleChapterChange}
               handleChapterListOpen={handleChapterListOpen}
               handleChapterListClose={handleChapterListClose}
+              onToggleSideDrawer={toggleSideDrawer}
             />
+          )}
+          {isSideDrawerOpen && (
+            <CommentDrawer open={isSideDrawerOpen} user={user} bookId={book.id} chapterId={chapter.id} onToggleDrawer={toggleSideDrawer} />
           )}
         </>
       )}

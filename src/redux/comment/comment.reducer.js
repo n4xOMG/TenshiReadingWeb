@@ -16,6 +16,8 @@ import {
   GET_ALL_BOOK_COMMENT_FAILED,
   GET_ALL_BOOK_COMMENT_REQUEST,
   GET_ALL_BOOK_COMMENT_SUCCESS,
+  GET_ALL_CHAPTER_COMMENT_REQUEST,
+  GET_ALL_CHAPTER_COMMENT_SUCCESS,
   GET_ALL_SENSITIVE_WORDS_FAILED,
   GET_ALL_SENSITIVE_WORDS_REQUEST,
   GET_ALL_SENSITIVE_WORDS_SUCCESS,
@@ -36,6 +38,7 @@ const initialState = {
 export const commentReducer = (state = initialState, action) => {
   switch (action.type) {
     case GET_ALL_BOOK_COMMENT_REQUEST:
+    case GET_ALL_CHAPTER_COMMENT_REQUEST:
     case GET_ALL_SENSITIVE_WORDS_REQUEST:
     case CREATE_BOOK_COMMENT_REQUEST:
     case DELETE_COMMENT_REQUEST:
@@ -47,6 +50,12 @@ export const commentReducer = (state = initialState, action) => {
       return {
         ...state,
         bookComments: action.payload,
+        error: null,
+      };
+    case GET_ALL_CHAPTER_COMMENT_SUCCESS:
+      return {
+        ...state,
+        chapterComments: action.payload,
         error: null,
       };
 

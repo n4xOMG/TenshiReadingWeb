@@ -7,7 +7,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useSwipeable } from "react-swipeable";
 import { isFavouredByReqUser } from "../../../utils/isFavouredByReqUser";
 
-export default function ViewImageModal({ open, user, onClose, image, onNext, onPrev, onToggleFavorite }) {
+export default function ViewImageModal({ open, user, onClose, image, onNext, onPrev }) {
   const handlers = useSwipeable({
     onSwipedLeft: () => onNext(),
     onSwipedRight: () => onPrev(),
@@ -76,25 +76,6 @@ export default function ViewImageModal({ open, user, onClose, image, onNext, onP
             width: "auto",
           }}
         />
-        <IconButton
-          onClick={onToggleFavorite}
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            color: "white",
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
-            "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-            },
-          }}
-        >
-          {isFavouredByReqUser(user, image) ? (
-            <FavoriteIcon sx={{ fontSize: 20, color: "red" }} />
-          ) : (
-            <FavoriteBorder sx={{ fontSize: 20 }} />
-          )}
-        </IconButton>
         {/* Next Button */}
         <Button
           onClick={onNext}

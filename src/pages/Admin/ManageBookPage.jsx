@@ -2,10 +2,12 @@ import { Backdrop, Box, Button, CircularProgress, Grid, Typography } from "@mui/
 import { debounce } from "lodash";
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllBookAction } from "../../redux/book/book.action";
+import { getAllBookAction, getBookByIdAction } from "../../redux/book/book.action";
 import { getAllChaptersByBookIdAction } from "../../redux/chapter/chapter.action";
 import { BookList } from "../../components/AdminPageComponents/ManageBookPageComponents/BookList";
 import { ChapterList } from "../../components/AdminPageComponents/ManageBookPageComponents/ChapterList";
+import AddMangaChapterModal from "../../components/AdminPageComponents/ManageBookPageComponents/Modals/ChapterModal/AddMangaChapterModal";
+import EditMangaChapterModal from "../../components/AdminPageComponents/ManageBookPageComponents/Modals/ChapterModal/EditMangaChapterModal";
 
 const AddBookModal = React.lazy(() =>
   import("../../components/AdminPageComponents/ManageBookPageComponents/Modals/BookModal/AddBookModal")
@@ -17,8 +19,8 @@ const DeleteBookModal = React.lazy(() =>
   import("../../components/AdminPageComponents/ManageBookPageComponents/Modals/BookModal/DeleteBookModal")
 );
 
-const AddChapterModal = React.lazy(() =>
-  import("../../components/AdminPageComponents/ManageBookPageComponents/Modals/ChapterModal/AddChapterModal")
+const AddNovelChapterModal = React.lazy(() =>
+  import("../../components/AdminPageComponents/ManageBookPageComponents/Modals/ChapterModal/AddNovelChapterModal")
 );
 const EditChapterModal = React.lazy(() =>
   import("../../components/AdminPageComponents/ManageBookPageComponents/Modals/ChapterModal/EditChapterModal")
@@ -28,7 +30,7 @@ const DeleteChapterModal = React.lazy(() =>
 );
 export default function ManageBookPage() {
   const dispatch = useDispatch();
-  const { books } = useSelector((store) => store.book);
+  const { books, book } = useSelector((store) => store.book);
   const { chapters } = useSelector((store) => store.chapter);
   const [openModal, setOpenModal] = useState({ type: null, data: null });
   const [loading, setLoading] = useState(false);
@@ -75,10 +77,21 @@ export default function ManageBookPage() {
           setLoading(false);
         }
       };
+      const fetchBookInfo = async () => {
+        setLoading(true);
+        try {
+          await dispatch(getBookByIdAction(selectedBookId));
+        } catch (e) {
+          console.log("Error trying to book by id in manage book page: ", e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBookInfo();
       fetchChapterById();
     }
   }, [selectedBookId, dispatch]);
-
+  const isManga = book?.categories.some((category) => category.name.toLowerCase() === "manga");
   return (
     <Box
       sx={{
@@ -124,9 +137,15 @@ export default function ManageBookPage() {
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
               Chapters
             </Typography>
-            <Button size="small" onClick={() => handleOpenModal("addChapter")}>
-              Add Chapter
-            </Button>
+            {isManga ? (
+              <Button size="small" onClick={() => handleOpenModal("addMangaChapter")}>
+                Add Manga Chapter
+              </Button>
+            ) : (
+              <Button size="small" onClick={() => handleOpenModal("addNovelChapter")}>
+                Add Chapter
+              </Button>
+            )}
           </Box>
           <Box sx={{ flex: 1, overflow: "auto" }}>
             {loading ? (
@@ -149,9 +168,13 @@ export default function ManageBookPage() {
         {openModal.type === "addBook" && <AddBookModal open={true} onClose={handleCloseModal} />}
         {openModal.type === "editBook" && <EditBookModal open={true} onClose={handleCloseModal} bookDetails={openModal.data} />}
         {openModal.type === "deleteBook" && <DeleteBookModal open={true} onClose={handleCloseModal} deleteBook={openModal.data} />}
-        {openModal.type === "addChapter" && <AddChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} />}
-        {openModal.type === "editChapter" && (
+        {openModal.type === "addNovelChapter" && <AddNovelChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} />}
+        {openModal.type === "addMangaChapter" && <AddMangaChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} />}
+        {!isManga && openModal.type === "editChapter" && (
           <EditChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} chapterDetails={openModal.data} />
+        )}
+        {isManga && openModal.type === "editChapter" && (
+          <EditMangaChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} chapterDetails={openModal.data} />
         )}
         {openModal.type === "deleteChapter" && (
           <DeleteChapterModal open={true} onClose={handleCloseModal} bookId={selectedBookId} deleteChapter={openModal.data} />

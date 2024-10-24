@@ -2,6 +2,10 @@ import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMemo } from "react";
 
+import { useState, useEffect } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import { getOptimizedImageUrl } from "../../../utils/optimizeImages";
+
 const MangaPageContent = ({
   chapter,
   viewMode,
@@ -14,6 +18,10 @@ const MangaPageContent = ({
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [loadedPages, setLoadedPages] = useState([]);
+
   const extractImageUrls = (htmlContent) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
@@ -23,32 +31,61 @@ const MangaPageContent = ({
 
   const pages = useMemo(() => extractImageUrls(chapter?.content || ""), [chapter?.content]);
 
+  useEffect(() => {
+    setLoadingImages(true);
+    const optimizedPages = pages.map(getOptimizedImageUrl);
+
+    const promises = optimizedPages.map((src) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(src);
+        img.onerror = reject;
+      });
+    });
+
+    Promise.all(promises)
+      .then((loadedImages) => {
+        setLoadedPages(loadedImages);
+        setLoadingImages(false);
+      })
+      .catch((err) => console.error("Failed to load images", err));
+  }, [pages]);
+
   const renderPages = () => {
+    if (loadingImages) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
     if (viewMode === "vertical") {
       return (
         <Box
           onClick={toggleFloatingMenu}
           sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, px: isSmallScreen ? 5 : 10 }}
         >
-          {pages.map((page, index) => (
+          {loadedPages.map((page, index) => (
             <Box key={index} component="img" src={page} alt={`Page ${index + 1}`} sx={{ width: "100%", objectFit: "contain" }} />
           ))}
         </Box>
       );
     }
 
-    if (viewMode === "double" && currentPage < pages.length - 1) {
+    if (viewMode === "double" && currentPage < loadedPages.length - 1) {
       return (
         <Box onClick={toggleFloatingMenu} sx={{ display: "flex", justifyContent: "center", objectFit: "contain", gap: 0 }}>
           <Box
             component="img"
-            src={pages[currentPage]}
+            src={loadedPages[currentPage]}
             alt={`Page ${currentPage + 1}`}
             sx={{ width: "auto", height: "100vh", objectFit: "contain", flexShrink: 0 }}
           />
           <Box
             component="img"
-            src={pages[currentPage + 1]}
+            src={loadedPages[currentPage + 1]}
             alt={`Page ${currentPage + 2}`}
             sx={{ width: "auto", height: "100vh", objectFit: "contain", flexShrink: 0 }}
           />
@@ -60,7 +97,7 @@ const MangaPageContent = ({
       <Box onClick={toggleFloatingMenu} sx={{ display: "flex", justifyContent: "center", objectFit: "contain" }}>
         <Box
           component="img"
-          src={pages[currentPage]}
+          src={loadedPages[currentPage]}
           alt={`Page ${currentPage + 1}`}
           sx={{ maxWidth: "100%", height: "100vh", objectFit: "contain" }}
         />

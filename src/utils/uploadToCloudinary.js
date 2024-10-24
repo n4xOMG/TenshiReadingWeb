@@ -2,7 +2,7 @@ const generateUniqueUploadId = () => {
   return `uqid-${Date.now()}`;
 };
 
-export const UploadToCloudinary = async (file) => {
+export const UploadToCloudinary = async (file, folder) => {
   if (!file) {
     console.error("Please select a file.");
     return;
@@ -18,6 +18,7 @@ export const UploadToCloudinary = async (file) => {
     formData.append("file", file.slice(start, end));
     formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
     formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
+    formData.append("folder", folder);
 
     const contentRange = `bytes ${start}-${end - 1}/${file.size}`;
 

@@ -171,11 +171,11 @@ export default function AddChapterModal({ open, onClose, bookId }) {
         <Autocomplete
           limitTags={1}
           id="language"
-          options={languages}
-          getOptionLabel={(option) => option.name}
-          defaultValue={[]}
+          options={languages || []}
+          getOptionLabel={(option) => option?.name || ""}
+          value={chosenLanguage}
           onChange={(event, newValue) => setChosenLanguage(newValue)}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+          isOptionEqualToValue={(option, value) => option?.id === value?.id}
           renderInput={(params) => <TextField {...params} label="Language" placeholder="Language" />}
           sx={{ width: "500px" }}
         />

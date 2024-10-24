@@ -9,9 +9,25 @@ export default function AddImageModal({ open, onClose }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [tags, setTags] = useState([]);
   const [name, setName] = useState();
   const [selectedTags, setSelectedTags] = useState([]);
+  const handlePreviewImage = async (event) => {
+    try {
+      setLoading(true);
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      // Upload to the temporary folder for preview
+      const imageUrl = await UploadToCloudinary(file, "temp_folder"); // Use a temporary folder
+      setSelectedImage(imageUrl);
+    } catch (e) {
+      console.log("Error loading image", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -26,6 +42,11 @@ export default function AddImageModal({ open, onClose }) {
 
     try {
       console.log("Data: ", json);
+
+      // Re-upload the image to the gallery folder
+      const galleryImageUrl = await UploadToCloudinary(selectedFile, "gallery_folder"); // Use the gallery folder
+      json.imageUrl = galleryImageUrl; // Update imageUrl to the gallery image
+
       await dispatch(addImageAction({ data: json }));
       await dispatch(getAllGalleryImages(0, 4));
       setLoading(false);
@@ -35,17 +56,7 @@ export default function AddImageModal({ open, onClose }) {
       setLoading(false);
     }
   };
-  const handlePreviewImage = async (event) => {
-    try {
-      setLoading(true);
-      const imageUrl = await UploadToCloudinary(event.target.files[0]);
-      setSelectedImage(imageUrl);
-    } catch (e) {
-      console.log("Error loading image", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+
   useEffect(() => {
     const fetchTags = async () => {
       try {

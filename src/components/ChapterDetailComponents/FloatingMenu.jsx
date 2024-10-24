@@ -63,10 +63,17 @@ export default function FloatingMenu({
   const currentChapterIndex = chapters.findIndex((chapter) => chapter.id === currentChapterId);
 
   const renderIconButton = (tooltipText, ariaLabel, onClick, icon, disabled = false) => (
-    <Tooltip title={<p>{tooltipText}</p>}>
-      <IconButton aria-label={ariaLabel} onClick={onClick} disabled={disabled} sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}>
-        {icon}
-      </IconButton>
+    <Tooltip title={<p>{tooltipText}</p>} disableHoverListener={disabled}>
+      <span>
+        <IconButton
+          aria-label={ariaLabel}
+          onClick={onClick}
+          disabled={disabled}
+          sx={{ color: "white", "&.Mui-disabled": { color: "grey" } }}
+        >
+          {icon}
+        </IconButton>
+      </span>
     </Tooltip>
   );
 

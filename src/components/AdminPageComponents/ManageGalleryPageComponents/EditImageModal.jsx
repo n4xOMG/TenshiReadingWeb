@@ -55,7 +55,7 @@ export default function EditImageModal({ open, onClose, imageDetails }) {
   const handlePreviewImage = async (event) => {
     try {
       setLoading(true);
-      const cloudinaryImageUrl = await UploadToCloudinary(event.target.files[0]);
+      const cloudinaryImageUrl = await UploadToCloudinary(event.target.files[0], "gallery_folder");
       setImageUrl(cloudinaryImageUrl);
     } catch (e) {
       console.log("Error loading image", e);

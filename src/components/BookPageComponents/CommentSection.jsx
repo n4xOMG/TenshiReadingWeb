@@ -55,13 +55,12 @@ const CommentSection = ({ bookId, user }) => {
             },
           };
           const response = await dispatch(createBookCommentAction(reqData));
-          console.log("Response: ", response);
           if (response?.error) {
             setLocalError(response.error);
             setOpen(true);
           }
         } else {
-          alert("Comment cannot be null!");
+          setLocalError("Comment cannot be null!");
         }
       } catch (e) {
         console.log("Error comment: ", e);
@@ -86,7 +85,6 @@ const CommentSection = ({ bookId, user }) => {
           },
         };
         const response = await dispatch(createReplyBookCommentAction(reqData));
-        console.log("Response: ", response);
         if (response?.error) {
           setLocalError(response.error);
           setOpen(true);
@@ -111,7 +109,7 @@ const CommentSection = ({ bookId, user }) => {
   const handleClose = useCallback((event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
-    setLocalError(null); // Reset local error
+    setLocalError(null);
   }, []);
 
   return (
@@ -159,7 +157,7 @@ const CommentSection = ({ bookId, user }) => {
               Submit
             </Button>
             <Snackbar open={open} autoHideDuration={5000} onClose={handleClose}>
-              {localError && ( // Use local error state
+              {localError && (
                 <Alert onClose={handleClose} severity="error" variant="filled" sx={{ width: "100%" }}>
                   {localError}
                 </Alert>

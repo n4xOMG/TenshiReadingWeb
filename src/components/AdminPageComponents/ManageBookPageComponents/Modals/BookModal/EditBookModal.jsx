@@ -56,7 +56,7 @@ export default function EditBookModal({ open, onClose, bookDetails }) {
   const handleImageUpload = async (event) => {
     setLoading(true);
     try {
-      const imageUrl = await UploadToCloudinary(event.target.files[0]);
+      const imageUrl = await UploadToCloudinary(event.target.files[0], "book_covers");
       setSelectedImage(imageUrl);
     } catch (e) {
       console.log("Error loading image", e);

@@ -20,7 +20,7 @@ export const InsertImageButton = () => {
           const files = event.target.files;
           if (files) {
             for (const file of files) {
-              const url = await UploadToCloudinary(file);
+              const url = await UploadToCloudinary(file, "novel_images");
               if (url && !isImageUrl(url)) {
                 alert("URL is not an image");
                 return;

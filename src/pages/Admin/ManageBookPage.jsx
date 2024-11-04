@@ -137,14 +137,18 @@ export default function ManageBookPage() {
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
               Chapters
             </Typography>
-            {isManga ? (
-              <Button size="small" onClick={() => handleOpenModal("addMangaChapter")}>
-                Add Manga Chapter
-              </Button>
+            {selectedBookId ? (
+              isManga ? (
+                <Button size="small" onClick={() => handleOpenModal("addMangaChapter")}>
+                  Add Manga Chapter
+                </Button>
+              ) : (
+                <Button size="small" onClick={() => handleOpenModal("addNovelChapter")}>
+                  Add Chapter
+                </Button>
+              )
             ) : (
-              <Button size="small" onClick={() => handleOpenModal("addNovelChapter")}>
-                Add Chapter
-              </Button>
+              <div>No book selected</div>
             )}
           </Box>
           <Box sx={{ flex: 1, overflow: "auto" }}>
